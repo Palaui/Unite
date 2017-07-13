@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEngine;
 
 namespace Unite
@@ -13,10 +12,7 @@ namespace Unite
         private Dictionary<string, JSon> nodes = new Dictionary<string, JSon>();
         private Dictionary<string, string> values = new Dictionary<string, string>();
         List<string> lines = new List<string>();
-
-        private JSon parentJSon;
         private string dataPath;
-        private string id;
 
         #endregion
 
@@ -70,16 +66,11 @@ namespace Unite
         public JSon(TextAsset asset)
         {
             Load(asset);
+            dataPath = "";
         }
         public JSon(string path)
         {
-
-#if UNITY_EDITOR
-
             Load(path);
-
-#endif
-
         }
 
         public void Load(TextAsset asset)
@@ -93,8 +84,8 @@ namespace Unite
         }
         public void Load(string path)
         {
-
-#if UNITY_EDITOR
+            if (dataPath == "")
+                Debug.LogError("This JSon was not loaded with path, use TextAsset instead");
 
             string str;
             try { str = File.ReadAllText(path + ".json"); }
@@ -105,15 +96,12 @@ namespace Unite
             }
             Parse(str);
             dataPath = path;
-
-#endif
-
         }
 
         public void Rewrite()
         {
-
-#if UNITY_EDITOR
+            if (dataPath == "")
+                Debug.LogError("This JSon was not loaded with path, only JSon with path are allowed to be modified");
 
             if (dataPath.Contains(" "))
             {
@@ -125,14 +113,11 @@ namespace Unite
                 WriteJSon(dataPath + ".json");
             else
                 Debug.LogError("Unable to find File at path: " + dataPath);
-
-#endif
-
         }
         public void Rewrite(bool writeNodeOnly)
         {
-
-#if UNITY_EDITOR
+            if (dataPath == "")
+                Debug.LogError("This JSon was not loaded with path, only JSon with path are allowed to be modified");
 
             string path = dataPath.Split(' ')[0];
             if (writeNodeOnly)
@@ -146,9 +131,6 @@ namespace Unite
             {
 
             }
-
-#endif
-
         }
 
         #endregion

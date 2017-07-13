@@ -11,28 +11,18 @@ namespace Unite
     [Serializable, DebuggerDisplay("Count = {Count}")]
     public class SDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
-        [SerializeField, HideInInspector]
-        int[] _Buckets;
-        [SerializeField, HideInInspector]
-        int[] _HashCodes;
-        [SerializeField, HideInInspector]
-        int[] _Next;
-        [SerializeField, HideInInspector]
-        int _Count;
-        [SerializeField, HideInInspector]
-        int _Version;
-        [SerializeField, HideInInspector]
-        int _FreeList;
-        [SerializeField, HideInInspector]
-        int _FreeCount;
-        [SerializeField, HideInInspector]
-        TKey[] _Keys;
-        [SerializeField, HideInInspector]
-        TValue[] _Values;
+        [SerializeField, HideInInspector] int[] _Buckets;
+        [SerializeField, HideInInspector] int[] _HashCodes;
+        [SerializeField, HideInInspector] int[] _Next;
+        [SerializeField, HideInInspector] int _Count;
+        [SerializeField, HideInInspector] int _Version;
+        [SerializeField, HideInInspector] int _FreeList;
+        [SerializeField, HideInInspector] int _FreeCount;
+        [SerializeField, HideInInspector] TKey[] _Keys;
+        [SerializeField, HideInInspector] TValue[] _Values;
 
         readonly IEqualityComparer<TKey> _Comparer;
 
-        // Mainly for debugging purposes - to get the key-value pairs display
         public Dictionary<TKey, TValue> AsDictionary
         {
             get { return new Dictionary<TKey, TValue>(this); }
@@ -79,7 +69,6 @@ namespace Unite
                 throw new ArgumentOutOfRangeException("capacity");
 
             Initialize(capacity);
-
             _Comparer = (comparer ?? EqualityComparer<TKey>.Default);
         }
 
