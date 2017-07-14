@@ -3,20 +3,23 @@ using UnityEngine.UI;
 
 public class Localizator : MonoBehaviour
 {
+    // Variables
+    #region Variables
+
     public string key;
+
     private Text textComp;
     private bool applicationIsQuitting;
+
+    #endregion
+
+    // Override
+    #region Override
 
     void Awake()
     {
         GameManager.Instance.eventManager.changeLanguage += OnChangeLanguage;
-
         textComp = GetComponent<Text>();
-    }
-
-    private void OnChangeLanguage(Language language)
-    {
-        textComp.text = GameManager.Instance.languageManager.GetLocalization(key);
     }
 
     void OnDestroy()
@@ -29,4 +32,17 @@ public class Localizator : MonoBehaviour
     {
         applicationIsQuitting = true;
     }
+
+    #endregion
+
+    // Events
+    #region Events
+
+    private void OnChangeLanguage(Language language)
+    {
+        textComp.text = GameManager.Instance.languageManager.GetLocalization(key);
+    }
+
+    #endregion
+
 }

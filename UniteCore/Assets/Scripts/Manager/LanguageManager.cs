@@ -1,10 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class LanguageManager
 {
+    // Variables
+    #region Variables
+
     private Dictionary<string, string> localizationDictionary = new Dictionary<string, string>();
+
+    #endregion
+
+    // Public
+    #region Public
 
     public void SetLanguage(Language language)
     {
@@ -37,4 +44,7 @@ public class LanguageManager
 
         return key + " No localization found";
     }
+
+    #endregion
+
 }

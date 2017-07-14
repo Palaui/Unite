@@ -4,12 +4,25 @@ using Unite;
 
 internal class DataManager
 {
+    // Variables
+    #region Variables
+
     List<JSon> LanguageJSons = new List<JSon>();
+
+    #endregion
+
+    // Override
+    #region Override
 
     internal DataManager()
     {
         LoadLanguageData();
     }
+
+    #endregion
+
+    // Public
+    #region Public
 
     public void LoadLanguageData()
     {
@@ -45,4 +58,7 @@ internal class DataManager
         }
         return false;
     }
+
+    #endregion
+
 }

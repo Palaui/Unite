@@ -1,11 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 public class IntroSceneUIController : UIController
 {
-    IntroSceneLogicController sceneController;
+    // Variables
+    #region Variables
+
+    private IntroSceneLogicController sceneController;
+
+    #endregion
+
+    // Override
+    #region Override
 
     protected override void Awake()
     {
@@ -15,11 +20,25 @@ public class IntroSceneUIController : UIController
     protected override void Initialize()
     {
         Debug.Log("Initialize : " + GetType().Name);
-
         GM.eventManager.introSceneStateChange += OnIntroSceneStateChange;
-
         sceneController = GM.sceneController as IntroSceneLogicController;
     }
+
+    #endregion
+
+    // Public
+    #region Public
+
+    public void ChangeStateButton(string str)
+    {
+        IntroSceneState state = (IntroSceneState)System.Enum.Parse(typeof(IntroSceneState), str);
+        sceneController.SetSceneState(state);
+    }
+
+    #endregion
+
+    // Events
+    #region Events
 
     void OnIntroSceneStateChange(IntroSceneState state)
     {
@@ -31,9 +50,6 @@ public class IntroSceneUIController : UIController
         }
     }
 
-    public void ChangeStateButton(string str)
-    {
-        IntroSceneState state = (IntroSceneState)System.Enum.Parse(typeof(IntroSceneState), str);
-        sceneController.SetSceneState(state);
-    }
+    #endregion
+
 }
