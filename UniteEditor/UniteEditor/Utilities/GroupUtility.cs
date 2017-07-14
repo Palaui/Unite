@@ -5,8 +5,6 @@ namespace UniteEditor
 {
     class GroupUtility
     {
-        private static GameObject parent = null;
-
         [MenuItem("Edit/Group %g")]
         public static void Group()
         {
@@ -30,21 +28,16 @@ namespace UniteEditor
                 }
                 else
                 {
-                    foreach (Transform child in Selection.transforms)
+                    while (Selection.transforms[0].childCount > 0)
                     {
-                        if (child.parent.gameObject == parent)
-                        {
-                            child.parent = null;
-                            Undo.SetTransformParent(child.transform, parent.transform, "UnGroup");
-                        }
-                        Undo.DestroyObjectImmediate(parent);
+                        foreach (Transform child in Selection.transforms[0])
+                            Undo.SetTransformParent(child.transform, null, "UnGroup");
                     }
+                    Undo.DestroyObjectImmediate(Selection.transforms[0].gameObject);
                 }
             }
             else
                 Debug.LogWarning("You must select one or more objects.");
-
-            parent = null;
         }
 
         private static bool IsGroup()
@@ -56,6 +49,6 @@ namespace UniteEditor
                 return true;
 
             return false;
-        } 
+        }
     }
 }
