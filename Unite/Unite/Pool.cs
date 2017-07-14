@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Unite
 {
-    class Pool
+    public class Pool
     {
         // Variables
         #region Variables

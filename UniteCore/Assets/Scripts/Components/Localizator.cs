@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class LocalizationComponent : MonoBehaviour
+public class Localizator : MonoBehaviour
 {
     public string key;
-    Text textComp;
-    bool applicationIsQuitting;
+    private Text textComp;
+    private bool applicationIsQuitting;
 
     void Awake()
     {
@@ -24,7 +24,6 @@ public class LocalizationComponent : MonoBehaviour
         if (!applicationIsQuitting)
             GameManager.Instance.eventManager.changeLanguage -= OnChangeLanguage;
     }
-
 
     void OnApplicationQuit()
     {

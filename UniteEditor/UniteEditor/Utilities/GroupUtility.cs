@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace UniteEditor
 {
-    class GroupUtility
+    public class GroupUtility
     {
         [MenuItem("Edit/Group %g")]
         public static void Group()

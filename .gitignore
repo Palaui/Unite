@@ -290,8 +290,8 @@ __pycache__/
 
 # Unity git ignore
 
-UniteCore/Library
-UniteCore/Temp
+[Ll]ibrary/
+[Tt]emp/
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/

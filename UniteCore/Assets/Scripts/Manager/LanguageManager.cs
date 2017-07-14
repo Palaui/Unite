@@ -12,7 +12,7 @@ public class LanguageManager
 
         Dictionary<string, string> dictionary = GameManager.Instance.dataManager.GetLocalizationJSon(language);
 
-        foreach (LocalizationComponent comp in Object.FindObjectsOfType<LocalizationComponent>())
+        foreach (Localizator comp in Object.FindObjectsOfType<Localizator>())
         {
             if (comp)
             {
