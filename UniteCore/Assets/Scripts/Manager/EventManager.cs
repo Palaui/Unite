@@ -31,8 +31,8 @@ internal class EventManager
     }
 
     // Main Scene State Change Event
-    public delegate void OnHeartSceneState(MainSceneState currentState, MainSceneState newState);
-    public event OnHeartSceneState mainSceneStateChange;
+    public delegate void OnMainSceneState(MainSceneState currentState, MainSceneState newState);
+    public event OnMainSceneState mainSceneStateChange;
 
     public void MainSceneStateChangeEvent(MainSceneState currentState, MainSceneState newState)
     {
