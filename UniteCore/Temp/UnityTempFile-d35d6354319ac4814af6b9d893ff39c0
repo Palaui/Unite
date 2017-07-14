@@ -28,11 +28,11 @@
 -r:'/Applications/Unity/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.dll'
 -r:'/Applications/Unity/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll'
 -r:'/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll'
--r:'Assets/Plugins/DOTween/DOTween50.dll'
--r:'Assets/Plugins/DOTween/Editor/DOTweenEditor.dll'
+-r:'Assets/Plugins/DOTween/DOTween.dll'
 -r:'Assets/Plugins/DOTween/DOTween43.dll'
 -r:'Assets/Plugins/DOTween/DOTween46.dll'
--r:'Assets/Plugins/DOTween/DOTween.dll'
+-r:'Assets/Plugins/DOTween/DOTween50.dll'
+-r:'Assets/Plugins/DOTween/Editor/DOTweenEditor.dll'
 -r:'/Applications/Unity/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll'
 -r:'/Applications/Unity/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Common.dll'
 -define:UNITY_5_3_OR_NEWER
@@ -109,6 +109,7 @@
 -define:UNITY_TEAM_LICENSE
 -define:ENABLE_VSTU
 'Assets/Scripts/Editor/Utilities/GroupUtility.cs'
+'Assets/Scripts/Editor/Utilities/ReplaceObjects.cs'
 'Assets/Scripts/Editor/Utilities/SceneBuilderUtility.cs'
 'Assets/Scripts/Editor/Utilities/ScriptableObjectUtility.cs'
 -r:'/Applications/Unity/Unity.app/Contents/MonoBleedingEdge/lib/mono/2.0-api/System.Runtime.Serialization.dll'
