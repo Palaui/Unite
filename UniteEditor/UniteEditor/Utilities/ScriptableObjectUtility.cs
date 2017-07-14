@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using Unite;
+using UnityEngine;
 using UnityEditor;
 using System.IO;
 
 namespace UniteEditor
 {
-    class ScriptableObjectUtility
+    public class ScriptableObjectUtility
     {
         public static void CreateAsset<T>() where T : ScriptableObject
         {
@@ -23,6 +24,12 @@ namespace UniteEditor
             AssetDatabase.Refresh();
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
+        }
+
+        [MenuItem("Assets/Create/STextAsset")]
+        public static void CreateSTextAsset()
+        {
+            CreateAsset<STextAsset>();
         }
     }
 }

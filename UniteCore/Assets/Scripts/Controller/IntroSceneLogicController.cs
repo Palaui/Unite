@@ -1,6 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+
+// Enums
+#region Enums
 
 public enum IntroSceneState
 {
@@ -8,45 +9,38 @@ public enum IntroSceneState
     ChangeScene
 }
 
+#endregion
+
 public class IntroSceneLogicController : SceneController
 {
-    // Only Serialize for Testing
-    [SerializeField]
-    IntroSceneState sceneState;
+    // Variables
+    #region Variables
 
-    IntroSceneUIController uiController;
+    [SerializeField]
+    private IntroSceneState sceneState;
+    private IntroSceneUIController uiController;
+
+    #endregion
+
+    // Override
+    #region Override
 
     protected override void Awake()
     {
         base.Awake();
     }
 
-    // Use Initialize as a pre-Start method
     protected override void Initialize()
     {
         Debug.Log("Initialize : " + GetType().Name);
-
-        // Add a callback for when the scene state changes
         GM.eventManager.introSceneStateChange += OnIntroSceneStateChange;
-
         uiController = GM.uiController as IntroSceneUIController;
     }
 
-    void OnIntroSceneStateChange(IntroSceneState state)
-    {
-        switch (state)
-        {
-            case IntroSceneState.ChangeScene:
+    #endregion
 
-                // Remove the scene state callback on exit scene
-                GM.eventManager.introSceneStateChange -= OnIntroSceneStateChange;
-
-                // Change to next Scene
-                GM.ChangeToScene(GameScene.MainScene);
-
-                break;
-        }
-    }
+    // Public
+    #region Public
 
     public void SetSceneState(IntroSceneState state)
     {
@@ -54,4 +48,25 @@ public class IntroSceneLogicController : SceneController
         GM.eventManager.IntroSceneStateChangeEvent(state);
         sceneState = state;
     }
+
+    #endregion
+
+    // Events
+    #region Events
+
+    void OnIntroSceneStateChange(IntroSceneState state)
+    {
+        switch (state)
+        {
+            case IntroSceneState.ChangeScene:
+                // Remove the scene state callback on exit scene
+                GM.eventManager.introSceneStateChange -= OnIntroSceneStateChange;
+                // Change to next Scene
+                GM.ChangeToScene(GameScene.MainScene);
+                break;
+        }
+    }
+
+    #endregion
+
 }

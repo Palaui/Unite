@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Enums
+#region Enums
 
-//Add all necessary states for ScenesController
 internal enum ControllerState
 {
 	None,
@@ -13,90 +12,87 @@ internal enum ControllerState
 	Exit
 }
 
-public abstract class SceneController : MonoBehaviour {
+#endregion
 
-	protected GameManager GM;
+public abstract class SceneController : MonoBehaviour
+{
+    // Variables
+    #region Variables
 
+    protected GameManager GM;
 	protected Scene currentScene;
 
-	//Only Serialize for Testing
 	[SerializeField]
-	ControllerState controllerState;
+	private ControllerState controllerState;
 
-	protected virtual void Awake ()
+    #endregion
+
+    // Override
+    #region Override
+
+    protected virtual void Awake()
 	{
 		Debug.Log ("Awake : " + GetType().Name);
-
 		GM = GameManager.Instance;
-
-		//Add a callback for when the controller state changes
 		GM.eventManager.controllerStateChange += OnControllerStateChange;
-
-		// Add to GM as a child
 		transform.SetParent(GM.transform);
 
-		// SET the controller reference to Initialize scene from GM
-		GM.SetControllerToInitializeScene (this);
+		// Set the controller reference to Initialize scene from GM
+		GM.SetControllerToInitializeScene(this);
 	}
 
-	//This is called each time a scene is loaded.
-	void OnSceneFinishedLoading(Scene scene, LoadSceneMode mode)
-	{
-		currentScene = scene;
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneFinishedLoading;
+    }
 
-		gameObject.name = currentScene.name;
+    #endregion
 
-		//Tell our ‘OnSceneFinishedLoading’ function to stop listening for a scene change event as soon as this script is disabled.
-		SceneManager.sceneLoaded -= OnSceneFinishedLoading;
-	}
+    // protected
+    #region Protected
 
-	void OnEnable()
-	{
-		//Tell our ‘OnSceneFinishedLoading’ function to start listening for a scene change event as soon as this script is enabled.
-		SceneManager.sceneLoaded += OnSceneFinishedLoading;
-	}
+    protected abstract void Initialize();
 
-	void OnControllerStateChange (ControllerState state)
-	{
-		switch (state) {
+    #endregion
 
-		case ControllerState.Initialize:
+    // Private
+    #region Private
 
-			Initialize();
-
-			break;
-
-		case ControllerState.InScene:
-
-
-			break;
-
-		case ControllerState.Exit:
-
-			// Remove child from GM to erase when scene changes it dosent work anymore with DontDestroyOnLoad
-//			transform.SetParent(null);
-
-//			transform.SetParent(Camera.main.transform);
-			Destroy (gameObject);
-
-			GM.sceneController = null;
-
-			//Remove the controller state callback on exit scene
-			GM.eventManager.controllerStateChange -= OnControllerStateChange;
-
-			break;
-		}
-	}
-
-
-	internal void SetControllerState (ControllerState state)
+    internal void SetControllerState (ControllerState state)
 	{		
-		//Handles the controller state change from the GM.gameEvent
 		GM.eventManager.ControllerStateChangeEvent(state);
 		controllerState = state;
 	}
 
+    #endregion
 
-	//Use Initialize as a pre-start method
-	protected abstract void Initialize ();
+    // Events
+    #region Events
+
+    void OnSceneFinishedLoading(Scene scene, LoadSceneMode mode)
+	{
+		currentScene = scene;
+		gameObject.name = currentScene.name;
+		SceneManager.sceneLoaded -= OnSceneFinishedLoading;
+	}
+
+	void OnControllerStateChange(ControllerState state)
+	{
+		switch (state)
+        {
+		case ControllerState.Initialize:
+			Initialize();
+			break;
+		case ControllerState.InScene:
+			break;
+		case ControllerState.Exit:
+			Destroy (gameObject);
+			GM.sceneController = null;
+			GM.eventManager.controllerStateChange -= OnControllerStateChange;
+			break;
+		}
+	}
+
+    #endregion
+
 }

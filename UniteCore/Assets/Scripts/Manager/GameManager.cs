@@ -1,7 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Unite;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
+// Enums
+#region Enums
 
 // Add all scenes of the game
 public enum GameScene
@@ -13,8 +15,13 @@ public enum GameScene
 // Add all languages available
 public enum Language { EN, ES, DE }
 
+#endregion
+
 public class GameManager : Singleton<GameManager>
 {
+    // Variables
+    #region
+
     protected static GameManager GM = null;
 
     // Guarantee this will be always a singleton only - can't use the constructor!
@@ -29,17 +36,44 @@ public class GameManager : Singleton<GameManager>
 
     internal GameScene Scene { get; private set; }
 
-    Language currentLanguage;
+    private Language currentLanguage;
 
+    #endregion
+
+    // Properties
+    #region Properties
+
+    public Language CurrentLanguage
+    {
+        get { return currentLanguage; }
+        set
+        {
+            currentLanguage = value;
+            if (dataManager.LanguageExist(currentLanguage))
+            {
+                languageManager.SetLanguage(currentLanguage);
+                eventManager.ChangeLanguage(currentLanguage);
+            }
+        }
+    }
+
+    #endregion
+
+    // First Call
+    #region First Call
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void BeforeSceneLoad()
     {
-        GM = GameManager.Instance;
+        GM = Instance;
         GM.gameObject.SetActive(true);
     }
 
-    // Awake is always called before any Start functions
+    #endregion
+
+    // Override
+    #region Override
+
     void Awake()
     {
         Debug.Log("Awake : " + GetType().Name);
@@ -48,6 +82,17 @@ public class GameManager : Singleton<GameManager>
         eventManager = new EventManager();
         languageManager = new LanguageManager();
     }
+
+    void Start()
+    {
+        Debug.Log("Start : " + GetType().Name);
+        CurrentLanguage = Language.ES;
+    }
+
+    #endregion
+
+    // Public
+    #region Public
 
     public void SetControllerToInitializeScene<T>(T component)
     {
@@ -67,36 +112,14 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    // GM Start method ocurrs after Initialize controllers
-    void Start()
-    {
-        Debug.Log("Start : " + GetType().Name);
-
-        CurrentLanguage = Language.ES;
-    }
-
     public void ChangeToScene(GameScene newScene)
     {
         Debug.Log("LoadNewScene :: " + newScene);
-
         sceneController.SetControllerState(ControllerState.Exit);
-
         Scene = newScene;
-
         SceneManager.LoadScene(Scene.ToString());
     }
 
-    public Language CurrentLanguage
-    {
-        get { return currentLanguage; }
-        set
-        {
-            currentLanguage = value;
-            if (dataManager.LanguageExist(currentLanguage))
-            {
-                languageManager.SetLanguage(currentLanguage);
-                eventManager.ChangeLanguage(currentLanguage);
-            }
-        }
-    }
+    #endregion
+
 }
