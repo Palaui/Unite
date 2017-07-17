@@ -4,8 +4,8 @@ namespace Unite
 {
     class Signal : MonoBehaviour
     {
-        // Override
-        #region Overide
+        // Variables
+        #region Variables
 
         public string key = "";
 

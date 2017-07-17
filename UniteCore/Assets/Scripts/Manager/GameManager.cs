@@ -77,10 +77,14 @@ public class GameManager : Singleton<GameManager>
     void Awake()
     {
         Debug.Log("Awake : " + GetType().Name);
-
         dataManager = new DataManager();
         eventManager = new EventManager();
         languageManager = new LanguageManager();
+    }
+
+    void Debuggy(GameObject go)
+    {
+        Debug.Log(go.name);
     }
 
     void Start()

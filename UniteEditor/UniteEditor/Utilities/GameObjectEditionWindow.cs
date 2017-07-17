@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,18 +21,23 @@ namespace UniteEditor
         private string comparer = "";
         private bool byTag = false;
 
+        private static Texture2D tex;
+
         [MenuItem("Window/GameObjects Editor")]
         public static void Init()
         {
             GameObjectEditionWindow window = (GameObjectEditionWindow)GetWindow(typeof(GameObjectEditionWindow));
             window.titleContent = new GUIContent("GameObjects Editor");
+
+            tex = ImageUtility.ConvertBitmap(Properties.Resources.WindowBackground);
             window.Show();
         }
 
         void OnGUI()
         {
+            EditorGUI.DrawPreviewTexture(new Rect(0, 0, 5000, 5000), tex);
+
             GUILayout.Label("Find and Replace with GameObjects", EditorStyles.boldLabel);
-            GUILayout.Label("Note: Undo is not currently supported. Save your scene first!");
             comparer = EditorGUILayout.TextField("Search for: ", comparer);
             searchType = (SearchType)EditorGUILayout.EnumPopup("Search by: ", searchType);
             useType = (UseType)EditorGUILayout.EnumPopup("Use: ", useType);
@@ -51,9 +58,7 @@ namespace UniteEditor
                 case ChangeType.AssureComponent:
                     compToAdd = EditorGUILayout.TextField("Component to Add: ", compToAdd);
                     if (GUILayout.Button("Assure Components"))
-                    {
-
-                    }
+                        AssureComponents(compToAdd);
                     break;
                 default:
                     break;
@@ -64,7 +69,7 @@ namespace UniteEditor
             switch (changeType)
             {
                 case ChangeType.ChangeObject:
-                    if (Selection.transforms.Length > 0 && comparer != "")
+                    if (affectedGos.Count > 0 && comparer != "")
                     {
                         GUILayout.BeginVertical();
                         string replaceText = "<select a prefab>";
@@ -72,33 +77,37 @@ namespace UniteEditor
                             replaceText = goToReplace.name;
 
                         GUILayout.Label("Replace these with " + replaceText, EditorStyles.boldLabel);
+                        GUILayout.Space(5);
                         foreach (GameObject go in affectedGos)
                         {
                             if ((!byTag && go.name.Contains(comparer)) || (byTag && go.tag.Contains(comparer)))
-                                GUILayout.Label(go.name);
+                                GUILayout.Label("\t" + go.name);
                         }
                         GUILayout.EndVertical();
                     }
                     break;
                 case ChangeType.AssureComponent:
-                    if (Selection.transforms.Length > 0 && comparer != "")
+                    if (affectedGos.Count > 0 && comparer != "")
                     {
+                        GUILayout.BeginVertical();
                         GUILayout.Label("Add this component to matching GameObjects", EditorStyles.boldLabel);
+                        GUILayout.Space(5);
                         foreach (GameObject go in affectedGos)
                         {
                             if ((!byTag && go.name.Contains(comparer)) || (byTag && go.tag.Contains(comparer)))
-                                GUILayout.Label(go.name);
+                                GUILayout.Label("\t" + go.name);
                         }
+                        GUILayout.EndVertical();
                     }
                     break;
                 default:
                     break;
             }
-
         }
 
         private void FindMatchingGameObjects()
         {
+            affectedGos.Clear();
             switch (useType)
             {
                 case UseType.UseAll:
@@ -171,10 +180,23 @@ namespace UniteEditor
 
         private void AssureComponents(string comp)
         {
-            foreach (GameObject go in affectedGos)
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (!go.GetComponent(comp))
-                    go.AddComponent(GetType());
+                foreach (Type type in assembly.GetTypes())
+                {
+                    foreach (string compName in comp.Split(' '))
+                    {
+                        if (compName == type.Name)
+                        {
+                            foreach (GameObject go in affectedGos)
+                            {
+                                if (!go.GetComponent(type))
+                                    go.AddComponent(type);
+                            }
+                            break;
+                        }
+                    }
+                }
             }
         }
     }

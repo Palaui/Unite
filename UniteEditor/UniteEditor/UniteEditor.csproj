@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Unite">
       <HintPath>..\..\Unite\Unite\bin\Release\Unite.dll</HintPath>
@@ -47,12 +48,27 @@
   <ItemGroup>
     <Compile Include="ExtEditor.cs" />
     <Compile Include="FlagAttributeDrawer.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\GroupUtility.cs" />
     <Compile Include="InspectorReflect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\GameObjectEditionWindow.cs" />
+    <Compile Include="Utilities\ImageUtility.cs" />
     <Compile Include="Utilities\ScriptableObjectUtility.cs" />
     <Compile Include="SDictionaryDrawer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\windowBackground.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -112,6 +112,17 @@ namespace Unite
                     method(element);
             }
         }
+        public static void ApplyConditionForeach<T>(List<Action<T>> methodsList, List<T> list, bool condition)
+        {
+            foreach (T element in list)
+            {
+                if (condition)
+                {
+                    foreach (Action<T> method in methodsList)
+                        method(element);
+                }
+            }
+        }
 
         #endregion
 
