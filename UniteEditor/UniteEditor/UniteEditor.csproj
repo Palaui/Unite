@@ -50,6 +50,7 @@
     <Compile Include="Utilities\GroupUtility.cs" />
     <Compile Include="InspectorReflect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\ObjectEditionUtility.cs" />
     <Compile Include="Utilities\ScriptableObjectUtility.cs" />
     <Compile Include="SDictionaryDrawer.cs" />
   </ItemGroup>
