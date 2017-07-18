@@ -32,7 +32,6 @@ public class IntroSceneLogicController : SceneController
 
     protected override void Initialize()
     {
-        Debug.Log("Initialize : " + GetType().Name);
         GM.eventManager.introSceneStateChange += OnIntroSceneStateChange;
         uiController = GM.uiController as IntroSceneUIController;
     }
@@ -44,9 +43,7 @@ public class IntroSceneLogicController : SceneController
 
     public void SetSceneState(IntroSceneState state)
     {
-        // Handles the scene state change from the GM.gameEvent
         GM.eventManager.IntroSceneStateChangeEvent(state);
-        sceneState = state;
     }
 
     #endregion
@@ -59,12 +56,12 @@ public class IntroSceneLogicController : SceneController
         switch (state)
         {
             case IntroSceneState.ChangeScene:
-                // Remove the scene state callback on exit scene
                 GM.eventManager.introSceneStateChange -= OnIntroSceneStateChange;
-                // Change to next Scene
                 GM.ChangeToScene(GameScene.MainScene);
                 break;
         }
+
+        sceneState = state;
     }
 
     #endregion

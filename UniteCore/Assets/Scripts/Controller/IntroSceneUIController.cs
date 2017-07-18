@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class IntroSceneUIController : UIController
 {
     // Variables
@@ -19,7 +18,6 @@ public class IntroSceneUIController : UIController
 
     protected override void Initialize()
     {
-        Debug.Log("Initialize : " + GetType().Name);
         GM.eventManager.introSceneStateChange += OnIntroSceneStateChange;
         sceneController = GM.sceneController as IntroSceneLogicController;
     }
@@ -45,7 +43,6 @@ public class IntroSceneUIController : UIController
         switch (state)
         {
             case IntroSceneState.ChangeScene:
-
                 break;
         }
     }

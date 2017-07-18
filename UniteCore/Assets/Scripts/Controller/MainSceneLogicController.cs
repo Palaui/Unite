@@ -44,9 +44,7 @@ public class MainSceneLogicController : SceneController
 
     public void SetSceneState(MainSceneState state)
     {
-        // Handles the scene state change from the GM.gameEvent
         GM.eventManager.MainSceneStateChangeEvent(sceneState, state);
-        sceneState = state;
     }
 
     #endregion
@@ -59,12 +57,12 @@ public class MainSceneLogicController : SceneController
         switch (newState)
         {
             case MainSceneState.ChangeScene:
-                // Remove the scene state callback on exit scene
                 GM.eventManager.mainSceneStateChange -= OnMainSceneStateChange;
-                // Change to next Scene
                 GM.ChangeToScene(GameScene.IntroScene);
                 break;
         }
+
+        sceneState = newState;
     }
 
     #endregion

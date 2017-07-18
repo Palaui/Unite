@@ -37,7 +37,6 @@ public abstract class SceneController : MonoBehaviour
 		GM.eventManager.controllerStateChange += OnControllerStateChange;
 		transform.SetParent(GM.transform);
 
-		// Set the controller reference to Initialize scene from GM
 		GM.SetControllerToInitializeScene(this);
 	}
 

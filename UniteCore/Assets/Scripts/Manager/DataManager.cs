@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Unite;
+using System;
 
 internal class DataManager
 {
@@ -26,7 +27,7 @@ internal class DataManager
 
     public void LoadLanguageData()
     {
-        for (int i = 0; i < System.Enum.GetValues(typeof(Language)).Length; i++)
+        for (int i = 0; i < Enum.GetValues(typeof(Language)).Length; i++)
         {
             string path = "Scriptable/Lan_" + (Language)System.Enum.ToObject(typeof(Language), i);
             STextAsset sAsset = Resources.Load(path) as STextAsset;

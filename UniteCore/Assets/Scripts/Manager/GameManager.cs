@@ -20,7 +20,7 @@ public enum Language { EN, ES, DE }
 public class GameManager : Singleton<GameManager>
 {
     // Variables
-    #region
+    #region Variables
 
     protected static GameManager GM = null;
 
@@ -76,22 +76,14 @@ public class GameManager : Singleton<GameManager>
 
     void Awake()
     {
-        Debug.Log("Awake : " + GetType().Name);
         dataManager = new DataManager();
         eventManager = new EventManager();
         languageManager = new LanguageManager();
     }
 
-    void Debuggy(GameObject go)
-    {
-        Debug.Log(go.name);
-    }
-
     void Start()
     {
-        Debug.Log("Start : " + GetType().Name);
         CurrentLanguage = Language.ES;
-
         DynamicGraphicsModule.Activate();
         DynamicGraphicsModule.BeginDrawFPS();
     }
@@ -121,7 +113,6 @@ public class GameManager : Singleton<GameManager>
 
     public void ChangeToScene(GameScene newScene)
     {
-        Debug.Log("LoadNewScene :: " + newScene);
         sceneController.SetControllerState(ControllerState.Exit);
         Scene = newScene;
         SceneManager.LoadScene(Scene.ToString());

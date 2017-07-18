@@ -36,7 +36,6 @@ public class SceneBuilderUtility
             Debug.Log("Remember to add a script to the SceneController");
         }
 
-
         if (!uiController)
         {
             uiController = new GameObject();
@@ -44,26 +43,26 @@ public class SceneBuilderUtility
             Debug.Log("Remember to add a script to the UIController");
         }
 
-
 		if (!canvas)
 		{
 			canvas = new GameObject();
 			canvas.name = "Canvas";
 		}
-		Ext.GetOrAddComponent (canvas, new System.Type[]{ typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster) });
-		canvas.transform.SetParent (uiController.transform);
-		canvas.GetComponent<Canvas> ().renderMode = RenderMode.ScreenSpaceOverlay;
-		canvas.GetComponent<CanvasScaler> ().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
 
+		Ext.GetOrAddComponent(canvas, new System.Type[]{ typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster) });
+		canvas.transform.SetParent(uiController.transform);
+		canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+		canvas.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
 
 		if (!eventSystem)
 		{
 			eventSystem = new GameObject();
 			eventSystem.name = "EventSystem";
 		}
-		Ext.GetOrAddComponent (eventSystem, new System.Type[]{ typeof(EventSystem), typeof(StandaloneInputModule)});
-		eventSystem.transform.SetParent (uiController.transform);
-		Ext.ResetTransform (eventSystem, true);
+
+		Ext.GetOrAddComponent(eventSystem, new System.Type[]{ typeof(EventSystem), typeof(StandaloneInputModule)});
+		eventSystem.transform.SetParent(uiController.transform);
+		Ext.ResetTransform(eventSystem, true);
 
 	}
 }

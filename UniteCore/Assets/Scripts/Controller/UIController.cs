@@ -15,10 +15,10 @@ public abstract class UIController : MonoBehaviour
 
     protected virtual void Awake()
 	{
-		Debug.Log ("Awake : " + GetType().Name);
 		GM = GameManager.Instance;
 		GM.eventManager.controllerStateChange += OnControllerStateChange;
 		transform.SetParent(GM.transform);
+
 		GM.SetControllerToInitializeScene (this);
 	}
 
