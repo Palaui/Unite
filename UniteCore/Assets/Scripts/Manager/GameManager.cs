@@ -91,6 +91,9 @@ public class GameManager : Singleton<GameManager>
     {
         Debug.Log("Start : " + GetType().Name);
         CurrentLanguage = Language.ES;
+
+        DynamicGraphicsModule.Activate();
+        DynamicGraphicsModule.BeginDrawFPS();
     }
 
     #endregion

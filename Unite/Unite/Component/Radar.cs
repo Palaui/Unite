@@ -129,12 +129,11 @@ namespace Unite
         {
             if (!container)
             {
-                container = new GameObject();
-                container.name = "Radar";
+                container = new GameObject("Radar");
                 Ext.ResetTransform(container);
             }
 
-            Radar radar = container.AddComponent<Radar>();
+            Radar radar = Ext.GetOrAddComponent<Radar>(container);
             radar.detectionRadius = radius;
             return radar;
         }

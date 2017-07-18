@@ -44,8 +44,8 @@ namespace Unite
         {
             get
             {
-                if (GetAllNodes().ContainsKey(key))
-                    return GetAllNodes()[key];
+                if (nodes.ContainsKey(key))
+                    return nodes[key];
                 else
                 {
                     Debug.LogError(key + " Does not exist in the nodes dictionary");
@@ -138,6 +138,14 @@ namespace Unite
         // Read Dictionary Values
         #region Read Dictionary Values
 
+        public Dictionary<string, JSon> GetNodeKeys()
+        {
+            Dictionary<string, JSon> keyValues = new Dictionary<string, JSon>();
+            foreach (KeyValuePair<string, JSon> entry in nodes)
+                keyValues.Add(entry.Key, entry.Value);
+            return keyValues;
+        }
+
         public Dictionary<string, string> GetNodeKeyValues(string nodeName)
         {
             return GetNode(nodeName).values;
@@ -171,6 +179,14 @@ namespace Unite
 
         // Read List Values
         #region Read List Values
+
+        public List<JSon> GetNodes()
+        {
+            List<JSon> values = new List<JSon>();
+            foreach (KeyValuePair<string, JSon> entry in nodes)
+                values.Add(entry.Value);
+            return values;
+        }
 
         public List<string> GetNodeKeys(string nodeName)
         {
@@ -219,12 +235,12 @@ namespace Unite
 
         public JSon GetNode(string key)
         {
-            if (!GetAllNodes().ContainsKey(key))
+            if (!nodes.ContainsKey(key))
             {
                 Debug.LogError("This node does not contain the node " + key);
                 return null;
             }
-            return GetAllNodes()[key];
+            return nodes[key];
         }
 
         public string GetValue(string key)
@@ -284,13 +300,12 @@ namespace Unite
         }
         public void AddNode(string parentName, string key)
         {
-            var dictionary = GetAllNodes();
-            if (!dictionary.ContainsKey(parentName))
+            if (!nodes.ContainsKey(parentName))
             {
                 Debug.LogError("Node " + parentName + " was not found, unable to add " + key);
                 return;
             }
-            dictionary[parentName].nodes.Add(key, new JSon());
+            nodes[parentName].nodes.Add(key, new JSon());
         }
 
         public void AddNodeEntry(string key, object value)
@@ -299,13 +314,12 @@ namespace Unite
         }
         public void AddNodeEntry(string nodeName, string key, object value)
         {
-            var dictionary = GetAllNodes();
-            if (!dictionary.ContainsKey(nodeName))
+            if (!nodes.ContainsKey(nodeName))
             {
                 Debug.LogError("Node " + nodeName + " was not found, unable to add " + key);
                 return;
             }
-            dictionary[nodeName].values.Add(key, value.ToString());
+            nodes[nodeName].values.Add(key, value.ToString());
         }
 
         public void AddNodeEntries(Dictionary<string, object> entries)
@@ -315,14 +329,13 @@ namespace Unite
         }
         public void AddNodeEntries(string nodeName, Dictionary<string, object> entries)
         {
-            var dictionary = GetAllNodes();
-            if (!dictionary.ContainsKey(nodeName))
+            if (!nodes.ContainsKey(nodeName))
             {
                 Debug.LogError("Node " + nodeName + " was not found, unable to add entries");
                 return;
             }
             foreach (KeyValuePair<string, object> entry in entries)
-                dictionary[nodeName].values.Add(entry.Key, entry.Value.ToString());
+                nodes[nodeName].values.Add(entry.Key, entry.Value.ToString());
         }
 
         #endregion
@@ -351,18 +364,17 @@ namespace Unite
         }
         public void RemoveValue(string nodeName, string key)
         {
-            var dictionary = GetAllNodes();
-            if (!dictionary.ContainsKey(nodeName))
+            if (!nodes.ContainsKey(nodeName))
             {
                 Debug.LogError("Node " + nodeName + " was not found, unable to remove " + key);
                 return;
             }
-            if (!dictionary[nodeName].values.ContainsKey(key))
+            if (!nodes[nodeName].values.ContainsKey(key))
             {
                 Debug.LogError("Node " + nodeName + " does not contain the key " + key);
                 return;
             }
-            dictionary[nodeName].values.Remove(key);
+            nodes[nodeName].values.Remove(key);
         }
 
         public void RemoveValues(List<string> keys)
@@ -388,12 +400,12 @@ namespace Unite
 
         public string GetNodeAsString(string key)
         {
-            if (!GetAllNodes().ContainsKey(key))
+            if (!nodes.ContainsKey(key))
             {
                 Debug.LogError("Node " + key + " was not found");
                 return null;
             }
-            return GetAllNodes()[key].ToString();
+            return nodes[key].ToString();
         }
 
         public override string ToString()
@@ -451,7 +463,7 @@ namespace Unite
                 if (ch == '{' || ch == '[')
                 {
                     words.Add(currentKey.Trim());
-                    if (currentLevel != 0)
+                    if (currentLevel != 0 && currentKey != "")
                         list.Add(new JSonStruct(currentKey.Trim(), "", words[currentLevel - 1], currentLevel));
                     currentLevel++;
                     keySet = false;
@@ -476,7 +488,8 @@ namespace Unite
                     keySet = true;
                 else if (ch == ',')
                 {
-                    list.Add(new JSonStruct(currentKey.Trim(), currentValue.Trim(), words[currentLevel - 1], currentLevel));
+                    if (currentKey != "")
+                        list.Add(new JSonStruct(currentKey.Trim(), currentValue.Trim(), words[currentLevel - 1], currentLevel));
                     currentKey = "";
                     currentValue = "";
                     keySet = false;
@@ -509,22 +522,6 @@ namespace Unite
                 }
                 else
                     jsons[jsons.Count - 1].values.Add(json.key, json.value);
-            }
-        }
-
-        private Dictionary<string, JSon> GetAllNodes()
-        {
-            Dictionary<string, JSon> dictionary = new Dictionary<string, JSon>();
-            GetAllNodesRecursively(this, dictionary);
-            return dictionary;
-        }
-
-        private void GetAllNodesRecursively(JSon json, Dictionary<string, JSon> dictionary)
-        {
-            foreach (KeyValuePair<string, JSon> node in json.nodes)
-            {
-                dictionary.Add(node.Key, node.Value);
-                GetAllNodesRecursively(node.Value, dictionary);
             }
         }
 
