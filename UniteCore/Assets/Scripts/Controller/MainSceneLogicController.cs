@@ -32,7 +32,6 @@ public class MainSceneLogicController : SceneController
 
     protected override void Initialize()
     {
-        Debug.Log("Initialize : " + GetType().Name);
         GM.eventManager.mainSceneStateChange += OnMainSceneStateChange;
         uiController = GM.uiController as MainSceneUIController;
     }

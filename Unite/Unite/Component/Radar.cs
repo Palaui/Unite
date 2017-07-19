@@ -15,7 +15,6 @@ namespace Unite
 
         List<Action<GameObject>> pingMethodsList = new List<Action<GameObject>>();
         private IEnumerator PingCoroutine;
-        private bool pingKeepAlive = false;
 
         private GameObject locationGo = null;
         private Vector3 location;
@@ -25,6 +24,18 @@ namespace Unite
 
         // Properties
         #region Properties
+
+        private GameObject this[string key]
+        {
+            get
+            {
+                if (dictionary.ContainsKey(key))
+                    return dictionary[key];
+
+                Debug.Log("Radar could not find the specified key " + key);
+                return null;
+            }
+        }
 
         private Vector3 Location
         {
@@ -40,15 +51,6 @@ namespace Unite
 
         // Public
         #region Public
-
-        public GameObject Get(string key)
-        {
-            if (dictionary.ContainsKey(key))
-                return dictionary[key];
-
-            Debug.Log("Radar could not find the specified key " + key);
-            return null;
-        }
 
         public void Place(GameObject go)
         {

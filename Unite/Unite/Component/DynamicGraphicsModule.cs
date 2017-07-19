@@ -22,6 +22,7 @@ namespace Unite
         private static float timeCounter;
 
         private static List<float> frameTimesDraw = new List<float>();
+        private static string signDraw = "=";
         private static float fpsIntervalDraw;
         private static float meanTimeDraw;
         private static float timeCounterDraw;
@@ -46,7 +47,9 @@ namespace Unite
                 if (meanTimeDraw < 0.1f || meanTimeDraw > 99999)
                     return;
                 GUI.color = Color.red;
-                GUI.Label(new Rect(10, 10, 500, 100), meanTimeDraw.ToString());
+                GUI.Label(new Rect(10, 10, 500, 30), "FPS " + meanTimeDraw.ToString());
+                GUI.Label(new Rect(10, 30, 500, 30), "Quality " + (QualitySettings.GetQualityLevel() + 1).ToString() + 
+                    " / " + QualitySettings.names.Length + " " + signDraw);
             }
         }
 
@@ -116,9 +119,6 @@ namespace Unite
                 meanTime = 1.0f / (meanTime / frameTimes.Count);
                 frameTimes.Clear();
 
-                Debug.Log(meanTime);
-                Debug.Log(QualitySettings.GetQualityLevel());
-
                 if (meanTime < bounds.x)
                 {
                     framesBelow++;
@@ -153,11 +153,13 @@ namespace Unite
                     QualitySettings.SetQualityLevel(currentQuality - 1, false);
                     expensiveQualityUsed = false;
                     currentQuality--;
+                    signDraw = "+";
                 }
                 else
                 {
                     QualitySettings.SetQualityLevel(currentQuality, true);
                     expensiveQualityUsed = true;
+                    signDraw = "-";
                 }
 
                 framesBelow = 0;
@@ -173,12 +175,14 @@ namespace Unite
                 {
                     QualitySettings.SetQualityLevel(currentQuality, true);
                     expensiveQualityUsed = true;
+                    signDraw = "+";
                 }
                 else
                 {
                     QualitySettings.SetQualityLevel(currentQuality + 1, false);
                     expensiveQualityUsed = false;
                     currentQuality++;
+                    signDraw = "-";
                 }
 
                 framesBelow = 0;
