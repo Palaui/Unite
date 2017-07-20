@@ -43,7 +43,7 @@ internal class DataManager
         {
             if (jSon.GetValue("localization") == language.ToString())
             {
-                foreach (KeyValuePair<string, string> entry in jSon.GetNodeKeyValues("literals"))
+                foreach (KeyValuePair<string, string> entry in jSon.GetKeyValueValues("literals"))
                     dictionary.Add(entry.Key, entry.Value);
             }
         }

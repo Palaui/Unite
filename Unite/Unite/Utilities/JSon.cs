@@ -13,6 +13,7 @@ namespace Unite
         private Dictionary<string, string> values = new Dictionary<string, string>();
         List<string> lines = new List<string>();
         private string dataPath;
+        private string id;
 
         #endregion
 
@@ -62,15 +63,20 @@ namespace Unite
         // Constructors, Loaders & Writers
         #region Constructors, Loaders & Writers
 
-        public JSon() { }
-        public JSon(TextAsset asset)
+        public JSon(string id = "")
+        {
+            this.id = id;
+        }
+        public JSon(TextAsset asset, string id = "")
         {
             Load(asset);
             dataPath = "";
+            this.id = id;
         }
-        public JSon(string path)
+        public JSon(string path, string id = "")
         {
             Load(path);
+            this.id = id;
         }
 
         public void Load(TextAsset asset)
@@ -138,39 +144,51 @@ namespace Unite
         // Read Dictionary Values
         #region Read Dictionary Values
 
-        public Dictionary<string, JSon> GetNodeKeys()
+        public Dictionary<string, JSon> GetKeyValueNodes()
         {
             Dictionary<string, JSon> keyValues = new Dictionary<string, JSon>();
             foreach (KeyValuePair<string, JSon> entry in nodes)
                 keyValues.Add(entry.Key, entry.Value);
             return keyValues;
         }
-
-        public Dictionary<string, string> GetNodeKeyValues(string nodeName)
+        public Dictionary<string, JSon> GetKeyValueNodes(string nodeName)
         {
-            return GetNode(nodeName).values;
+            return GetNode(nodeName).GetKeyValueNodes();
         }
 
-        public Dictionary<string, float> GetNodeKeyValuesAsFloat(string nodeName)
+        public Dictionary<string, string> GetKeyValueValues()
+        {
+            Dictionary<string, string> keyValues = new Dictionary<string, string>();
+            foreach (KeyValuePair<string, string> entry in values)
+                keyValues.Add(entry.Key, entry.Value);
+            return keyValues;
+        }
+        public Dictionary<string, string> GetKeyValueValues(string nodeName)
+        {
+            return GetNode(nodeName).GetKeyValueValues();
+        }
+
+
+        public Dictionary<string, float> GetKeyNodeValuesAsFloat(string nodeName)
         {
             Dictionary<string, float> keyValues = new Dictionary<string, float>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
+            foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 keyValues.Add(entry.Key, GetFloatValue(entry.Value));
             return keyValues;
         }
 
-        public Dictionary<string, int> GetNodeKeyValuesAsInt(string nodeName)
+        public Dictionary<string, int> GetKeyNodeValuesAsInt(string nodeName)
         {
             Dictionary<string, int> keyValues = new Dictionary<string, int>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
+            foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 keyValues.Add(entry.Key, GetIntValue(entry.Value));
             return keyValues;
         }
 
-        public Dictionary<string, bool> GetNodeKeyValuesAsBool(string nodeName)
+        public Dictionary<string, bool> GetKeyNodeValuesAsBool(string nodeName)
         {
             Dictionary<string, bool> keyValues = new Dictionary<string, bool>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
+            foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 keyValues.Add(entry.Key, GetBoolValue(entry.Value));
             return keyValues;
         }
@@ -180,50 +198,66 @@ namespace Unite
         // Read List Values
         #region Read List Values
 
-        public List<JSon> GetNodes()
+        public List<string> GetNodeKeys()
         {
-            List<JSon> values = new List<JSon>();
+            List<string> list = new List<string>();
             foreach (KeyValuePair<string, JSon> entry in nodes)
-                values.Add(entry.Value);
-            return values;
+                list.Add(entry.Key);
+            return list;
         }
 
-        public List<string> GetNodeKeys(string nodeName)
+        public List<JSon> GetNodeValues()
         {
-            List<string> keys = new List<string>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
-                keys.Add(entry.Key);
-            return keys;
+            List<JSon> list = new List<JSon>();
+            foreach (KeyValuePair<string, JSon> entry in nodes)
+                list.Add(entry.Value);
+            return list;
         }
 
-        public List<string> GetNodeValues(string nodeName)
+        public List<string> GetValueKeys(string nodeName)
+        {
+            List<string> list = new List<string>();
+            foreach (KeyValuePair<string, string> entry in values)
+                list.Add(entry.Key);
+            return list;
+        }
+
+        public List<string> GetValuesValues()
+        {
+            List<string> list = new List<string>();
+            foreach (KeyValuePair<string, string> entry in values)
+                list.Add(entry.Value);
+            return list;
+        }
+
+        public List<string> GetValues(string nodeName)
         {
             List<string> values = new List<string>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
+            foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 values.Add(entry.Value);
             return values;
         }
 
-        public List<float> GetNodeValuesAsFloat(string nodeName)
+        public List<float> GetValuesAsFloat(string nodeName)
         {
             List<float> values = new List<float>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
+            foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 values.Add(GetFloatValue(entry.Value));
             return values;
         }
 
-        public List<int> GetNodeValuesAsInt(string nodeName)
+        public List<int> GetValuesAsInt(string nodeName)
         {
             List<int> values = new List<int>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
+            foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 values.Add(GetIntValue(entry.Value));
             return values;
         }
 
-        public List<bool> GetNodeValuesAsBool(string nodeName)
+        public List<bool> GetValuesAsBool(string nodeName)
         {
             List<bool> values = new List<bool>();
-            foreach (KeyValuePair<string, string> entry in GetNodeKeyValues(nodeName))
+            foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 values.Add(GetBoolValue(entry.Value));
             return values;
         }
@@ -243,6 +277,11 @@ namespace Unite
             return nodes[key];
         }
 
+        public bool ContainsNode(string key)
+        {
+            return nodes.ContainsKey(key);
+        }
+
         public string GetValue(string key)
         {
             if (!values.ContainsKey(key))
@@ -251,6 +290,11 @@ namespace Unite
                 return null;
             }
             return values[key];
+        }
+
+        public bool ContainsValue(string key)
+        {
+            return values.ContainsKey(key);
         }
 
         public float GetFloatValue(string key)
@@ -296,7 +340,7 @@ namespace Unite
 
         public void AddNode(string key)
         {
-            nodes.Add(key, new JSon());
+            nodes.Add(key, new JSon(key));
         }
         public void AddNode(string parentName, string key)
         {
@@ -305,14 +349,30 @@ namespace Unite
                 Debug.LogError("Node " + parentName + " was not found, unable to add " + key);
                 return;
             }
-            nodes[parentName].nodes.Add(key, new JSon());
+            nodes[parentName].nodes.Add(key, new JSon(key));
         }
 
-        public void AddNodeEntry(string key, object value)
+        public void AddNodes(Dictionary<string, JSon> entries)
+        {
+            foreach (KeyValuePair<string, JSon> entry in entries)
+                nodes.Add(entry.Key, entry.Value);
+        }
+        public void AddNodes(string nodeName, Dictionary<string, JSon> entries)
+        {
+            if (!nodes.ContainsKey(nodeName))
+            {
+                Debug.LogError("Node " + nodeName + " was not found, unable to add nodes");
+                return;
+            }
+            foreach (KeyValuePair<string, JSon> entry in entries)
+                nodes[nodeName].nodes.Add(entry.Key, entry.Value);
+        }
+
+        public void AddValue(string key, string value)
         {
             values.Add(key, value.ToString());
         }
-        public void AddNodeEntry(string nodeName, string key, object value)
+        public void AddValue(string nodeName, string key, string value)
         {
             if (!nodes.ContainsKey(nodeName))
             {
@@ -322,19 +382,19 @@ namespace Unite
             nodes[nodeName].values.Add(key, value.ToString());
         }
 
-        public void AddNodeEntries(Dictionary<string, object> entries)
+        public void AddValues(Dictionary<string, string> entries)
         {
-            foreach (KeyValuePair<string, object> entry in entries)
+            foreach (KeyValuePair<string, string> entry in entries)
                 values.Add(entry.Key, entry.Value.ToString());
         }
-        public void AddNodeEntries(string nodeName, Dictionary<string, object> entries)
+        public void AddValues(string nodeName, Dictionary<string, string> entries)
         {
             if (!nodes.ContainsKey(nodeName))
             {
-                Debug.LogError("Node " + nodeName + " was not found, unable to add entries");
+                Debug.LogError("Node " + nodeName + " was not found, unable to add values");
                 return;
             }
-            foreach (KeyValuePair<string, object> entry in entries)
+            foreach (KeyValuePair<string, string> entry in entries)
                 nodes[nodeName].values.Add(entry.Key, entry.Value.ToString());
         }
 
@@ -386,6 +446,12 @@ namespace Unite
         {
             foreach (string str in keys)
                 RemoveValue(nodeName, str);
+        }
+
+        public void RemoveAll()
+        {
+            nodes.Clear();
+            values.Clear();
         }
 
         #endregion
@@ -515,7 +581,7 @@ namespace Unite
 
                 if (json.value == "")
                 {
-                    JSon subJSon = new JSon();
+                    JSon subJSon = new JSon(json.key);
                     jsons[jsons.Count - 1].nodes.Add(json.key, subJSon);
                     jsons.Add(subJSon);
                     currentLevel++;
