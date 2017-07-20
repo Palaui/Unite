@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Unite
 {
@@ -147,7 +146,6 @@ namespace Unite
 
                 if (IsSign(new string[] { "+", "-" } , new Operation[] { Operation.Add, Operation.Sub }))
                     continue;
-
 
                 if (float.TryParse(element, out subValue)) { element = ""; ok = true; }
                 if (solveExpression[i] == 'x') { subValue = x; element = ""; ok = true; }
