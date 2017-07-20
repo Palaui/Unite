@@ -86,10 +86,6 @@ public class GameManager : Singleton<GameManager>
         CurrentLanguage = Language.ES;
         DynamicGraphicsModule.Activate();
         DynamicGraphicsModule.BeginDrawFPS();
-
-        Expression ex = new Expression("x ^ 3 + x / sx");
-        //Expression ex = new Expression("x * 2 / 3");
-        Debug.Log(ex.Solve(4));
     }
 
     #endregion

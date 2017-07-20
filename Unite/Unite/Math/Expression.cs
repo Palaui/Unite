@@ -10,8 +10,14 @@ namespace Unite
 
         private enum Operation { None, Add, Sub, Mul, Div, Pot, Sqrt }
 
-        private string enteringExpression;
+        private string expression;
         private string solveExpression;
+
+        private Operation operation;
+        private string segment = "";
+        private string element = "";
+        private float value = 0;
+        private float subValue = 0;
 
         #endregion
 
@@ -20,12 +26,12 @@ namespace Unite
 
         public Expression(string expression)
         {
-            enteringExpression = expression;
+            this.expression = expression;
         }
 
         public float Solve(float x)
         {
-            solveExpression = enteringExpression.Trim();
+            solveExpression = expression.Trim();
             while (solveExpression.Contains(" "))
                 solveExpression = solveExpression.Replace(" ", "");
 
@@ -45,127 +51,140 @@ namespace Unite
 
         private void PotentialPass(float x)
         {
-            Operation op = Operation.None;
-            string str = "";
-            string numberStr = "";
-            float value = 0;
-            float subValue = 0;
-            int count = 0;
+            operation = Operation.None;
+            segment = "";
+            element = "";
+            value = 0;
+            subValue = 0;
             for (int i = 0; i < solveExpression.Length; i++)
             {
-                count++;
-
-                if (count >= 30)
-                    return;
                 if ((solveExpression[i] == '+') || (solveExpression[i] == '-') || (solveExpression[i] == '/') || (solveExpression[i] == '*'))
                 {
-                    if (str != "")
-                        solveExpression = solveExpression.Replace(str, value.ToString());
-                    if (op != Operation.None)
+                    if (segment != "")
+                        solveExpression = solveExpression.Replace(segment, value.ToString());
+                    if (operation != Operation.None)
                         i = 0;
-                    op = Operation.None;
-                    numberStr = "";
-                    str = "";
+                    operation = Operation.None;
+                    element = "";
+                    segment = "";
                     continue;
                 }
 
-                str += solveExpression[i].ToString();
-                numberStr += solveExpression[i].ToString();
+                segment += solveExpression[i].ToString();
+                element += solveExpression[i].ToString();
 
-                if (solveExpression[i] == '^') { op = Operation.Pot; numberStr = ""; continue; }
-                if (solveExpression[i] == 's') { op = Operation.Sqrt; numberStr = ""; continue; }
+                if (element == "^") { operation = Operation.Pot; element = ""; continue; }
+                if (element == "sqrt") { operation = Operation.Sqrt; element = ""; continue; }
 
-                float.TryParse(numberStr, out subValue);
-                if (solveExpression[i] == 'x') { subValue = x; numberStr = ""; }
+                if (float.TryParse(element, out subValue)) { element = ""; }
+                if (solveExpression[i] == 'x') { subValue = x; element = ""; }
 
-                switch (op)
+                switch (operation)
                 {
                     case Operation.None: value = subValue; break;
                     case Operation.Pot: value = Mathf.Pow(value, subValue); break;
                     case Operation.Sqrt: value = Mathf.Sqrt(subValue); break;
                 }
             }
-            if (str != "")
-                solveExpression = solveExpression.Replace(str, value.ToString());
+            if (segment != "")
+                solveExpression = solveExpression.Replace(segment, value.ToString());
         }
 
         private void GeometricPass(float x)
         {
-            Operation op = Operation.None;
-            string str = "";
-            string numberStr = "";
-            float value = 0;
-            float subValue = 0;
-            int count = 0;
+            operation = Operation.None;
+            segment = "";
+            element = "";
+            value = 0;
+            subValue = 0;
             for (int i = 0; i < solveExpression.Length; i++)
             {
-                count++;
-
-                if (count >= 30)
-                    return;
                 if ((solveExpression[i] == '+') || (solveExpression[i] == '-'))
                 {
-                    if (str != "")
-                        solveExpression = solveExpression.Replace(str, value.ToString());
-                    if (op != Operation.None)
+                    if (segment != "")
+                        solveExpression = solveExpression.Replace(segment, value.ToString());
+                    if (operation != Operation.None)
                         i = 0;
-                    op = Operation.None;
-                    numberStr = "";
-                    str = "";
+                    operation = Operation.None;
+                    element = "";
+                    segment = "";
                     continue;
                 }
 
-                str += solveExpression[i].ToString();
-                numberStr += solveExpression[i].ToString();
+                segment += solveExpression[i].ToString();
+                element += solveExpression[i].ToString();
 
-                if (solveExpression[i] == '*') { op = Operation.Mul; numberStr = ""; continue; }
-                if (solveExpression[i] == '/') { op = Operation.Div; numberStr = ""; continue; }
+                if (solveExpression[i] == '*') { operation = Operation.Mul; element = ""; continue; }
+                if (solveExpression[i] == '/') { operation = Operation.Div; element = ""; continue; }
 
-                float.TryParse(numberStr, out subValue);
-                if (solveExpression[i] == 'x') { subValue = x; numberStr = ""; }
+                float.TryParse(element, out subValue);
+                if (solveExpression[i] == 'x') { subValue = x; element = ""; }
                     
-                switch (op)
+                switch (operation)
                 {
                     case Operation.None: value = subValue; break;
                     case Operation.Mul: value *= subValue; break;
                     case Operation.Div: value /= subValue; break;
                 }
             }
-            if (str != "")
-                solveExpression = solveExpression.Replace(str, value.ToString());
+            if (segment != "")
+                solveExpression = solveExpression.Replace(segment, value.ToString());
         }
 
         private void ArithmeticPass(float x)
         {
-            Operation op = Operation.None;
-            string str = "";
-            string numberStr = "";
-            float value = 0;
-            float subValue = 0;
+            operation = Operation.None;
+            segment = "";
+            element = "";
+            value = 0;
+            subValue = 0;
 
             for (int i = 0; i < solveExpression.Length; i++)
             {
-                str += solveExpression[i].ToString();
-                numberStr += solveExpression[i].ToString();
+                bool ok = false;
+                segment += solveExpression[i].ToString();
+                element += solveExpression[i].ToString();
 
-                if (solveExpression[i] == '+') { op = Operation.Add; numberStr = ""; continue; }
-                if (solveExpression[i] == '-') { op = Operation.Sub; numberStr = ""; continue; }
+                if (IsSign(new string[] { "+", "-" } , new Operation[] { Operation.Add, Operation.Sub }))
+                    continue;
 
-                float.TryParse(numberStr, out subValue);
-                if (solveExpression[i] == 'x') { subValue = x; numberStr = ""; }
 
-                switch (op)
+                if (float.TryParse(element, out subValue)) { element = ""; ok = true; }
+                if (solveExpression[i] == 'x') { subValue = x; element = ""; ok = true; }
+
+                if (ok)
+                switch (operation)
                 {
                     case Operation.None: value = subValue; break;
                     case Operation.Add: value += subValue; break;
                     case Operation.Sub: value -= subValue; break;
                 }
             }
-            if (str != "")
-                solveExpression = solveExpression.Replace(str, value.ToString());
+            if (segment != "")
+                solveExpression = solveExpression.Replace(segment, value.ToString());
         }
 
         #endregion
+
+        private bool IsSign(string[] signs, Operation[] ops)
+        {
+            for (int i = 0; i < signs.Length; i++)
+            {
+                if (element == signs[i])
+                {
+                    operation = ops[i];
+                    element = "";
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void CheckLowerLevelElement(string comparer, string[] lowerLevelElements)
+        {
+
+        }
 
     }
 }
