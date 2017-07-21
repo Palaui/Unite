@@ -55,6 +55,11 @@ namespace Unite
             }
         }
 
+        public string ID
+        {
+            get { return id; }
+        }
+
         #endregion
 
         // Public
@@ -63,20 +68,20 @@ namespace Unite
         // Constructors, Loaders & Writers
         #region Constructors, Loaders & Writers
 
-        public JSon(string id = "")
+        private JSon(JSon json, string id)
         {
             this.id = id;
         }
         public JSon(TextAsset asset, string id = "")
         {
+            this.id = id;
             Load(asset);
             dataPath = "";
-            this.id = id;
         }
         public JSon(string path, string id = "")
         {
-            Load(path);
             this.id = id;
+            Load(path);
         }
 
         public void Load(TextAsset asset)
@@ -340,7 +345,7 @@ namespace Unite
 
         public void AddNode(string key)
         {
-            nodes.Add(key, new JSon(key));
+            nodes.Add(key, new JSon(this, key));
         }
         public void AddNode(string parentName, string key)
         {
@@ -349,7 +354,7 @@ namespace Unite
                 Debug.LogError("Node " + parentName + " was not found, unable to add " + key);
                 return;
             }
-            nodes[parentName].nodes.Add(key, new JSon(key));
+            nodes[parentName].nodes.Add(key, new JSon(this, key));
         }
 
         public void AddNodes(Dictionary<string, JSon> entries)
@@ -451,6 +456,16 @@ namespace Unite
         public void RemoveAll()
         {
             nodes.Clear();
+            values.Clear();
+        }
+
+        public void RemoveAllNodes()
+        {
+            nodes.Clear();
+        }
+
+        public void RemoveAllValues()
+        {
             values.Clear();
         }
 
@@ -581,7 +596,7 @@ namespace Unite
 
                 if (json.value == "")
                 {
-                    JSon subJSon = new JSon(json.key);
+                    JSon subJSon = new JSon(this, json.key);
                     jsons[jsons.Count - 1].nodes.Add(json.key, subJSon);
                     jsons.Add(subJSon);
                     currentLevel++;
