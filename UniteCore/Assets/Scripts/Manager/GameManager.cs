@@ -81,17 +81,21 @@ public class GameManager : Singleton<GameManager>
         languageManager = new LanguageManager();
     }
 
+    Expression ex;
     void Start()
     {
         CurrentLanguage = Language.ES;
         DynamicGraphicsModule.Activate();
         DynamicGraphicsModule.BeginDrawFPS();
 
-        Expression ex = new Expression("(x ^ (2 + 2) ^ y)");
-        ex.AddOrChangeParameter("x", 2);
-        ex.AddOrChangeParameter("y", 2);
+        ex = new Expression("-(1 / 4) * x ^ 2");
+        ex.GetGraphicPoints(new Vector2(-200, 200), 10);
         //Expression ex = new Expression("x * 2 / 3");
-        Debug.Log(ex.Solve());
+    }
+
+    void OnGUI()
+    {
+        ex.Draw(new Vector2(Screen.width / 2, Screen.height * 0.75f), new Vector2(0.25f, 10));
     }
 
     #endregion

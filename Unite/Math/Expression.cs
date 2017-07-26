@@ -5,12 +5,19 @@ namespace Unite
 {
     public class Expression
     {
-        // Variables
-        #region Variables
+        // Enums
+        #region Enums
 
         private enum Operation { None, Add, Sub, Mul, Div, Pot, Sqrt }
 
+        #endregion
+
+        // Variables
+        #region Variables
+
         private Dictionary<string, float> parameters = new Dictionary<string, float>();
+        private List<Vector2> points = new List<Vector2>();
+
         private string expression;
         private string solveExpression;
 
@@ -47,6 +54,9 @@ namespace Unite
             return result;
         }
 
+        // Dictionaries Manipulation
+        #region Dictionaries Manipulation
+
         public void AddOrChangeParameter(string key, float value)
         {
             RemoveParameter(key);
@@ -63,6 +73,27 @@ namespace Unite
         {
             parameters.Clear();
         }
+
+        #endregion
+
+        // Calculus
+        #region Calculus
+
+        public List<Vector2> GetGraphicPoints(Vector2 domain, float step = 0.01f)
+        {
+            points.Clear();
+            step = Mathf.Clamp(step, 0.001f, 1000);
+
+            for (float f = domain.x; f <= domain.y; f += step)
+            {
+                AddOrChangeParameter("x", f);
+                points.Add(new Vector2(f, Solve()));
+            }
+
+            return points;
+        }
+
+        #endregion
 
         #endregion
 
