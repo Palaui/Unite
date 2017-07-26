@@ -2,6 +2,7 @@
 
 namespace Unite
 {
+    [ExecuteInEditMode]
     class Signal : MonoBehaviour
     {
         // Variables

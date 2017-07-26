@@ -87,8 +87,9 @@ public class GameManager : Singleton<GameManager>
         DynamicGraphicsModule.Activate();
         DynamicGraphicsModule.BeginDrawFPS();
 
-        Expression ex = new Expression("x ^ 2 - x * 3 + 2 ^ 2");
-        ex.AddOrChangeParameter("x", 4);
+        Expression ex = new Expression("(x ^ (2 + 2) ^ y)");
+        ex.AddOrChangeParameter("x", 2);
+        ex.AddOrChangeParameter("y", 2);
         //Expression ex = new Expression("x * 2 / 3");
         Debug.Log(ex.Solve());
     }

@@ -37,18 +37,12 @@ namespace Unite
             while (solveExpression.Contains(" "))
                 solveExpression = solveExpression.Replace(" ", "");
 
-            Debug.Log("Potential Pass");
+            SubExpressionsPass();
             PotentialPass();
-            Debug.Log("Post Potential Solve " + solveExpression);
-            Debug.Log("Geometric Pass");
             GeometricPass();
-            Debug.Log("Post Geometric Solve " + solveExpression);
-            Debug.Log("Arithmetic Pass");
             ArithmeticPass();
 
             float result;
-            Debug.Log("Final Expression " + solveExpression);
-            Debug.Log("Final value " + value);
             float.TryParse(solveExpression, out result);
             return result;
         }
@@ -77,6 +71,59 @@ namespace Unite
 
         // Passes
         #region Passes
+
+        private void SubExpressionsPass()
+        {
+            string subExpression;
+            int level;
+            int beginIndex;
+            bool subExpressionFound = true;
+
+            int cut = 0;
+
+            while (subExpressionFound)
+            {
+                cut++;
+                if (cut > 30)
+                    break;
+                subExpression = "";
+                level = 0;
+                beginIndex = -1;
+                subExpressionFound = false;
+
+                for (int i = 0; i < solveExpression.Length; i++)
+                {
+                    if (solveExpression[i] == ')')
+                    {
+                        level--;
+                        if (level == 0)
+                        {
+                            solveExpression = solveExpression.Remove(i, 1);
+                            solveExpression = solveExpression.Remove(beginIndex, 1);
+                            Expression ex = new Expression(subExpression);
+                            ex.parameters = parameters;
+                            solveExpression = solveExpression.Replace(subExpression, ex.Solve().ToString());
+                            break;
+                        }
+                    }
+                    if (level > 0)
+                        subExpression += solveExpression[i].ToString();
+                    if (solveExpression[i] == '(')
+                    {
+                        level++;
+                        if (beginIndex == -1)
+                            beginIndex = i;
+                        subExpressionFound = true;
+                    }
+                }
+
+                if (level > 0)
+                {
+                    Debug.LogError("Expression incorrectly parsed");
+                    break;
+                }
+            }
+        }
 
         private void PotentialPass()
         {
@@ -158,7 +205,6 @@ namespace Unite
                 if (element == signs[i])
                 {
                     operation = ops[i];
-                    Debug.Log(ops[i]);
                     element = "";
                     return true;
                 }
@@ -220,7 +266,6 @@ namespace Unite
                 case Operation.Pot: value = Mathf.Pow(value, subValue); break;
                 case Operation.Sqrt: value = Mathf.Sqrt(subValue); break;
             }
-            Debug.Log(subValue);
             subValue = 0;
             element = "";
         }
@@ -237,7 +282,6 @@ namespace Unite
                             solveExpression = solveExpression.Replace(segment, value.ToString() + str);
                         index = 0;
                         operation = Operation.None;
-                        Debug.Log("erase " + segment);
                     }
                     element = "";
                     segment = "";

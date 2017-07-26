@@ -52,6 +52,15 @@ namespace Unite
         // Public
         #region Public
 
+        public static GameObject Get(string key)
+        {
+            if (dictionary.ContainsKey(key))
+                return dictionary[key];
+
+            Debug.Log("Radar could not find the specified key " + key);
+            return null;
+        }
+
         public void Place(GameObject go)
         {
             location = go.transform.position;
