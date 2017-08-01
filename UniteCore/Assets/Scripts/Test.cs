@@ -5,48 +5,30 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    public string expression;
-    public float value;
-    public bool apply = false;
-    public bool printValue = false;
-
-    private List<GameObject> gos = new List<GameObject>();
-    private List<Vector2> points = new List<Vector2>();
-    private Expression ex;
-
     void Awake()
     {
-        ex = new Expression("");
+        Vector2 a = new Vector2(-4, 2);
+        Vector2 b = new Vector2(-1, 1);
+        Vector2 c = new Vector2(1, 3);
+        Vector2 d = new Vector2(2, 1);
+
+        float[] pointsY = new float[] { a.y, b.y, c.y, d.y };
+
+        Matrix matrix = new Matrix(4, 4);
+        matrix.FillRow(new float[] { Mathf.Pow(a.x, 3), Mathf.Pow(a.x, 2), Mathf.Pow(a.x, 1), 1 }, 0);
+        matrix.FillRow(new float[] { Mathf.Pow(b.x, 3), Mathf.Pow(b.x, 2), Mathf.Pow(b.x, 1), 1 }, 1);
+        matrix.FillRow(new float[] { Mathf.Pow(c.x, 3), Mathf.Pow(c.x, 2), Mathf.Pow(c.x, 1), 1 }, 2);
+        matrix.FillRow(new float[] { Mathf.Pow(d.x, 3), Mathf.Pow(d.x, 2), Mathf.Pow(d.x, 1), 1 }, 3);
+
+        float[] sol = matrix.Solve(pointsY);
+
+        foreach (float s in sol)
+            Debug.Log(s);
     }
+
     void Update()
     {
-        if (apply)
-        {
-            ex.AssignExpression(expression);
-            points = ex.GetGraphicPoints(new Vector2(-20, 20), 1);
 
-            foreach (GameObject go in gos)
-                Destroy(go, 0.1f);
-            gos.Clear();
-
-            Ext.ApplyForeach(CreateCube, points);
-
-            apply = false;
-        }
-
-        if (printValue)
-        {
-            ex.AssignExpression(expression);
-            ex.AddOrChangeParameter("x", value);
-            Debug.Log("Value = " + ex.Solve());
-            printValue = false;
-        }
     }
 
-    private void CreateCube(Vector2 pos)
-    {
-        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        go.transform.position = new Vector3(pos.x, pos.y, 0);
-        gos.Add(go);
-    }
 }
