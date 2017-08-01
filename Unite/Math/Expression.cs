@@ -16,6 +16,7 @@ namespace Unite
         private string solveExpression;
 
         private string element = "";
+        private float step = 0;
 
         #endregion
 
@@ -72,18 +73,60 @@ namespace Unite
         // Calculus
         #region Calculus
 
-        public List<Vector2> GetGraphicPoints(Vector2 domain, float step = 0.01f)
+        public List<Vector2> GetGraphicPoints(Vector2 domain, float inStep = 0.0675f)
         {
             points.Clear();
+            step = inStep;
             step = Mathf.Clamp(step, 0.001f, 1000);
 
             for (float f = domain.x; f <= domain.y; f += step)
             {
+                if (f > -0.001f && f < 0.001f)
+                    f = 0;
                 AddOrChangeParameter("x", f);
                 points.Add(new Vector2(f, Solve()));
             }
 
             return points;
+        }
+
+        public List<Vector2> GetDerivatePoints(List<Vector2> graphicPoints)
+        {
+            List<Vector2> derivatePoints = new List<Vector2>();
+            float numerator;
+            float denominator;
+
+            for (int i = 0; i < graphicPoints.Count - 1; i++)
+            {
+                numerator = graphicPoints[i + 1].y - graphicPoints[i].y;
+                denominator = graphicPoints[i + 1].x - graphicPoints[i].x;
+                derivatePoints.Add(new Vector2(graphicPoints[i + 1].x, numerator / denominator));
+            }
+
+            return derivatePoints;
+        }
+
+        public List<Vector2> GetPrimitivePoints(List<Vector2> graphicPoints)
+        {
+            List<Vector2> primitivePoints = new List<Vector2>();
+            float meanHeight;
+            float interval;
+            float cumulative = 0;
+            float midPoint;
+
+            for (int i = 0; i < graphicPoints.Count - 1; i++)
+            {
+                meanHeight = (graphicPoints[i + 1].y + graphicPoints[i].y) / 2;
+                interval = graphicPoints[i + 1].x - graphicPoints[i].x;
+                cumulative += meanHeight * interval;
+                primitivePoints.Add(new Vector2(graphicPoints[i + 1].x, cumulative));
+            }
+
+            midPoint = primitivePoints[Mathf.FloorToInt(primitivePoints.Count / 2.0f)].y;
+            for (int i = 0; i < graphicPoints.Count - 1; i++)
+                primitivePoints[i] = new Vector2(primitivePoints[i].x, primitivePoints[i].y - midPoint);
+
+            return primitivePoints;
         }
 
         #endregion

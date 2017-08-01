@@ -176,28 +176,18 @@ namespace Unite
 
         #endregion
 
-        // Draw
-        #region Draw
+        // Conversions
+        #region Conversions
 
-        public static void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width)
+        public static List<Vector3> ConvertList2DTo3D(List<Vector2> list2D, float zValue)
         {
-            Matrix4x4 matrix = GUI.matrix;
-            Texture2D lineTex = new Texture2D(1, 1);
-            Color savedColor = GUI.color;
-            GUI.color = color;
-
-            float angle = Vector3.Angle(pointB - pointA, Vector2.right);
-            if (pointA.y > pointB.y)
-                angle = -angle;
-
-            GUIUtility.ScaleAroundPivot(new Vector2((pointB - pointA).magnitude, width), new Vector2(pointA.x, pointA.y + 0.5f));
-            GUIUtility.RotateAroundPivot(angle, pointA);
-            GUI.DrawTexture(new Rect(pointA.x, pointA.y, 1, 1), lineTex);
-
-            GUI.matrix = matrix;
-            GUI.color = savedColor;
+            List<Vector3> list3D = new List<Vector3>();
+            foreach (Vector2 elem in list2D)
+                list3D.Add(new Vector3(elem.x, elem.y, zValue));
+            return list3D;
         }
 
         #endregion
+
     }
 }
