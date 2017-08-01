@@ -1,0 +1,8 @@
+{
+	"localization": "EN",
+	"version": 1,
+	"releaseDate": "2017-06-28T00:00:00.000Z",
+    "literals": {
+        "ChangeSceneBut": "CHANGE SCENE"
+    }
+}
