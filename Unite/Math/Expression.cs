@@ -33,7 +33,7 @@ namespace Unite
             this.expression = expression;
         }
 
-        public float Solve()
+        public float Evaluate()
         {
             solveExpression = expression.Trim();
 
@@ -46,6 +46,30 @@ namespace Unite
             float.TryParse(SolveElements(), out result);
 
             return result;
+        }
+
+        public float Solve(Vector2 bounds, float y, float tol = 0.0675f)
+        {
+            Vector2 limits = GetUpAndBelowValues(bounds, y);
+            if (limits != Vector2.zero)
+                return BisectionRecursion(limits, y, tol);
+            return 0;
+        }
+
+        public List<float> SolveAllInRange(Vector2 bounds, float step, float y, float tol = 0.0675f)
+        {
+            List<float> list = new List<float>();
+            Vector2 limits;
+            float pass = bounds.x;
+
+            while (pass < bounds.y)
+            {
+                if (CheckUpAndBelowValues(new Vector2(pass, pass + step), y, out limits))
+                    list.Add(BisectionRecursion(limits, y, tol));
+                pass += step;
+            }
+
+            return list;
         }
 
         // Dictionaries Manipulation
@@ -84,7 +108,7 @@ namespace Unite
                 if (f > -0.001f && f < 0.001f)
                     f = 0;
                 AddOrChangeParameter("x", f);
-                points.Add(new Vector2(f, Solve()));
+                points.Add(new Vector2(f, Evaluate()));
             }
 
             return points;
@@ -178,6 +202,9 @@ namespace Unite
         // Private
         #region Private
 
+        // Evaluator
+        #region Evaluator
+
         private void ConvertElements()
         {
             InitializePass();
@@ -186,14 +213,11 @@ namespace Unite
             for (int index = 0; index < solveExpression.Length; index++)
             {
                 element += solveExpression[index].ToString();
-                CheckParameter2();
+                CheckParameter();
                 CheckOperation();
                 index = CheckFloat(index);
             }
         }
-
-        // Solver
-        #region Solver
 
         private string SolveElements()
         {
@@ -292,7 +316,7 @@ namespace Unite
                             solveExpression = solveExpression.Remove(beginIndex, 1);
                             Expression ex = new Expression(subExpression);
                             ex.parameters = parameters;
-                            solveExpression = solveExpression.Replace(subExpression, ex.Solve().ToString());
+                            solveExpression = solveExpression.Replace(subExpression, ex.Evaluate().ToString());
                             break;
                         }
                     }
@@ -328,7 +352,7 @@ namespace Unite
             element = "";
         }
 
-        private void CheckParameter2()
+        private void CheckParameter()
         {
             foreach (KeyValuePair<string, float> entry in parameters)
             {
@@ -384,6 +408,98 @@ namespace Unite
                 return index - 1;
             }
             return index;
+        }
+
+        #endregion
+
+        // Solver
+        #region Solver
+
+        private Vector2 GetUpAndBelowValues(Vector2 bounds, float y)
+        {
+            Vector2 limits = Vector2.zero;
+            float evalue;
+            int counter = 0;
+            int maxSteps = 1000;
+
+            do
+            {
+                if (counter >= maxSteps)
+                {
+                    Debug.LogError("Expression Solve, unable to find solution");
+                    return Vector2.zero;
+                }
+                limits.y = Random.Range(bounds.x, bounds.y);
+                AddOrChangeParameter("x", limits.y);
+                evalue = Evaluate();
+                counter++;
+            }
+            while (evalue < y);
+
+            counter = 0;
+            do
+            {
+                if (counter >= maxSteps)
+                {
+                    Debug.LogError("Expression Solve, unable to find solution");
+                    return Vector2.zero;
+                }
+                limits.x = Random.Range(bounds.x, bounds.y);
+                AddOrChangeParameter("x", limits.x);
+                evalue = Evaluate();
+                counter++;
+            }
+            while (evalue > y);
+
+            return limits;
+        }
+
+        private bool CheckUpAndBelowValues(Vector2 initialBounds, float y, out Vector2 resultBounds)
+        {
+            AddOrChangeParameter("x", initialBounds.x);
+            float xEvalue = Evaluate();
+            AddOrChangeParameter("x", initialBounds.y);
+            float yEvalue = Evaluate();
+
+            if (xEvalue >= y && yEvalue <= y)
+            {
+                resultBounds.x = initialBounds.y;
+                resultBounds.y = initialBounds.x;
+                return true;
+            }
+            else if (xEvalue <= y && yEvalue >= y)
+            {
+                resultBounds = initialBounds;
+                return true;
+            }
+            resultBounds = Vector2.zero;
+            return false;
+        }
+
+        private float BisectionRecursion(Vector2 limits, float y, float tol)
+        {
+            float param;
+            float evalue;
+            int counter = 0;
+            int maxSteps = 1000;
+
+            do
+            {
+                param = (limits.x + limits.y) / 2;
+                AddOrChangeParameter("x", param);
+                evalue = Evaluate();
+                if (evalue > y)
+                    limits.y = param;
+                else
+                    limits.x = param;
+
+                counter++;
+                if (counter > maxSteps)
+                    return param;
+            }
+            while (Mathf.Abs(evalue - y) > tol);
+
+            return param;
         }
 
         #endregion
