@@ -133,6 +133,48 @@ namespace Unite
 
         #endregion
 
+        // Public Static
+        #region Public Static
+
+        public static string GetPolynomial(float[] coef)
+        {
+            string poly = "";
+            for (int i = 0; i < coef.Length; i++)
+            {
+                if (i + 1 < coef.Length)
+                    poly += coef[i] + " * x ^ " + ((coef.Length - i) - 1) + " + ";
+                else
+                    poly += coef[i] + " * x ^ " + ((coef.Length - i) - 1);
+            }
+
+            return poly;
+        }
+
+        public static string GetPolynomialDerivate(float[] coef)
+        {
+            string poly = "";
+            for (int i = 0; i < coef.Length - 1; i++)
+            {
+                if (i + 2 < coef.Length)
+                    poly += ((coef.Length - i) - 1) * coef[i] + " * x ^ " + ((coef.Length - i) - 2) + " + ";
+                else
+                    poly += ((coef.Length - i) - 1) * coef[i] + " * x ^ " + ((coef.Length - i) - 2);
+            }
+
+            return poly;
+        }
+
+        public static string GetPolynomialPrimitive(float[] coef)
+        {
+            string poly = "";
+            for (int i = 0; i < coef.Length; i++)
+                poly += coef[i] / (coef.Length - i) + " * x ^ " + (coef.Length - i) + " + ";
+
+            return poly + "C";
+        }
+
+        #endregion
+
         // Private
         #region Private
 

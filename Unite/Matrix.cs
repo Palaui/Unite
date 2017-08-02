@@ -147,13 +147,6 @@ namespace Unite
             if (!IsSquare())
                 return null;
 
-            Debug.Log("LU");
-
-            for (int i = 0; i < rows; i++)
-            {
-                Debug.Log(lu[i, 0] + "\t\t" + lu[i, 1] + "\t\t" + lu[i, 2]);
-            }
-
             // Result for Ly = results
             float[] y = new float[rows];
             float sum;
