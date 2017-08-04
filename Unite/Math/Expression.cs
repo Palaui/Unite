@@ -186,7 +186,7 @@ namespace Unite
         #endregion
 
         // Draw
-        public void DrawGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX, float inStepY)
+        public GameObject DrawGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX, float inStepY)
         {
             List<List<Vector3>> points = GetGraphicPoints(xDomain, yDomain, inStepX, inStepY);
             int rows = points.Count;
@@ -200,28 +200,28 @@ namespace Unite
                 List<Vector2> uvs = new List<Vector2>();
                 List<int> triangles = new List<int>();
 
+                for (int i = 0; i < columns; i++)
+                {
+                    for (int j = 0; j < rows; j++)
+                    {
+                        vertices.Add(points[i][j]);
+                        uvs.Add(new Vector2(i / (columns - 1.0f), (float)(j) / (rows - 1.0f)));
+                    }
+                }
+
                 for (int i = 0; i < columns - 1; i++)
                 {
                     for (int j = 0; j < rows - 1; j++)
                     {
-                        vertices.Add(points[i][j]);
-                        vertices.Add(points[i][j + 1]);
-                        vertices.Add(points[i + 1][j]);
-                        vertices.Add(points[i + 1][j]);
-                        vertices.Add(points[i][j + 1]);
-                        vertices.Add(points[i + 1][j + 1]);
-
-                        uvs.Add(new Vector2(0, 0));
-                        uvs.Add(new Vector2(1, 0));
-                        uvs.Add(new Vector2(0, 1));
-                        uvs.Add(new Vector2(1, 0));
-                        uvs.Add(new Vector2(0, 1));
-                        uvs.Add(new Vector2(1, 1));
+                        triangles.Add(i + j * rows);
+                        triangles.Add((i + 1) + j * rows);
+                        triangles.Add(i + (j + 1) * rows);
+                        triangles.Add(i + (j + 1) * rows);
+                        triangles.Add((i + 1) + j * rows);
+                        triangles.Add((i + 1) + (j + 1) * rows);
                     }
                 }
 
-                for (int i = 0; i < vertices.Count; i++)
-                    triangles.Add(i);
 
                 MeshFilter filter = go.AddComponent<MeshFilter>();
                 MeshRenderer rend = go.AddComponent<MeshRenderer>();
@@ -232,10 +232,11 @@ namespace Unite
                 rend.material = new Material(Shader.Find("Standard"));
                 rend.material.SetColor("_Color", Color.green);
 
-                return;
+                return go;
             }
 
             Debug.Log("Expression DrawGraphicPoints: Unable to calculate graphic");
+            return null;
         }
 
         #endregion
