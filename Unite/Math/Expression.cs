@@ -10,23 +10,31 @@ namespace Unite
 
         private Dictionary<string, float> parameters = new Dictionary<string, float>();
         private List<string> elements = new List<string>();
-        private List<Vector2> points = new List<Vector2>();
 
         private string expression;
         private string solveExpression;
 
         private string element = "";
-        private float step = 0;
 
         #endregion
 
-        // Public
-        #region Public
+        // Override
+        #region Override
 
         public Expression(string expression)
         {
             this.expression = expression;
         }
+
+        public Expression(float[] polynomialCoefs)
+        {
+            expression = GetPolynomial(polynomialCoefs);
+        }
+
+        #endregion
+
+        // Public
+        #region Public
 
         public void AssignExpression(string expression)
         {
@@ -99,16 +107,38 @@ namespace Unite
 
         public List<Vector2> GetGraphicPoints(Vector2 domain, float inStep = 0.0675f)
         {
-            points.Clear();
-            step = inStep;
-            step = Mathf.Clamp(step, 0.001f, 1000);
+            List<Vector2> points = new List<Vector2>();
+            inStep = Mathf.Clamp(inStep, 0.001f, 1000);
 
-            for (float f = domain.x; f <= domain.y; f += step)
+            for (float f = domain.x; f <= domain.y; f += inStep)
             {
-                if (f > -0.001f && f < 0.001f)
-                    f = 0;
+                if (f > -0.001f && f < 0.001f) { f = 0; }
                 AddOrChangeParameter("x", f);
                 points.Add(new Vector2(f, Evaluate()));
+            }
+
+            return points;
+        }
+        public List<List<Vector3>> GetGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX = 0.0675f, float inStepY = 0.0675f)
+        {
+            List<List<Vector3>> points = new List<List<Vector3>>();
+            List<Vector3> subPoints = new List<Vector3>();
+            inStepX = Mathf.Clamp(inStepX, 0.001f, 1000);
+            inStepY = Mathf.Clamp(inStepY, 0.001f, 1000);
+
+            for (float x = xDomain.x; x <= xDomain.y; x += inStepX)
+            {
+                if (x > -0.001f && x < 0.001f) { x = 0; }
+                AddOrChangeParameter("x", x);
+                subPoints = new List<Vector3>();
+
+                for (float y = yDomain.x; y <= yDomain.y; y += inStepY)
+                {
+                    if (y > -0.001f && y < 0.001f) { y = 0; }
+                    AddOrChangeParameter("y", y);
+                    subPoints.Add(new Vector3(x, Evaluate(), y));
+                }
+                points.Add(subPoints);
             }
 
             return points;
@@ -154,6 +184,59 @@ namespace Unite
         }
 
         #endregion
+
+        // Draw
+        public void DrawGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX, float inStepY)
+        {
+            List<List<Vector3>> points = GetGraphicPoints(xDomain, yDomain, inStepX, inStepY);
+            int rows = points.Count;
+            if (rows > 0)
+            {
+                int columns = points[0].Count;
+
+                GameObject go = new GameObject("Graphic3D");
+                Ext.ResetTransform(go);
+                List<Vector3> vertices = new List<Vector3>();
+                List<Vector2> uvs = new List<Vector2>();
+                List<int> triangles = new List<int>();
+
+                for (int i = 0; i < columns - 1; i++)
+                {
+                    for (int j = 0; j < rows - 1; j++)
+                    {
+                        vertices.Add(points[i][j]);
+                        vertices.Add(points[i][j + 1]);
+                        vertices.Add(points[i + 1][j]);
+                        vertices.Add(points[i + 1][j]);
+                        vertices.Add(points[i][j + 1]);
+                        vertices.Add(points[i + 1][j + 1]);
+
+                        uvs.Add(new Vector2(0, 0));
+                        uvs.Add(new Vector2(1, 0));
+                        uvs.Add(new Vector2(0, 1));
+                        uvs.Add(new Vector2(1, 0));
+                        uvs.Add(new Vector2(0, 1));
+                        uvs.Add(new Vector2(1, 1));
+                    }
+                }
+
+                for (int i = 0; i < vertices.Count; i++)
+                    triangles.Add(i);
+
+                MeshFilter filter = go.AddComponent<MeshFilter>();
+                MeshRenderer rend = go.AddComponent<MeshRenderer>();
+                filter.mesh.vertices = Ext.CreateArrayFromList(vertices);
+                filter.mesh.uv = Ext.CreateArrayFromList(uvs);
+                filter.mesh.triangles = Ext.CreateArrayFromList(triangles);
+                filter.mesh.RecalculateNormals();
+                rend.material = new Material(Shader.Find("Standard"));
+                rend.material.SetColor("_Color", Color.green);
+
+                return;
+            }
+
+            Debug.Log("Expression DrawGraphicPoints: Unable to calculate graphic");
+        }
 
         #endregion
 
