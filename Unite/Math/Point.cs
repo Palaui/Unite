@@ -32,6 +32,13 @@ namespace Unite
         // Overide
         #region Overide
 
+        public Point(int dimensionOrigin)
+        {
+            for (int i = 0; i < dimensionOrigin; i++)
+                p.Add(0);
+            dimension = dimensionOrigin;
+        }
+
         public Point(Vector2 pointA)
         {
             p.Add(pointA.x);
@@ -147,7 +154,7 @@ namespace Unite
         public static Point operator +(Point pointA, Point pointB)
         {
             List<float> comps = new List<float>();
-            int dim = Mathf.Max(pointA.dimension, pointB.dimension);
+            int dim = Mathf.Min(pointA.dimension, pointB.dimension);
 
             for (int i = 0; i < dim; i++)
                 comps.Add(pointA[i] + pointB[i]);
@@ -158,7 +165,7 @@ namespace Unite
         public static Point operator -(Point pointA, Point pointB)
         {
             List<float> comps = new List<float>();
-            int dim = Mathf.Max(pointA.dimension, pointB.dimension);
+            int dim = Mathf.Min(pointA.dimension, pointB.dimension);
 
             for (int i = 0; i < dim; i++)
                 comps.Add(pointA[i] - pointB[i]);

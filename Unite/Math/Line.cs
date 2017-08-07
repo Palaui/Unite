@@ -2,13 +2,14 @@
 
 namespace Unite
 {
-    class Line
+    public class Line
     {
         // Variables
         #region Variables
 
         private Point p;
         private Point q;
+        private int dimension;
 
         #endregion
 
@@ -17,11 +18,12 @@ namespace Unite
 
         public Point P { get { return p; } }
         public Point Q { get { return q; } }
+        public int Dimension { get { return dimension; } }
 
         #endregion
 
-        // Overide
-        #region Overide
+        // Override
+        #region Override
 
         public Line(Point pointA, Point pointB)
         {
@@ -47,6 +49,7 @@ namespace Unite
         {
             p = pointA;
             q = pointB;
+            dimension = Mathf.Min(pointA.Dimension, pointB.Dimension);
         }
 
         public bool IsCoincident(Line line)
