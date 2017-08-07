@@ -10,6 +10,7 @@ namespace Unite
 
         private Dictionary<string, float> parameters = new Dictionary<string, float>();
         private List<string> elements = new List<string>();
+        private float[] coeficients;
 
         private string expression;
         private string solveExpression;
@@ -26,15 +27,19 @@ namespace Unite
             this.expression = expression;
         }
 
-        public Expression(float[] polynomialCoefs)
+        public Expression(float[] polynomialCoeficients)
         {
-            expression = GetPolynomial(polynomialCoefs);
+            coeficients = polynomialCoeficients;
+            expression = GetPolynomial(coeficients);
         }
 
         #endregion
 
         // Public
         #region Public
+
+        // Basic
+        #region Basic
 
         public void AssignExpression(string expression)
         {
@@ -79,6 +84,8 @@ namespace Unite
 
             return list;
         }
+
+        #endregion
 
         // Dictionaries Manipulation
         #region Dictionaries Manipulation
@@ -185,7 +192,54 @@ namespace Unite
 
         #endregion
 
+        // Polynomials
+        #region Polynomials
+
+        public string GetPolynomial() { return GetPolynomial(coeficients); }
+        public string GetPolynomial(float[] coeficients)
+        {
+            string poly = "";
+            for (int i = 0; i < coeficients.Length; i++)
+            {
+                if (i + 1 < coeficients.Length)
+                    poly += coeficients[i] + " * x ^ " + ((coeficients.Length - i) - 1) + " + ";
+                else
+                    poly += coeficients[i] + " * x ^ " + ((coeficients.Length - i) - 1);
+            }
+
+            return poly;
+        }
+
+        public string GetPolynomialDerivate() { return GetPolynomialDerivate(coeficients); }
+        public string GetPolynomialDerivate(float[] coeficients)
+        {
+            string poly = "";
+            for (int i = 0; i < coeficients.Length - 1; i++)
+            {
+                if (i + 2 < coeficients.Length)
+                    poly += ((coeficients.Length - i) - 1) * coeficients[i] + " * x ^ " + ((coeficients.Length - i) - 2) + " + ";
+                else
+                    poly += ((coeficients.Length - i) - 1) * coeficients[i] + " * x ^ " + ((coeficients.Length - i) - 2);
+            }
+
+            return poly;
+        }
+
+        public string GetPolynomialPrimitive() { return GetPolynomialPrimitive(coeficients); }
+        public string GetPolynomialPrimitive(float[] coeficients)
+        {
+            string poly = "";
+            for (int i = 0; i < coeficients.Length; i++)
+                poly += coeficients[i] / (coeficients.Length - i) + " * x ^ " + (coeficients.Length - i) + " + ";
+
+            return poly + "C";
+        }
+
+        #endregion
+
         // Draw
+        #region Draw
+
         public GameObject DrawGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX, float inStepY)
         {
             List<List<Vector3>> points = GetGraphicPoints(xDomain, yDomain, inStepX, inStepY);
@@ -230,7 +284,8 @@ namespace Unite
                 filter.mesh.triangles = Ext.CreateArrayFromList(triangles);
                 filter.mesh.RecalculateNormals();
                 rend.material = new Material(Shader.Find("Standard"));
-                rend.material.SetColor("_Color", Color.green);
+                rend.material.SetColor("_Color", Color.white);
+                rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
                 return go;
             }
@@ -240,46 +295,6 @@ namespace Unite
         }
 
         #endregion
-
-        // Public Static
-        #region Public Static
-
-        public static string GetPolynomial(float[] coef)
-        {
-            string poly = "";
-            for (int i = 0; i < coef.Length; i++)
-            {
-                if (i + 1 < coef.Length)
-                    poly += coef[i] + " * x ^ " + ((coef.Length - i) - 1) + " + ";
-                else
-                    poly += coef[i] + " * x ^ " + ((coef.Length - i) - 1);
-            }
-
-            return poly;
-        }
-
-        public static string GetPolynomialDerivate(float[] coef)
-        {
-            string poly = "";
-            for (int i = 0; i < coef.Length - 1; i++)
-            {
-                if (i + 2 < coef.Length)
-                    poly += ((coef.Length - i) - 1) * coef[i] + " * x ^ " + ((coef.Length - i) - 2) + " + ";
-                else
-                    poly += ((coef.Length - i) - 1) * coef[i] + " * x ^ " + ((coef.Length - i) - 2);
-            }
-
-            return poly;
-        }
-
-        public static string GetPolynomialPrimitive(float[] coef)
-        {
-            string poly = "";
-            for (int i = 0; i < coef.Length; i++)
-                poly += coef[i] / (coef.Length - i) + " * x ^ " + (coef.Length - i) + " + ";
-
-            return poly + "C";
-        }
 
         #endregion
 

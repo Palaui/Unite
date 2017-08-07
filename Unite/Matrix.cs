@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unite
@@ -40,10 +41,20 @@ namespace Unite
                     values[i, j] = 0;
         }
 
+        public Matrix(float[,] matrix)
+        {
+            rows = matrix.GetLength(0);
+            columns = matrix.GetLength(1);
+            values = matrix;
+        }
+
         #endregion
 
         // Public
         #region Public
+
+        // Fillers
+        #region FIllers
 
         public void FillRow(float[] inRow, int index)
         {
@@ -81,30 +92,19 @@ namespace Unite
                 values[i, index] = inColumn[i];
         }
 
-        public float Determinant()
+        #endregion 
+
+        public bool IsSquare()
         {
-            if (!IsSquare())
-            {
-                Debug.LogError("Matrix Determinant: Unable to process determinant of a non square matrix, Aborting");
-                return 0;
-            }
-
-            if (lu == null)
-                LU();
-
-            float det = 1;
-            for (int i = 0; i < columns; i++)
-                det *= lu[i, i];
-
-            return det;
+            return (rows == columns);
         }
 
-        public void LU()
+        public float[,] LU()
         {
             if (!IsSquare())
             {
                 Debug.LogError("Matrix LU: Unable to decompose matrix in LU, the matrix is not square");
-                return;
+                return null;
             }
 
             lu = new float[rows, columns];
@@ -126,11 +126,46 @@ namespace Unite
                     lu[j, i] = (1 / lu[i, i]) * (values[j, i] - sum);
                 }
             }
+
+            return lu;
         }
 
-        public bool IsSquare()
+        public float Determinant()
         {
-            return (rows == columns);
+            if (!IsSquare())
+            {
+                Debug.LogError("Matrix Determinant: Unable to process determinant of a non square matrix, Aborting");
+                return 0;
+            }
+
+            if (lu == null)
+                LU();
+
+            float det = 1;
+            for (int i = 0; i < columns; i++)
+                det *= lu[i, i];
+
+            return det;
+        }
+
+        public void Traspose()
+        {
+            if (!IsSquare())
+            {
+                Debug.LogError("Matrix Traspose: Unable to traspose a non square matrix, Aborting");
+                return;
+            }
+
+            float aux;
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < i - 1; j++)
+                {
+                    aux = values[i, j];
+                    values[i, j] = values[j, i];
+                    values[j, i] = aux;
+                }
+            }
         }
 
         public float[] Solve(float[] results)
@@ -172,5 +207,67 @@ namespace Unite
         }
 
         #endregion
+
+        // Public Static
+        #region Public Static
+
+        public static Expression GetInterpolationPolynomial(List<Vector2> points)
+        {
+            List<float> list = new List<float>();
+            Matrix matrix = new Matrix(points.Count, points.Count);
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                for (int j = 0; j < points.Count; j++)
+                    list.Add(Mathf.Pow(points[i].x, (points.Count - j) - 1));
+                matrix.FillRow(Ext.CreateArrayFromList(list), i);
+                list.Clear();
+            }
+
+            for (int i = 0; i < points.Count; i++)
+                list.Add(points[i].y);
+
+            float[] sol = matrix.Solve(Ext.CreateArrayFromList(list));
+
+            return new Expression(sol);
+        }
+
+        public static Expression GetInterpolationDerivatePolynomial(List<Vector2> points, Vector2 derivateA, Vector2 derivateB)
+        {
+            List<float> list = new List<float>();
+            Matrix matrix = new Matrix(points.Count + 2, points.Count + 2);
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                for (int j = 0; j < points.Count + 2; j++)
+                    list.Add(Mathf.Pow(points[i].x, points.Count + 1 - j));
+                matrix.FillRow(Ext.CreateArrayFromList(list), i);
+                list.Clear();
+            }
+
+            for (int i = 0; i < points.Count + 1; i++)
+                list.Add(Mathf.Pow(derivateA.x, points.Count - i) * ((points.Count - i) + 1));
+            list.Add(0);
+            matrix.FillRow(Ext.CreateArrayFromList(list), points.Count);
+            list.Clear();
+
+            for (int i = 0; i < points.Count + 1; i++)
+                list.Add(Mathf.Pow(derivateB.x, points.Count - i) * ((points.Count - i) + 1));
+            list.Add(0);
+            matrix.FillRow(Ext.CreateArrayFromList(list), points.Count + 1);
+            list.Clear();
+
+            for (int i = 0; i < points.Count; i++)
+                list.Add(points[i].y);
+            list.Add(0);
+            list.Add(0);
+
+            float[] sol = matrix.Solve(Ext.CreateArrayFromList(list));
+
+            return new Expression(sol);
+        }
+
+        #endregion
+
     }
 }
