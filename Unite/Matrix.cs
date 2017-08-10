@@ -24,6 +24,22 @@ namespace Unite
         public int Columns { get { return columns; } }
         public float[,] Values { get { return values; } }
 
+        public float this[int x, int y]
+        {
+            get
+            {
+                if (rows > y && columns > x)
+                    return values[x, y];
+                else
+                    return 0;
+            }
+            set
+            {
+                if (rows > y && columns > x)
+                    values[x, y] = value;
+            }
+        }
+
         #endregion
 
         // Override
@@ -52,6 +68,44 @@ namespace Unite
 
         // Public
         #region Public
+
+        public float[] Solve(float[] results)
+        {
+            if (results.Length != rows)
+            {
+                Debug.LogError("Matrix Solve: passed results length is different from the matrix order, Aborting");
+                return null;
+            }
+
+            if (lu == null)
+                LU();
+
+            if (!IsSquare())
+                return null;
+
+            // Result for Ly = results
+            float[] y = new float[rows];
+            float sum;
+            for (int i = 0; i < rows; i++)
+            {
+                sum = 0;
+                for (int k = 0; k < i; k++)
+                    sum += lu[i, k] * y[k];
+                y[i] = results[i] - sum;
+            }
+
+            // Results for Ux = y
+            float[] x = new float[rows];
+            for (int i = rows - 1; i >= 0; i--)
+            {
+                sum = 0;
+                for (int k = i + 1; k < rows; k++)
+                    sum += lu[i, k] * x[k];
+                x[i] = (1 / lu[i, i]) * (y[i] - sum);
+            }
+
+            return x;
+        }
 
         // Fillers
         #region FIllers
@@ -92,7 +146,10 @@ namespace Unite
                 values[i, index] = inColumn[i];
         }
 
-        #endregion 
+        #endregion
+
+        // Operations
+        #region Operations
 
         public bool IsSquare()
         {
@@ -168,50 +225,59 @@ namespace Unite
             }
         }
 
-        public float[] Solve(float[] results)
+        #endregion
+
+        // Calculus
+        #region Calculus
+
+        public void CalculateInterpolatedGraphicPoints(Vector3[,] positions, int numberOfSteps)
         {
-            if (results.Length != rows)
+            List<Vector3> points = new List<Vector3>();
+            Vector3[,] interpolatedPositions = new Vector3[numberOfSteps, numberOfSteps];
+
+            List<Vector2> auxiliarPoints;
+            Expression ex;
+
+            for (int i = 0; i < positions.GetLength(1); i++)
             {
-                Debug.LogError("Matrix Solve: passed results length is different from the matrix order, Aborting");
-                return null;
+                for (int j = 0; j < positions.GetLength(0); j++)
+                    points.Add(positions[i, j]);
+
+                ex = GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]);
+                auxiliarPoints = ex.GetGraphicPoints(new Vector2(points[0].x, points[points.Count - 1].x), numberOfSteps);
+
+                points.Clear();
             }
 
-            if (lu == null)
-                LU();
-
-            if (!IsSquare())
-                return null;
-
-            // Result for Ly = results
-            float[] y = new float[rows];
-            float sum;
-            for (int i = 0; i < rows; i++)
+            for (int j = 0; j < positions.GetLength(1); j++)
             {
-                sum = 0;
-                for (int k = 0; k < i; k++)
-                    sum += lu[i, k] * y[k];
-                y[i] = results[i] - sum;
-            }
+                for (int i = 0; i < positions.GetLength(0); i++)
+                    points.Add(positions[i, j]);
 
-            // Results for Ux = y
-            float[] x = new float[rows];
-            for (int i = rows - 1; i >= 0; i--)
-            {
-                sum = 0;
-                for (int k = i + 1; k < rows; k++)
-                    sum += lu[i, k] * x[k];
-                x[i] = (1 / lu[i, i]) * (y[i] - sum);
+                ex = GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]);
+                auxiliarPoints = ex.GetGraphicPoints(new Vector2(points[0].x, points[points.Count - 1].x), numberOfSteps);
+                points.Clear();
             }
-            
-            return x;
         }
+
+        #endregion
+
+        // Draw
+        #region Draw
+
+        public GameObject Draw(Vector3[,] positions)
+        {
+            return null;
+        }
+
+        #endregion
 
         #endregion
 
         // Public Static
         #region Public Static
 
-        public static Expression GetInterpolationPolynomial(List<Vector2> points)
+        public static Expression GetInterpolationPolynomial(List<Vector3> points)
         {
             List<float> list = new List<float>();
             Matrix matrix = new Matrix(points.Count, points.Count);
@@ -232,7 +298,7 @@ namespace Unite
             return new Expression(sol);
         }
 
-        public static Expression GetInterpolationDerivatePolynomial(List<Vector2> points, Vector2 derivateA, Vector2 derivateB)
+        public static Expression GetInterpolationPolynomialWithDerivate0(List<Vector3> points, Vector3 derivateA, Vector3 derivateB)
         {
             List<float> list = new List<float>();
             Matrix matrix = new Matrix(points.Count + 2, points.Count + 2);
@@ -266,6 +332,8 @@ namespace Unite
 
             return new Expression(sol);
         }
+
+
 
         #endregion
 

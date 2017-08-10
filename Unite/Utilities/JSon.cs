@@ -62,11 +62,8 @@ namespace Unite
 
         #endregion
 
-        // Public
-        #region Public
-
-        // Constructors, Loaders & Writers
-        #region Constructors, Loaders & Writers
+        // Override
+        #region Override
 
         private JSon(JSon json, string id)
         {
@@ -83,6 +80,15 @@ namespace Unite
             this.id = id;
             Load(path);
         }
+        public JSon() { }
+
+        #endregion
+
+        // Public
+        #region Public
+
+        // Loaders & Writers
+        #region Loaders & Writers
 
         public void Load(TextAsset asset)
         {
@@ -508,6 +514,15 @@ namespace Unite
         public static bool isValid(string path)
         {
             return File.Exists(path + ".json");
+        }
+
+        public static JSon GetFromString(string str)
+        {
+            JSon json = new JSon();
+            json.Parse(str);
+            json.id = "";
+            json.dataPath = "";
+            return json;
         }
 
         #endregion

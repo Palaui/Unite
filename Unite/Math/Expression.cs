@@ -126,6 +126,22 @@ namespace Unite
 
             return points;
         }
+        public List<Vector2> GetGraphicPoints(Vector2 domain, int numberOfSteps)
+        {
+            List<Vector2> points = new List<Vector2>();
+            float step = (domain.y - domain.x) / numberOfSteps;
+            float f;
+
+            for (int i = 0; i <= numberOfSteps; i++)
+            {
+                f = domain.x + i * step;
+                if (f > -0.001f && f < 0.001f) { f = 0; }
+                AddOrChangeParameter("x", f);
+                points.Add(new Vector2(f, Evaluate()));
+            }
+
+            return points;
+        }
         public List<List<Vector3>> GetGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX = 0.0675f, float inStepY = 0.0675f)
         {
             List<List<Vector3>> points = new List<List<Vector3>>();
