@@ -232,20 +232,30 @@ namespace Unite
 
         public void CalculateInterpolatedGraphicPoints(Vector3[,] positions, int numberOfSteps)
         {
-            List<Vector3> points = new List<Vector3>();
             Vector3[,] interpolatedPositions = new Vector3[numberOfSteps, numberOfSteps];
+            Vector3[,] unheighedPositions = new Vector3[positions.GetLength(0), positions.GetLength(1)];
 
-            List<Vector2> auxiliarPoints;
-            Expression ex;
+            List<Expression> xExpressions = new List<Expression>();
+            List<Expression> zExpressions = new List<Expression>();
+            List<Vector3> points = new List<Vector3>();
+
+            // Get positions without height for distance calculations
+            for (int i = 0; i < positions.GetLength(0); i++)
+                for (int j = 0; j < positions.GetLength(1); j++)
+                    unheighedPositions[i, j] = new Vector3(positions[i, j].x, 0, positions[i, j].z);
+            
+            Vector2 clusterDistance = 
+                new Vector2(Vector3.Distance(unheighedPositions[unheighedPositions.GetLength(0) - 1, 0], unheighedPositions[0, 0] / numberOfSteps),
+                            Vector3.Distance(unheighedPositions[0, unheighedPositions.GetLength(1) - 1], unheighedPositions[0, 0] / numberOfSteps));
+
+            //List<Vector2> auxiliarPoints;
 
             for (int i = 0; i < positions.GetLength(1); i++)
             {
                 for (int j = 0; j < positions.GetLength(0); j++)
                     points.Add(positions[i, j]);
 
-                ex = GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]);
-                auxiliarPoints = ex.GetGraphicPoints(new Vector2(points[0].x, points[points.Count - 1].x), numberOfSteps);
-
+                xExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
                 points.Clear();
             }
 
@@ -254,8 +264,7 @@ namespace Unite
                 for (int i = 0; i < positions.GetLength(0); i++)
                     points.Add(positions[i, j]);
 
-                ex = GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]);
-                auxiliarPoints = ex.GetGraphicPoints(new Vector2(points[0].x, points[points.Count - 1].x), numberOfSteps);
+                zExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
                 points.Clear();
             }
         }
