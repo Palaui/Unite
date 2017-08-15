@@ -243,13 +243,14 @@ namespace Unite
             for (int i = 0; i < positions.GetLength(0); i++)
                 for (int j = 0; j < positions.GetLength(1); j++)
                     unheighedPositions[i, j] = new Vector3(positions[i, j].x, 0, positions[i, j].z);
-            
-            Vector2 clusterDistance = 
-                new Vector2(Vector3.Distance(unheighedPositions[unheighedPositions.GetLength(0) - 1, 0], unheighedPositions[0, 0] / numberOfSteps),
-                            Vector3.Distance(unheighedPositions[0, unheighedPositions.GetLength(1) - 1], unheighedPositions[0, 0] / numberOfSteps));
 
-            //List<Vector2> auxiliarPoints;
+            Vector2 totalDistance = new Vector2(
+                Vector3.Distance(unheighedPositions[unheighedPositions.GetLength(0) - 1, 0], unheighedPositions[0, 0]),
+                Vector3.Distance(unheighedPositions[0, unheighedPositions.GetLength(1) - 1], unheighedPositions[0, 0]));
 
+            Vector2 clusterDistance = totalDistance / numberOfSteps;
+
+            // Calculate basic expressions and assign position lists
             for (int i = 0; i < positions.GetLength(1); i++)
             {
                 for (int j = 0; j < positions.GetLength(0); j++)
@@ -266,6 +267,43 @@ namespace Unite
 
                 zExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
                 points.Clear();
+            }
+
+            // Fill interpolated points
+            for (int i = 0; i < interpolatedPositions.GetLength(0); i++)
+            {
+                float posX = Mathf.Lerp(0, interpolatedPositions.GetLength(0), i) * totalDistance.x;
+                float posY = 0;
+                for (int k = 1; k < positions.GetLength(0); k++)
+                {
+                    if (positions[k, 0].x > posX)
+                    {
+                        float minusDist = (posX - positions[k - 1, 0].x) / clusterDistance.x;
+                        float regularDist = (positions[k, 0].x - posX) / clusterDistance.x;
+                        float minus1 = xExpressions[k - 1].Evaluate();
+                        float regular = xExpressions[k].Evaluate();
+                        posY = minusDist * minus1 + regularDist * regular;
+                        break;
+                    }
+                }
+
+                for (int j = 0; j < interpolatedPositions.GetLength(1); j++)
+                {
+                    float posZ = Mathf.Lerp(0, interpolatedPositions.GetLength(1), j) * totalDistance.y;
+                    for (int k = 1; k < positions.GetLength(1); k++)
+                    {
+                        if (positions[k, 0].x > posX)
+                        {
+                            float minusDist = (posX - positions[0, k - 1].y) / clusterDistance.y;
+                            float regularDist = (positions[0, k].y - posZ) / clusterDistance.y;
+                            float minus1 = zExpressions[k - 1].Evaluate();
+                            float regular = zExpressions[k].Evaluate();
+                            posY = (posY + minusDist * minus1 + regularDist * regular) / 2;
+                            break;
+                        }
+                    }
+                    interpolatedPositions[i, j] = new Vector3(posX, posY, posZ);
+                }
             }
         }
 
