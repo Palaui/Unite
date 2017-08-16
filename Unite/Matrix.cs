@@ -230,14 +230,13 @@ namespace Unite
         // Calculus
         #region Calculus
 
-        public void CalculateInterpolatedGraphicPoints(Vector3[,] positions, int numberOfSteps)
+        public Vector3[,] CalculateInterpolatedGraphicPoints(Vector3[,] positions, int numberOfSteps)
         {
-            Vector3[,] interpolatedPositions = new Vector3[numberOfSteps, numberOfSteps];
+            Vector3[,] interpolatedPositions = new Vector3[numberOfSteps + 1, numberOfSteps + 1];
             Vector3[,] unheighedPositions = new Vector3[positions.GetLength(0), positions.GetLength(1)];
 
             List<Expression> xExpressions = new List<Expression>();
             List<Expression> zExpressions = new List<Expression>();
-            List<Vector3> points = new List<Vector3>();
 
             // Get positions without height for distance calculations
             for (int i = 0; i < positions.GetLength(0); i++)
@@ -248,63 +247,77 @@ namespace Unite
                 Vector3.Distance(unheighedPositions[unheighedPositions.GetLength(0) - 1, 0], unheighedPositions[0, 0]),
                 Vector3.Distance(unheighedPositions[0, unheighedPositions.GetLength(1) - 1], unheighedPositions[0, 0]));
 
-            Vector2 clusterDistance = totalDistance / numberOfSteps;
+            Vector2 clusterDistance = new Vector2(totalDistance.x / (positions.GetLength(0) - 1), totalDistance.y / (positions.GetLength(1) - 1));
 
             // Calculate basic expressions and assign position lists
-            for (int i = 0; i < positions.GetLength(1); i++)
-            {
-                for (int j = 0; j < positions.GetLength(0); j++)
-                    points.Add(positions[i, j]);
-
-                xExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
-                points.Clear();
-            }
-
+            List<Vector2> points = new List<Vector2>();
             for (int j = 0; j < positions.GetLength(1); j++)
             {
                 for (int i = 0; i < positions.GetLength(0); i++)
-                    points.Add(positions[i, j]);
+                    points.Add(new Vector2(positions[i, j].x, positions[i, j].y));
+
+                xExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
+                points = new List<Vector2>();
+            }
+
+            for (int i = 0; i < positions.GetLength(0); i++)
+            {
+                for (int j = 0; j < positions.GetLength(1); j++)
+                    points.Add(new Vector2(positions[i, j].z, positions[i, j].y));
 
                 zExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
-                points.Clear();
+                points = new List<Vector2>();
             }
 
             // Fill interpolated points
-            for (int i = 0; i < interpolatedPositions.GetLength(0); i++)
+            for (int i = 0; i <= numberOfSteps; i++)
             {
-                float posX = Mathf.Lerp(0, interpolatedPositions.GetLength(0), i) * totalDistance.x;
+                float posX = positions[0, 0].x + ((float)i / numberOfSteps) * totalDistance.x;
                 float posY = 0;
                 for (int k = 1; k < positions.GetLength(0); k++)
                 {
                     if (positions[k, 0].x > posX)
                     {
+                        Debug.Log("K  " + k);
                         float minusDist = (posX - positions[k - 1, 0].x) / clusterDistance.x;
+                        Debug.Log("minusDistX  " + minusDist);
                         float regularDist = (positions[k, 0].x - posX) / clusterDistance.x;
+                        Debug.Log("regularDistX  " + regularDist);
+                        xExpressions[k - 1].AddOrChangeParameter("x", posX);
                         float minus1 = xExpressions[k - 1].Evaluate();
+                        xExpressions[k].AddOrChangeParameter("x", posX);
                         float regular = xExpressions[k].Evaluate();
                         posY = minusDist * minus1 + regularDist * regular;
                         break;
                     }
                 }
 
-                for (int j = 0; j < interpolatedPositions.GetLength(1); j++)
+                for (int j = 0; j <= numberOfSteps; j++)
                 {
-                    float posZ = Mathf.Lerp(0, interpolatedPositions.GetLength(1), j) * totalDistance.y;
+                    float posZ = positions[0, 0].z + ((float)j / numberOfSteps) * totalDistance.y;
                     for (int k = 1; k < positions.GetLength(1); k++)
                     {
-                        if (positions[k, 0].x > posX)
+                        if (positions[k, 0].z > posZ)
                         {
-                            float minusDist = (posX - positions[0, k - 1].y) / clusterDistance.y;
+                            Debug.Log("K  " + k);
+                            float minusDist = (posZ - positions[0, k - 1].y) / clusterDistance.y;
+                            Debug.Log("minusDistY  " + minusDist);
                             float regularDist = (positions[0, k].y - posZ) / clusterDistance.y;
+                            Debug.Log("regularDistY  " + regularDist);
+                            zExpressions[k - 1].AddOrChangeParameter("x", posZ);
                             float minus1 = zExpressions[k - 1].Evaluate();
+                            zExpressions[k - 1].AddOrChangeParameter("x", posZ);
                             float regular = zExpressions[k].Evaluate();
                             posY = (posY + minusDist * minus1 + regularDist * regular) / 2;
                             break;
                         }
                     }
+                    Debug.Log("Point " + i + " " + j + " = " + new Vector3(posX, posY, posZ));
                     interpolatedPositions[i, j] = new Vector3(posX, posY, posZ);
                 }
             }
+
+            return interpolatedPositions;
         }
 
         #endregion
@@ -324,7 +337,7 @@ namespace Unite
         // Public Static
         #region Public Static
 
-        public static Expression GetInterpolationPolynomial(List<Vector3> points)
+        public static Expression GetInterpolationPolynomial(List<Vector2> points)
         {
             List<float> list = new List<float>();
             Matrix matrix = new Matrix(points.Count, points.Count);
@@ -345,7 +358,7 @@ namespace Unite
             return new Expression(sol);
         }
 
-        public static Expression GetInterpolationPolynomialWithDerivate0(List<Vector3> points, Vector3 derivateA, Vector3 derivateB)
+        public static Expression GetInterpolationPolynomialWithDerivate0(List<Vector2> points, Vector3 derivateA, Vector3 derivateB)
         {
             List<float> list = new List<float>();
             Matrix matrix = new Matrix(points.Count + 2, points.Count + 2);
@@ -379,8 +392,6 @@ namespace Unite
 
             return new Expression(sol);
         }
-
-
 
         #endregion
 

@@ -33,6 +33,11 @@ namespace Unite
             expression = GetPolynomial(coeficients);
         }
 
+        public override string ToString()
+        {
+            return expression;
+        }
+
         #endregion
 
         // Public
@@ -142,7 +147,7 @@ namespace Unite
 
             return points;
         }
-        public List<List<Vector3>> GetGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX = 0.0675f, float inStepY = 0.0675f)
+        public Vector3[,] GetGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX = 0.0675f, float inStepY = 0.0675f)
         {
             List<List<Vector3>> points = new List<List<Vector3>>();
             List<Vector3> subPoints = new List<Vector3>();
@@ -164,7 +169,7 @@ namespace Unite
                 points.Add(subPoints);
             }
 
-            return points;
+            return Ext.CreateArrayFromList(points);
         }
 
         public List<Vector2> GetDerivatePoints(List<Vector2> graphicPoints)
@@ -258,56 +263,7 @@ namespace Unite
 
         public GameObject DrawGraphicPoints(Vector2 xDomain, Vector2 yDomain, float inStepX, float inStepY)
         {
-            List<List<Vector3>> points = GetGraphicPoints(xDomain, yDomain, inStepX, inStepY);
-            int rows = points.Count;
-            if (rows > 0)
-            {
-                int columns = points[0].Count;
-
-                GameObject go = new GameObject("Graphic3D");
-                Ext.ResetTransform(go);
-                List<Vector3> vertices = new List<Vector3>();
-                List<Vector2> uvs = new List<Vector2>();
-                List<int> triangles = new List<int>();
-
-                for (int i = 0; i < columns; i++)
-                {
-                    for (int j = 0; j < rows; j++)
-                    {
-                        vertices.Add(points[i][j]);
-                        uvs.Add(new Vector2(i / (columns - 1.0f), (float)(j) / (rows - 1.0f)));
-                    }
-                }
-
-                for (int i = 0; i < columns - 1; i++)
-                {
-                    for (int j = 0; j < rows - 1; j++)
-                    {
-                        triangles.Add(i + j * rows);
-                        triangles.Add((i + 1) + j * rows);
-                        triangles.Add(i + (j + 1) * rows);
-                        triangles.Add(i + (j + 1) * rows);
-                        triangles.Add((i + 1) + j * rows);
-                        triangles.Add((i + 1) + (j + 1) * rows);
-                    }
-                }
-
-
-                MeshFilter filter = go.AddComponent<MeshFilter>();
-                MeshRenderer rend = go.AddComponent<MeshRenderer>();
-                filter.mesh.vertices = Ext.CreateArrayFromList(vertices);
-                filter.mesh.uv = Ext.CreateArrayFromList(uvs);
-                filter.mesh.triangles = Ext.CreateArrayFromList(triangles);
-                filter.mesh.RecalculateNormals();
-                rend.material = new Material(Shader.Find("Standard"));
-                rend.material.SetColor("_Color", Color.white);
-                rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-
-                return go;
-            }
-
-            Debug.Log("Expression DrawGraphicPoints: Unable to calculate graphic");
-            return null;
+            return ProcMesh.BuildPlane(GetGraphicPoints(xDomain, yDomain, inStepX, inStepY));
         }
 
         #endregion
