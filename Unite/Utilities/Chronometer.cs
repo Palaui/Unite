@@ -22,7 +22,7 @@ namespace Unite
             {
                 if (isPaused)
                     return stoppedTime;
-                return Time.fixedUnscaledTime - startTime;
+                return Time.realtimeSinceStartup - startTime;
             }
         }
 
@@ -33,26 +33,26 @@ namespace Unite
 
         public void Start()
         {
-            startTime = Time.fixedUnscaledTime;
+            startTime = Time.realtimeSinceStartup;
             stoppedTime = 0;
             isPaused = false;
         }
 
         public void Pause()
         {
-            stoppedTime = Time.fixedUnscaledTime - startTime;
+            stoppedTime = Time.realtimeSinceStartup - startTime;
             isPaused = true;
         }
 
         public void Resume()
         {
-            startTime = Time.fixedUnscaledTime - stoppedTime;
+            startTime = Time.realtimeSinceStartup - stoppedTime;
             isPaused = false;
         }
 
         public void Reset()
         {
-            startTime = Time.fixedUnscaledTime;
+            startTime = Time.realtimeSinceStartup;
             stoppedTime = 0;
         }
 

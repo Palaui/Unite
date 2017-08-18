@@ -270,23 +270,25 @@ namespace Unite
             }
 
             // Fill interpolated points
+            Vector2 minusDist, regularDist, minusValue, regularValue, posY;
+            float posX, posZ;
+            int kx = 1, kz = 1;
             for (int i = 0; i <= numberOfSteps; i++)
             {
+                // Pre x pass
+                posX = positions[0, 0].x + ((float)i / numberOfSteps) * totalDistance.x;
+                for (int k = 1; k < positions.GetLength(0); k++)
+                    if (positions[k, 0].x > posX - tol) { kx = k; break; }
+                minusDist.x = (posX - positions[kx - 1, 0].x) / clusterDistance.x;
+                regularDist.x = (positions[kx, 0].x - posX) / clusterDistance.x;
+
                 for (int j = 0; j <= numberOfSteps; j++)
                 {
-                    float posX = positions[0, 0].x + ((float)i / numberOfSteps) * totalDistance.x;
-                    float posZ = positions[0, 0].z + ((float)j / numberOfSteps) * totalDistance.y;
-                    Vector2 minusDist, regularDist, minusValue, regularValue, posY;
-                    int kx = 1, kz = 1;
-
-                    for (int k = 1; k < positions.GetLength(0); k++)
-                        if (positions[k, 0].x > posX - tol) { kx = k; break; }
+                    posZ = positions[0, 0].z + ((float)j / numberOfSteps) * totalDistance.y;
                     for (int k = 1; k < positions.GetLength(1); k++)
                         if (positions[0, k].z > posZ - tol) { kz = k; break; }
 
                     // X pass
-                    minusDist.x = (posX - positions[kx - 1, 0].x) / clusterDistance.x;
-                    regularDist.x = (positions[kx, 0].x - posX) / clusterDistance.x;
                     xExpressions[kz - 1].AddOrChangeParameter("x", posX);
                     minusValue.x = xExpressions[kz - 1].Evaluate();
                     xExpressions[kz].AddOrChangeParameter("x", posX);
