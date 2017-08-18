@@ -272,47 +272,38 @@ namespace Unite
             // Fill interpolated points
             for (int i = 0; i <= numberOfSteps; i++)
             {
-                float posX = positions[0, 0].x + ((float)i / numberOfSteps) * totalDistance.x;
-                float xPosY = 0;
-                for (int k = 1; k < positions.GetLength(0); k++)
-                {
-                    if (positions[k, 0].x > posX - tol)
-                    {
-                        float minusDist = (posX - positions[k - 1, 0].x) / clusterDistance.x;
-                        float regularDist = (positions[k, 0].x - posX) / clusterDistance.x;
-                        xExpressions[k - 1].AddOrChangeParameter("x", posX);
-                        float minus1 = xExpressions[k - 1].Evaluate();   
-                        xExpressions[k].AddOrChangeParameter("x", posX);
-                        float regular = xExpressions[k].Evaluate();
-                        xPosY = minusDist * regular + regularDist * minus1;
-                        Debug.Log("X_1 K " + k + " posX " + posX + " positions[k, 0].x " + positions[k, 0].x + " xPosY " + xPosY);
-                        Debug.Log("X_2 minusDist " + minusDist + " regularDist " + regularDist + " minus1 " + minus1 + " regular " + regular);
-                        break;
-                    }
-                }
-
                 for (int j = 0; j <= numberOfSteps; j++)
                 {
+                    float posX = positions[0, 0].x + ((float)i / numberOfSteps) * totalDistance.x;
                     float posZ = positions[0, 0].z + ((float)j / numberOfSteps) * totalDistance.y;
-                    float zPosY = 0;
+                    Vector2 minusDist, regularDist, minusValue, regularValue, posY;
+                    int kx = 1, kz = 1;
+
+                    for (int k = 1; k < positions.GetLength(0); k++)
+                        if (positions[k, 0].x > posX - tol) { kx = k; break; }
                     for (int k = 1; k < positions.GetLength(1); k++)
-                    {
-                        if (positions[0, k].z > posZ - tol)
-                        {
-                            float minusDist = (posZ - positions[0, k - 1].z) / clusterDistance.y;
-                            float regularDist = (positions[0, k].z - posZ) / clusterDistance.y;
-                            zExpressions[k - 1].AddOrChangeParameter("x", posZ);
-                            float minus1 = zExpressions[k - 1].Evaluate();
-                            zExpressions[k].AddOrChangeParameter("x", posZ);
-                            float regular = zExpressions[k].Evaluate();
-                            zPosY = minusDist * regular + regularDist * minus1;
-                            Debug.Log("Z_1 K " + k + " posZ " + posZ + " positions[0, k].z " + positions[0, k].z + " zPosY " + zPosY);
-                            Debug.Log("Z_2 minusDist " + minusDist + " regularDist " + regularDist + " minus1 " + minus1 + " regular " + regular);
-                            break;
-                        }
-                    }
-                    Debug.Log("Point " + i + " " + j + " = " + new Vector3(posX, xPosY, posZ));
-                    interpolatedPositions[i, j] = new Vector3(posX, (xPosY + zPosY) / 2, posZ);
+                        if (positions[0, k].z > posZ - tol) { kz = k; break; }
+
+                    // X pass
+                    minusDist.x = (posX - positions[kx - 1, 0].x) / clusterDistance.x;
+                    regularDist.x = (positions[kx, 0].x - posX) / clusterDistance.x;
+                    xExpressions[kz - 1].AddOrChangeParameter("x", posX);
+                    minusValue.x = xExpressions[kz - 1].Evaluate();
+                    xExpressions[kz].AddOrChangeParameter("x", posX);
+                    regularValue.x = xExpressions[kz].Evaluate();
+
+                    // Z pass
+                    minusDist.y = (posZ - positions[0, kz - 1].z) / clusterDistance.y;
+                    regularDist.y = (positions[0, kz].z - posZ) / clusterDistance.y;
+                    zExpressions[kx - 1].AddOrChangeParameter("x", posZ);
+                    minusValue.y = zExpressions[kx - 1].Evaluate();
+                    zExpressions[kx].AddOrChangeParameter("x", posZ);
+                    regularValue.y = zExpressions[kx].Evaluate();
+                    
+                    // Find Y
+                    posY.x = minusDist.y * regularValue.x + regularDist.y * minusValue.x;
+                    posY.y = minusDist.x * regularValue.y + regularDist.x * minusValue.y;
+                    interpolatedPositions[i, j] = new Vector3(posX, (posY.x + posY.y) / 2, posZ);
                 }
             }
 
