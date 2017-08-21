@@ -65,7 +65,7 @@ namespace Unite
             return result;
         }
 
-        public Polynomial GetPolynomialDerivate()
+        public Polynomial GetDerivate()
         {
             float[] coef = new float[coeficients.Length - 1];
             for (int i = 0; i < coeficients.Length - 1; i++)
@@ -73,7 +73,7 @@ namespace Unite
             return new Polynomial(coef);
         }
 
-        public Polynomial GetPolynomialPrimitive()
+        public Polynomial GetPrimitive()
         {
             float[] coef = new float[coeficients.Length + 1];
             for (int i = 0; i < coeficients.Length; i++)

@@ -230,7 +230,7 @@ namespace Unite
         // Calculus
         #region Calculus
 
-        public Vector3[,] CalculateInterpolatedGraphicPoints(Vector3[,] positions, int numberOfSteps)
+        public Vector3[,] CalculateInterpolatedGraphicPoints(Vector3[,] positions, int numberOfSteps, ExpressionOrder order)
         {
             Vector3[,] interpolatedPositions = new Vector3[numberOfSteps + 1, numberOfSteps + 1];
             Vector3[,] unheighedPositions = new Vector3[positions.GetLength(0), positions.GetLength(1)];
@@ -256,7 +256,18 @@ namespace Unite
                 for (int i = 0; i < positions.GetLength(0); i++)
                     points.Add(new Vector2(positions[i, j].x, positions[i, j].y));
 
-                xPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
+                switch (order)
+                {
+                    case ExpressionOrder.Derivative:
+                        xPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points).GetDerivate());
+                        break;
+                    case ExpressionOrder.Primitive:
+                        xPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points).GetPrimitive());
+                        break;
+                    default:
+                        xPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
+                        break;
+                }
                 points = new List<Vector2>();
             }
 
@@ -265,7 +276,18 @@ namespace Unite
                 for (int j = 0; j < positions.GetLength(1); j++)
                     points.Add(new Vector2(positions[i, j].z, positions[i, j].y));
 
-                zPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
+                switch (order)
+                {
+                    case ExpressionOrder.Derivative:
+                        zPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points).GetDerivate());
+                        break;
+                    case ExpressionOrder.Primitive:
+                        zPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points).GetPrimitive());
+                        break;
+                    default:
+                        zPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
+                        break;
+                }
                 points = new List<Vector2>();
             }
 
@@ -306,16 +328,6 @@ namespace Unite
             }
 
             return interpolatedPositions;
-        }
-
-        #endregion
-
-        // Draw
-        #region Draw
-
-        public GameObject Draw(Vector3[,] positions)
-        {
-            return null;
         }
 
         #endregion
