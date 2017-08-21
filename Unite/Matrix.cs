@@ -234,8 +234,8 @@ namespace Unite
         {
             Vector3[,] interpolatedPositions = new Vector3[numberOfSteps + 1, numberOfSteps + 1];
             Vector3[,] unheighedPositions = new Vector3[positions.GetLength(0), positions.GetLength(1)];
-            List<Expression> xExpressions = new List<Expression>();
-            List<Expression> zExpressions = new List<Expression>();
+            List<Polynomial> xPolynomials = new List<Polynomial>();
+            List<Polynomial> zPolynomials = new List<Polynomial>();
             double tol = 0.001f;
 
             // Get positions without height for distance calculations
@@ -256,7 +256,7 @@ namespace Unite
                 for (int i = 0; i < positions.GetLength(0); i++)
                     points.Add(new Vector2(positions[i, j].x, positions[i, j].y));
 
-                xExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
+                xPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
                 points = new List<Vector2>();
             }
 
@@ -265,7 +265,7 @@ namespace Unite
                 for (int j = 0; j < positions.GetLength(1); j++)
                     points.Add(new Vector2(positions[i, j].z, positions[i, j].y));
 
-                zExpressions.Add(GetInterpolationPolynomialWithDerivate0(points, points[0], points[points.Count - 1]));
+                zPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
                 points = new List<Vector2>();
             }
 
@@ -289,18 +289,14 @@ namespace Unite
                         if (positions[0, k].z > posZ - tol) { kz = k; break; }
 
                     // X pass
-                    xExpressions[kz - 1].AddOrChangeParameter("x", posX);
-                    minusValue.x = xExpressions[kz - 1].Evaluate();
-                    xExpressions[kz].AddOrChangeParameter("x", posX);
-                    regularValue.x = xExpressions[kz].Evaluate();
+                    minusValue.x = xPolynomials[kz - 1].Evaluate(posX);
+                    regularValue.x = xPolynomials[kz].Evaluate(posX);
 
                     // Z pass
                     minusDist.y = (posZ - positions[0, kz - 1].z) / clusterDistance.y;
                     regularDist.y = (positions[0, kz].z - posZ) / clusterDistance.y;
-                    zExpressions[kx - 1].AddOrChangeParameter("x", posZ);
-                    minusValue.y = zExpressions[kx - 1].Evaluate();
-                    zExpressions[kx].AddOrChangeParameter("x", posZ);
-                    regularValue.y = zExpressions[kx].Evaluate();
+                    minusValue.y = zPolynomials[kx - 1].Evaluate(posZ);
+                    regularValue.y = zPolynomials[kx].Evaluate(posZ);
                     
                     // Find Y
                     posY.x = minusDist.y * regularValue.x + regularDist.y * minusValue.x;
@@ -323,67 +319,6 @@ namespace Unite
         }
 
         #endregion
-
-        #endregion
-
-        // Public Static
-        #region Public Static
-
-        public static Expression GetInterpolationPolynomial(List<Vector2> points)
-        {
-            List<float> list = new List<float>();
-            Matrix matrix = new Matrix(points.Count, points.Count);
-
-            for (int i = 0; i < points.Count; i++)
-            {
-                for (int j = 0; j < points.Count; j++)
-                    list.Add(Mathf.Pow(points[i].x, (points.Count - j) - 1));
-                matrix.FillRow(Ext.CreateArrayFromList(list), i);
-                list.Clear();
-            }
-
-            for (int i = 0; i < points.Count; i++)
-                list.Add(points[i].y);
-
-            float[] sol = matrix.Solve(Ext.CreateArrayFromList(list));
-
-            return new Expression(sol);
-        }
-
-        public static Expression GetInterpolationPolynomialWithDerivate0(List<Vector2> points, Vector3 derivateA, Vector3 derivateB)
-        {
-            List<float> list = new List<float>();
-            Matrix matrix = new Matrix(points.Count + 2, points.Count + 2);
-
-            for (int i = 0; i < points.Count; i++)
-            {
-                for (int j = 0; j < points.Count + 2; j++)
-                    list.Add(Mathf.Pow(points[i].x, points.Count + 1 - j));
-                matrix.FillRow(Ext.CreateArrayFromList(list), i);
-                list.Clear();
-            }
-
-            for (int i = 0; i < points.Count + 1; i++)
-                list.Add(Mathf.Pow(derivateA.x, points.Count - i) * ((points.Count - i) + 1));
-            list.Add(0);
-            matrix.FillRow(Ext.CreateArrayFromList(list), points.Count);
-            list.Clear();
-
-            for (int i = 0; i < points.Count + 1; i++)
-                list.Add(Mathf.Pow(derivateB.x, points.Count - i) * ((points.Count - i) + 1));
-            list.Add(0);
-            matrix.FillRow(Ext.CreateArrayFromList(list), points.Count + 1);
-            list.Clear();
-
-            for (int i = 0; i < points.Count; i++)
-                list.Add(points[i].y);
-            list.Add(0);
-            list.Add(0);
-
-            float[] sol = matrix.Solve(Ext.CreateArrayFromList(list));
-
-            return new Expression(sol);
-        }
 
         #endregion
 
