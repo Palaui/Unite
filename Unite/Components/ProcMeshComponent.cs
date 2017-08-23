@@ -23,12 +23,15 @@ namespace Unite
         {
             if (!mesh)
                 return;
+            if (GetComponent<MeshFilter>().mesh.vertexCount != mesh.vertexCount)
+                return;
 
             if (AnimateCoroutine != null)
                 StopCoroutine(AnimateCoroutine);
 
             currentMesh = GetComponent<MeshFilter>().mesh;
             objMesh = mesh;
+
             AnimateCoroutine = Animate(time);
             StartCoroutine(AnimateCoroutine);
         }
