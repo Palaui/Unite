@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Unite
 {
-    public class Polynomial
+    public class Polynomial : BaseXExpression
     {
         // Variables
         #region Variables
@@ -18,6 +18,7 @@ namespace Unite
         public Polynomial(float[] polynomialCoeficients)
         {
             coeficients = polynomialCoeficients;
+            expression = ToString();
         }
 
         public override string ToString()
@@ -57,7 +58,7 @@ namespace Unite
         // Calculus
         #region Calculus
 
-        public float Evaluate(float x)
+        public override float Evaluate(float x)
         {
             float result = 0;
             for (int i = 0; i < coeficients.Length; i++)
