@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unite
@@ -8,14 +9,14 @@ namespace Unite
         // Variables
         #region Variables
 
-        private float[] coeficients;
+        private double[] coeficients;
 
         #endregion
 
         // Override
         #region Override
 
-        public Polynomial(float[] polynomialCoeficients)
+        public Polynomial(double[] polynomialCoeficients)
         {
             coeficients = polynomialCoeficients;
             expression = ToString();
@@ -43,12 +44,13 @@ namespace Unite
         // Base
         #region Base
 
-        public void AssignExpression(float[] coeficients)
+        public void AssignExpression(double[] coeficients)
         {
             this.coeficients = coeficients;
+            expression = ToString();
         }
 
-        public float[] GetCoeficients()
+        public double[] GetCoeficients()
         {
             return coeficients;
         }
@@ -58,17 +60,17 @@ namespace Unite
         // Calculus
         #region Calculus
 
-        public override float Evaluate(float x)
+        public override double Evaluate(double x)
         {
-            float result = 0;
+            double result = 0;
             for (int i = 0; i < coeficients.Length; i++)
-                result += coeficients[i] * Mathf.Pow(x, (coeficients.Length - i) - 1);
+                result += coeficients[i] * Math.Pow(x, (coeficients.Length - i) - 1);
             return result;
         }
 
         public Polynomial GetDerivate()
         {
-            float[] coef = new float[coeficients.Length - 1];
+            double[] coef = new double[coeficients.Length - 1];
             for (int i = 0; i < coeficients.Length - 1; i++)
                 coef[i] = ((coeficients.Length - i) - 1) * coeficients[i];
             return new Polynomial(coef);
@@ -76,7 +78,7 @@ namespace Unite
 
         public Polynomial GetPrimitive()
         {
-            float[] coef = new float[coeficients.Length + 1];
+            double[] coef = new double[coeficients.Length + 1];
             for (int i = 0; i < coeficients.Length; i++)
                 coef[i] = coeficients[i] / (coeficients.Length - i);
             coef[coeficients.Length] = 0;
@@ -88,15 +90,17 @@ namespace Unite
         // Public Static
         #region Public Static
 
-        public static Polynomial GetInterpolation(List<Vector2> points)
+        public static Polynomial GetInterpolation(List<DoubleV2> points)
+        { return GetInterpolation(new Polynomial(new double[] { }), points); }
+        public static Polynomial GetInterpolation(Polynomial polynomial, List<DoubleV2> points)
         {
-            List<float> list = new List<float>();
+            List<double> list = new List<double>();
             Matrix matrix = new Matrix(points.Count, points.Count);
 
             for (int i = 0; i < points.Count; i++)
             {
                 for (int j = 0; j < points.Count; j++)
-                    list.Add(Mathf.Pow(points[i].x, (points.Count - j) - 1));
+                    list.Add(Math.Pow(points[i].x, (points.Count - j) - 1));
                 matrix.FillRow(Ext.CreateArrayFromList(list), i);
                 list.Clear();
             }
@@ -104,30 +108,33 @@ namespace Unite
             for (int i = 0; i < points.Count; i++)
                 list.Add(points[i].y);
 
-            return new Polynomial(matrix.Solve(Ext.CreateArrayFromList(list)));
+            polynomial.AssignExpression(matrix.Solve(Ext.CreateArrayFromList(list)));
+            return polynomial;
         }
 
-        public static Polynomial GetInterpolationWithEndDerivate0(List<Vector2> points)
+        public static Polynomial GetInterpolationWithEndDerivate0(List<DoubleV2> points)
+        { return GetInterpolationWithEndDerivate0(new Polynomial(new double[] { }), points); }
+        public static Polynomial GetInterpolationWithEndDerivate0(Polynomial polynomial, List<DoubleV2> points)
         {
-            List<float> list = new List<float>();
+            List<double> list = new List<double>();
             Matrix matrix = new Matrix(points.Count + 2, points.Count + 2);
 
             for (int i = 0; i < points.Count; i++)
             {
                 for (int j = 0; j < points.Count + 2; j++)
-                    list.Add(Mathf.Pow(points[i].x, points.Count + 1 - j));
+                    list.Add(Math.Pow(points[i].x, points.Count + 1 - j));
                 matrix.FillRow(Ext.CreateArrayFromList(list), i);
                 list.Clear();
             }
 
             for (int i = 0; i < points.Count + 1; i++)
-                list.Add(Mathf.Pow(points[0].x, points.Count - i) * ((points.Count - i) + 1));
+                list.Add(Math.Pow(points[0].x, points.Count - i) * ((points.Count - i) + 1));
             list.Add(0);
             matrix.FillRow(Ext.CreateArrayFromList(list), points.Count);
             list.Clear();
 
             for (int i = 0; i < points.Count + 1; i++)
-                list.Add(Mathf.Pow(points[points.Count - 1].x, points.Count - i) * ((points.Count - i) + 1));
+                list.Add(Math.Pow(points[points.Count - 1].x, points.Count - i) * ((points.Count - i) + 1));
             list.Add(0);
             matrix.FillRow(Ext.CreateArrayFromList(list), points.Count + 1);
             list.Clear();
@@ -137,7 +144,8 @@ namespace Unite
             list.Add(0);
             list.Add(0);
 
-            return new Polynomial(matrix.Solve(Ext.CreateArrayFromList(list)));
+            polynomial.AssignExpression(matrix.Solve(Ext.CreateArrayFromList(list)));
+            return polynomial;
         }
 
         #endregion

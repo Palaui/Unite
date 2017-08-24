@@ -12,8 +12,8 @@ namespace Unite
         private int rows;
         private int columns;
 
-        private float[,] values;
-        private float[,] lu;
+        private double[,] values;
+        private double[,] lu;
 
         #endregion
 
@@ -22,9 +22,9 @@ namespace Unite
 
         public int Rows { get { return rows; } }
         public int Columns { get { return columns; } }
-        public float[,] Values { get { return values; } }
+        public double[,] Values { get { return values; } }
 
-        public float this[int x, int y]
+        public double this[int x, int y]
         {
             get
             {
@@ -50,14 +50,14 @@ namespace Unite
             rows = inRows;
             columns = inColumns;
 
-            values = new float[rows, columns];
+            values = new double[rows, columns];
 
             for (int i = 0; i < columns; i++)
                 for (int j = 0; j < rows; j++)
                     values[i, j] = 0;
         }
 
-        public Matrix(float[,] matrix)
+        public Matrix(double[,] matrix)
         {
             rows = matrix.GetLength(0);
             columns = matrix.GetLength(1);
@@ -69,7 +69,7 @@ namespace Unite
         // Public
         #region Public
 
-        public float[] Solve(float[] results)
+        public double[] Solve(double[] results)
         {
             if (results.Length != rows)
             {
@@ -84,8 +84,8 @@ namespace Unite
                 return null;
 
             // Result for Ly = results
-            float[] y = new float[rows];
-            float sum;
+            double[] y = new double[rows];
+            double sum;
             for (int i = 0; i < rows; i++)
             {
                 sum = 0;
@@ -95,7 +95,7 @@ namespace Unite
             }
 
             // Results for Ux = y
-            float[] x = new float[rows];
+            double[] x = new double[rows];
             for (int i = rows - 1; i >= 0; i--)
             {
                 sum = 0;
@@ -110,7 +110,7 @@ namespace Unite
         // Fillers
         #region FIllers
 
-        public void FillRow(float[] inRow, int index)
+        public void FillRow(double[] inRow, int index)
         {
             if (index >= rows)
             {
@@ -156,7 +156,7 @@ namespace Unite
             return (rows == columns);
         }
 
-        public float[,] LU()
+        public double[,] LU()
         {
             if (!IsSquare())
             {
@@ -164,8 +164,8 @@ namespace Unite
                 return null;
             }
 
-            lu = new float[rows, columns];
-            float sum = 0;
+            lu = new double[rows, columns];
+            double sum = 0;
             for (int i = 0; i < rows; i++)
             {
                 for (int j = i; j < rows; j++)
@@ -187,7 +187,7 @@ namespace Unite
             return lu;
         }
 
-        public float Determinant()
+        public double Determinant()
         {
             if (!IsSquare())
             {
@@ -198,7 +198,7 @@ namespace Unite
             if (lu == null)
                 LU();
 
-            float det = 1;
+            double det = 1;
             for (int i = 0; i < columns; i++)
                 det *= lu[i, i];
 
@@ -213,7 +213,7 @@ namespace Unite
                 return;
             }
 
-            float aux;
+            double aux;
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < i - 1; j++)
@@ -230,10 +230,10 @@ namespace Unite
         // Calculus
         #region Calculus
 
-        public Vector3[,] CalculateInterpolatedGraphicPoints(Vector3[,] positions, int numberOfSteps, ExpressionOrder order)
+        public DoubleV3[,] CalculateInterpolatedGraphicPoints(DoubleV3[,] positions, int numberOfSteps, ExpressionOrder order)
         {
-            Vector3[,] interpolatedPositions = new Vector3[numberOfSteps + 1, numberOfSteps + 1];
-            Vector3[,] unheighedPositions = new Vector3[positions.GetLength(0), positions.GetLength(1)];
+            DoubleV3[,] interpolatedPositions = new DoubleV3[numberOfSteps + 1, numberOfSteps + 1];
+            DoubleV3[,] unheighedPositions = new DoubleV3[positions.GetLength(0), positions.GetLength(1)];
             List<Polynomial> xPolynomials = new List<Polynomial>();
             List<Polynomial> zPolynomials = new List<Polynomial>();
             double tol = 0.001f;
@@ -241,20 +241,20 @@ namespace Unite
             // Get positions without height for distance calculations
             for (int i = 0; i < positions.GetLength(0); i++)
                 for (int j = 0; j < positions.GetLength(1); j++)
-                    unheighedPositions[i, j] = new Vector3(positions[i, j].x, 0, positions[i, j].z);
+                    unheighedPositions[i, j] = new DoubleV3(positions[i, j].x, 0, positions[i, j].z);
 
-            Vector2 totalDistance = new Vector2(
-                Vector3.Distance(unheighedPositions[unheighedPositions.GetLength(0) - 1, 0], unheighedPositions[0, 0]),
-                Vector3.Distance(unheighedPositions[0, unheighedPositions.GetLength(1) - 1], unheighedPositions[0, 0]));
+            DoubleV2 totalDistance = new DoubleV2(
+                DoubleV3.Distance(unheighedPositions[unheighedPositions.GetLength(0) - 1, 0], unheighedPositions[0, 0]),
+                DoubleV3.Distance(unheighedPositions[0, unheighedPositions.GetLength(1) - 1], unheighedPositions[0, 0]));
 
-            Vector2 clusterDistance = new Vector2(totalDistance.x / (positions.GetLength(0) - 1), totalDistance.y / (positions.GetLength(1) - 1));
+            DoubleV2 clusterDistance = new DoubleV2(totalDistance.x / (positions.GetLength(0) - 1), totalDistance.y / (positions.GetLength(1) - 1));
 
             // Calculate basic expressions and assign position lists
-            List<Vector2> points = new List<Vector2>();
+            List<DoubleV2> points = new List<DoubleV2>();
             for (int j = 0; j < positions.GetLength(1); j++)
             {
                 for (int i = 0; i < positions.GetLength(0); i++)
-                    points.Add(new Vector2(positions[i, j].x, positions[i, j].y));
+                    points.Add(new DoubleV2(positions[i, j].x, positions[i, j].y));
 
                 switch (order)
                 {
@@ -268,13 +268,13 @@ namespace Unite
                         xPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
                         break;
                 }
-                points = new List<Vector2>();
+                points = new List<DoubleV2>();
             }
 
             for (int i = 0; i < positions.GetLength(0); i++)
             {
                 for (int j = 0; j < positions.GetLength(1); j++)
-                    points.Add(new Vector2(positions[i, j].z, positions[i, j].y));
+                    points.Add(new DoubleV2(positions[i, j].z, positions[i, j].y));
 
                 switch (order)
                 {
@@ -288,12 +288,12 @@ namespace Unite
                         zPolynomials.Add(Polynomial.GetInterpolationWithEndDerivate0(points));
                         break;
                 }
-                points = new List<Vector2>();
+                points = new List<DoubleV2>();
             }
 
             // Fill interpolated points
-            Vector2 minusDist, regularDist, minusValue, regularValue, posY;
-            float posX, posZ;
+            DoubleV2 minusDist, regularDist, minusValue, regularValue, posY;
+            double posX, posZ;
             int kx = 1, kz = 1;
             for (int i = 0; i <= numberOfSteps; i++)
             {
@@ -323,7 +323,7 @@ namespace Unite
                     // Find Y
                     posY.x = minusDist.y * regularValue.x + regularDist.y * minusValue.x;
                     posY.y = minusDist.x * regularValue.y + regularDist.x * minusValue.y;
-                    interpolatedPositions[i, j] = new Vector3(posX, (posY.x + posY.y) / 2, posZ);
+                    interpolatedPositions[i, j] = new DoubleV3(posX, (posY.x + posY.y) / 2, posZ);
                 }
             }
 

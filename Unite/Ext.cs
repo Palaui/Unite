@@ -208,6 +208,13 @@ namespace Unite
                 list3D.Add(new Vector3(elem.x, elem.y, zValue));
             return list3D;
         }
+        public static List<DoubleV3> ConvertList2DTo3D(List<DoubleV2> list2D, double zValue)
+        {
+            List<DoubleV3> list3D = new List<DoubleV3>();
+            foreach (DoubleV2 elem in list2D)
+                list3D.Add(new DoubleV3(elem.x, elem.y, zValue));
+            return list3D;
+        }
 
         public static List<Vector2> ConvertList3DTo2D(List<Vector3> list3D)
         {
@@ -216,6 +223,15 @@ namespace Unite
                 list2D.Add(new Vector2(elem.x, elem.y));
             return list2D;
         }
+        public static List<DoubleV2> ConvertList3DTo2D(List<DoubleV3> list3D)
+        {
+            List<DoubleV2> list2D = new List<DoubleV2>();
+            foreach (DoubleV3 elem in list3D)
+                list2D.Add(new DoubleV2(elem.x, elem.y));
+            return list2D;
+        }
+
+
 
         #endregion
 

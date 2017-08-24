@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unite
@@ -13,7 +14,7 @@ namespace Unite
 
         private string solveExpression;
         private string element = "";
-        private float eValue;
+        private double eValue;
 
         #endregion
 
@@ -53,7 +54,7 @@ namespace Unite
         //    return result;
         //}
 
-        public override float Evaluate(float x)
+        public override double Evaluate(double x)
         {
             solveExpression = expression.Trim();
 
@@ -62,11 +63,11 @@ namespace Unite
             while (solveExpression.Contains("x"))
                 solveExpression = solveExpression.Replace("x", x.ToString());
 
-            this.eValue = x;
+            eValue = x;
             ConvertElements();
 
-            float result;
-            float.TryParse(SolveElements(), out result);
+            double result;
+            double.TryParse(SolveElements(), out result);
 
             return result;
         }
@@ -123,41 +124,41 @@ namespace Unite
         //    return Ext.CreateArrayFromList(points);
         //}
 
-        public List<Vector2> GetDerivatePoints(List<Vector2> graphicPoints)
+        public List<DoubleV2> GetDerivatePoints(List<DoubleV2> graphicPoints)
         {
-            List<Vector2> derivatePoints = new List<Vector2>();
-            float numerator;
-            float denominator;
+            List<DoubleV2> derivatePoints = new List<DoubleV2>();
+            double numerator;
+            double denominator;
 
             for (int i = 0; i < graphicPoints.Count - 1; i++)
             {
                 numerator = graphicPoints[i + 1].y - graphicPoints[i].y;
                 denominator = graphicPoints[i + 1].x - graphicPoints[i].x;
-                derivatePoints.Add(new Vector2(graphicPoints[i + 1].x, numerator / denominator));
+                derivatePoints.Add(new DoubleV2(graphicPoints[i + 1].x, numerator / denominator));
             }
 
             return derivatePoints;
         }
 
-        public List<Vector2> GetPrimitivePoints(List<Vector2> graphicPoints)
+        public List<DoubleV2> GetPrimitivePoints(List<DoubleV2> graphicPoints)
         {
-            List<Vector2> primitivePoints = new List<Vector2>();
-            float meanHeight;
-            float interval;
-            float cumulative = 0;
-            float midPoint;
+            List<DoubleV2> primitivePoints = new List<DoubleV2>();
+            double meanHeight;
+            double interval;
+            double cumulative = 0;
+            double midPoint;
 
             for (int i = 0; i < graphicPoints.Count - 1; i++)
             {
                 meanHeight = (graphicPoints[i + 1].y + graphicPoints[i].y) / 2;
                 interval = graphicPoints[i + 1].x - graphicPoints[i].x;
                 cumulative += meanHeight * interval;
-                primitivePoints.Add(new Vector2(graphicPoints[i + 1].x, cumulative));
+                primitivePoints.Add(new DoubleV2(graphicPoints[i + 1].x, cumulative));
             }
 
-            midPoint = primitivePoints[Mathf.FloorToInt(primitivePoints.Count / 2.0f)].y;
+            midPoint = primitivePoints[(int)Math.Floor(primitivePoints.Count / 2.0f)].y;
             for (int i = 0; i < graphicPoints.Count - 1; i++)
-                primitivePoints[i] = new Vector2(primitivePoints[i].x, primitivePoints[i].y - midPoint);
+                primitivePoints[i] = new DoubleV2(primitivePoints[i].x, primitivePoints[i].y - midPoint);
 
             return primitivePoints;
         }
@@ -205,7 +206,7 @@ namespace Unite
                 element += solveExpression[index].ToString();
                 //CheckParameter();
                 CheckOperation();
-                index = CheckFloat(index);
+                index = CheckDouble(index);
             }
         }
 
@@ -217,7 +218,7 @@ namespace Unite
                 {
                     if (elements[i - 1].Contains("Operation_"))
                     {
-                        elements[i + 1] = (float.Parse(elements[i + 1]) * -1).ToString();
+                        elements[i + 1] = (double.Parse(elements[i + 1]) * -1).ToString();
                         elements.RemoveAt(i);
                         i--;
                         continue;
@@ -229,7 +230,7 @@ namespace Unite
                     else if (elements[i + 1] == "Operation_+")
                         elements[i + 1] = "Operation_-";
                     else
-                        elements[i + 1] = (float.Parse(elements[i + 1]) * -1).ToString();
+                        elements[i + 1] = (double.Parse(elements[i + 1]) * -1).ToString();
                 }
             }
             
@@ -237,14 +238,14 @@ namespace Unite
             {
                 if (elements[i] == "Operation_^")
                 {
-                    elements[i - 1] = Mathf.Pow(float.Parse(elements[i - 1]), float.Parse(elements[i + 1])).ToString();
+                    elements[i - 1] = Math.Pow(double.Parse(elements[i - 1]), double.Parse(elements[i + 1])).ToString();
                     elements.RemoveAt(i);
                     elements.RemoveAt(i);
                     i--;
                 }
                 else if (elements[i] == "Operation_Sqrt")
                 {
-                    elements[i] = Mathf.Sqrt(float.Parse(elements[i + 1])).ToString();
+                    elements[i] = Math.Sqrt(double.Parse(elements[i + 1])).ToString();
                     elements.RemoveAt(i + 1);
                 }
             }
@@ -253,14 +254,14 @@ namespace Unite
             {
                 if (elements[i] == "Operation_*")
                 {
-                    elements[i - 1] = (float.Parse(elements[i - 1]) * float.Parse(elements[i + 1])).ToString();
+                    elements[i - 1] = (double.Parse(elements[i - 1]) * double.Parse(elements[i + 1])).ToString();
                     elements.RemoveAt(i);
                     elements.RemoveAt(i);
                     i--;
                 }
                 else if (elements[i] == "Operation_/")
                 {
-                    elements[i - 1] = (float.Parse(elements[i - 1]) / float.Parse(elements[i + 1])).ToString();
+                    elements[i - 1] = (double.Parse(elements[i - 1]) / double.Parse(elements[i + 1])).ToString();
                     elements.RemoveAt(i);
                     elements.RemoveAt(i);
                     i--;
@@ -271,7 +272,7 @@ namespace Unite
             {
                 if (elements[i] == "Operation_+")
                 {
-                    elements[i - 1] = (float.Parse(elements[i - 1]) + float.Parse(elements[i + 1])).ToString();
+                    elements[i - 1] = (double.Parse(elements[i - 1]) + double.Parse(elements[i + 1])).ToString();
                     elements.RemoveAt(i);
                     elements.RemoveAt(i);
                     i--;
@@ -417,14 +418,14 @@ namespace Unite
             }
         }
 
-        private int CheckFloat(int index)
+        private int CheckDouble(int index)
         {
             string segment = "";
-            float value = 0;
-            float currentSubValue;
-            if (float.TryParse(element, out currentSubValue))
+            double value = 0;
+            double currentSubValue;
+            if (double.TryParse(element, out currentSubValue))
             {
-                while (float.TryParse(element, out currentSubValue))
+                while (double.TryParse(element, out currentSubValue))
                 {
                     value = currentSubValue;
                     if (solveExpression.Length > index + 1)

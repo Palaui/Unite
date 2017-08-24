@@ -19,7 +19,7 @@ namespace Unite
         // Internal
         #region Internal
 
-        internal void UpdateMesh(Mesh mesh, float time)
+        internal void UpdateMesh(Mesh mesh, double time)
         {
             if (!mesh)
                 return;
@@ -41,7 +41,7 @@ namespace Unite
         // Coroutines
         #region Coroutines
 
-        private IEnumerator Animate(float time)
+        private IEnumerator Animate(double time)
         {
             MeshFilter filter = GetComponent<MeshFilter>();
             float currentTime = 0;
@@ -51,7 +51,7 @@ namespace Unite
                 Mesh interpMesh = new Mesh();
                 List<Vector3> vertices = new List<Vector3>();
                 for (int i = 0; i < currentMesh.vertexCount; i++)
-                    vertices.Add(Vector3.Lerp(currentMesh.vertices[i], objMesh.vertices[i], currentTime / time));
+                    vertices.Add(Vector3.Lerp(currentMesh.vertices[i], objMesh.vertices[i], (float)(currentTime / time)));
 
                 interpMesh.vertices = Ext.CreateArrayFromList(vertices);
                 interpMesh.uv = currentMesh.uv;

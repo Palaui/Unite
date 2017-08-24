@@ -81,7 +81,6 @@ public class GameManager : Singleton<GameManager>
         languageManager = new LanguageManager();
     }
 
-    Expression ex;
     void Start()
     {
         CurrentLanguage = Language.ES;

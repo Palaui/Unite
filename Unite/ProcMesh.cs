@@ -11,7 +11,7 @@ namespace Unite
         // Plane
         #region Plane
 
-        public static GameObject BuildPlane(Vector3[,] points)
+        public static GameObject BuildPlane(DoubleV3[,] points)
         {
             Mesh mesh = CreatePlane(points);
             if (mesh)
@@ -34,7 +34,7 @@ namespace Unite
             return null;
         }
 
-        public static Mesh UpdatePlane(GameObject go, Vector3[,] points, float time)
+        public static Mesh UpdatePlane(GameObject go, DoubleV3[,] points, float time)
         {
             Mesh mesh = CreatePlane(points);
             if (mesh)
@@ -54,7 +54,7 @@ namespace Unite
             return null;
         }
 
-        public static Mesh CreatePlane(Vector3[,] points)
+        public static Mesh CreatePlane(DoubleV3[,] points)
         {
             int rows = points.GetLength(0);
             if (rows > 0)
@@ -105,9 +105,9 @@ namespace Unite
         // Line
         #region Line
 
-        public static GameObject BuildLine(Vector3[] points) { return BuildLine(points, Color.white, 0.005f ); }
-        public static GameObject BuildLine(Vector3[] points, Color color) { return BuildLine(points, color, 0.005f ); }
-        public static GameObject BuildLine(Vector3[] points, Color color, float width)
+        public static GameObject BuildLine(DoubleV3[] points) { return BuildLine(points, Color.white, 0.005f ); }
+        public static GameObject BuildLine(DoubleV3[] points, Color color) { return BuildLine(points, color, 0.005f ); }
+        public static GameObject BuildLine(DoubleV3[] points, Color color, double width)
         {
             Mesh mesh = CreateLine(points, width);
             if (mesh)
@@ -117,8 +117,8 @@ namespace Unite
 
                 go.AddComponent<MeshFilter>().mesh = mesh;
                 MeshRenderer rend = go.AddComponent<MeshRenderer>();
-                rend.material = new Material(Shader.Find("Standard"));
-                rend.material.SetColor("_Color", color);
+                rend.sharedMaterial = new Material(Shader.Find("Standard"));
+                rend.sharedMaterial.SetColor("_Color", color);
                 rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 rend.receiveShadows = false;
 
@@ -130,8 +130,8 @@ namespace Unite
             return null;
         }
 
-        public static Mesh UpdateLine(GameObject go, Vector3[] points, float time) { return UpdateLine(go, points, time, 0.005f); }
-        public static Mesh UpdateLine(GameObject go, Vector3[] points, float time, float width)
+        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time) { return UpdateLine(go, points, time, 0.005f); }
+        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time, double width)
         {
             Mesh mesh = CreateLine(points, width);
             if (mesh)
@@ -151,7 +151,7 @@ namespace Unite
             return null;
         }
 
-        public static Mesh CreateLine(Vector3[] points, float width)
+        public static Mesh CreateLine(DoubleV3[] points, double width)
         {
             if (points.Length > 2)
             {
@@ -160,26 +160,26 @@ namespace Unite
                 List<int> triangles = new List<int>();
                 int vertexCount = 0;
 
-                Vector3 slope = (points[1] - points[0]).normalized;
-                Vector3 perpendicular = new Vector3(slope.y, -slope.x, slope.z) * width;
+                DoubleV3 slope = (points[1] - points[0]).Normalize();
+                DoubleV3 perpendicular = new DoubleV3(slope.y, -slope.x, slope.z) * width;
                 vertices.Add(points[0] - perpendicular);
                 vertices.Add(points[0] + perpendicular);
                 for (int i = 1; i < points.Length - 1; i++)
                 {
-                    slope = (points[i + 1] - points[i - 1]).normalized;
-                    perpendicular = new Vector3(slope.y, -slope.x, slope.z) * width;
+                    slope = (points[i + 1] - points[i - 1]).Normalize();
+                    perpendicular = new DoubleV3(slope.y, -slope.x, slope.z) * width;
                     vertices.Add(points[i] - perpendicular);
                     vertices.Add(points[i] + perpendicular);
                 }
-                slope = (points[points.Length - 1] - points[points.Length - 2]).normalized;
-                perpendicular = new Vector3(slope.y, -slope.x, slope.z) * width;
+                slope = (points[points.Length - 1] - points[points.Length - 2]).Normalize();
+                perpendicular = new DoubleV3(slope.y, -slope.x, slope.z) * width;
                 vertices.Add(points[points.Length - 1] - perpendicular);
                 vertices.Add(points[points.Length - 1] + perpendicular);
 
                 for (int i = 0; i < points.Length; i++)
                 {
-                    uvs.Add(new Vector2(1 - i / points.Length, 1));
-                    uvs.Add(new Vector2(1 - i / points.Length, 0));
+                    uvs.Add(new DoubleV2(1 - i / points.Length, 1));
+                    uvs.Add(new DoubleV2(1 - i / points.Length, 0));
                 }
 
                 for (int i = 0; i < points.Length - 1; i++)
