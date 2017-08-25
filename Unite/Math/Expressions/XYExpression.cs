@@ -4,24 +4,22 @@ using UnityEngine;
 
 namespace Unite
 {
-    public class XExpression : BaseXExpression
+    class XYExpression : BaseXYExpression
     {
         // Variables
         #region Variables
 
-        //private Dictionary<string, float> parameters = new Dictionary<string, float>();
         private List<string> elements = new List<string>();
 
         private string solveExpression;
         private string element = "";
-        private double eValue;
 
         #endregion
 
         // Override
         #region Override
 
-        public XExpression(string expression)
+        public XYExpression(string expression)
         {
             this.expression = expression;
         }
@@ -34,10 +32,9 @@ namespace Unite
         // Base
         #region Base
 
-        public XExpression AssignExpression(string expression)
+        public void AssignExpression(string expression)
         {
             this.expression = expression;
-            return this;
         }
 
         #endregion
@@ -45,7 +42,7 @@ namespace Unite
         // Calculus
         #region Calculus
 
-        public override double Evaluate(double x)
+        public override double Evaluate(double x, double y)
         {
             solveExpression = expression.Trim();
 
@@ -53,119 +50,16 @@ namespace Unite
                 solveExpression = solveExpression.Replace(" ", "");
             while (solveExpression.Contains("x"))
                 solveExpression = solveExpression.Replace("x", x.ToString());
+            while (solveExpression.Contains("y"))
+                solveExpression = solveExpression.Replace("y", y.ToString());
 
-            eValue = x;
-            ConvertElements();
+            ConvertElements(x, y);
 
             double result;
             double.TryParse(SolveElements(), out result);
 
             return result;
         }
-
-        public List<DoubleV2> GetDerivatePoints(List<DoubleV2> graphicPoints)
-        {
-            List<DoubleV2> derivatePoints = new List<DoubleV2>();
-            double numerator;
-            double denominator;
-
-            for (int i = 0; i < graphicPoints.Count - 1; i++)
-            {
-                numerator = graphicPoints[i + 1].y - graphicPoints[i].y;
-                denominator = graphicPoints[i + 1].x - graphicPoints[i].x;
-                derivatePoints.Add(new DoubleV2(graphicPoints[i + 1].x, numerator / denominator));
-            }
-
-            return derivatePoints;
-        }
-
-        public List<DoubleV2> GetPrimitivePoints(List<DoubleV2> graphicPoints)
-        {
-            List<DoubleV2> primitivePoints = new List<DoubleV2>();
-            double meanHeight;
-            double interval;
-            double cumulative = 0;
-            double midPoint;
-
-            for (int i = 0; i < graphicPoints.Count - 1; i++)
-            {
-                meanHeight = (graphicPoints[i + 1].y + graphicPoints[i].y) / 2;
-                interval = graphicPoints[i + 1].x - graphicPoints[i].x;
-                cumulative += meanHeight * interval;
-                primitivePoints.Add(new DoubleV2(graphicPoints[i + 1].x, cumulative));
-            }
-
-            midPoint = primitivePoints[(int)Math.Floor(primitivePoints.Count / 2.0f)].y;
-            for (int i = 0; i < graphicPoints.Count - 1; i++)
-                primitivePoints[i] = new DoubleV2(primitivePoints[i].x, primitivePoints[i].y - midPoint);
-
-            return primitivePoints;
-        }
-
-        #endregion
-
-        // Basic
-        #region Basic
-
-        //public float Evaluate()
-        //{
-        //    solveExpression = expression.Trim();
-
-        //    while (solveExpression.Contains(" "))
-        //        solveExpression = solveExpression.Replace(" ", "");
-
-        //    ConvertElements();
-
-        //    float result;
-        //    float.TryParse(SolveElements(), out result);
-
-        //    return result;
-        //}
-
-        #endregion
-
-        // Dictionaries Manipulation
-        #region Dictionaries Manipulation
-
-        //public void AddOrChangeParameter(string key, float value)
-        //{
-        //    RemoveParameter(key);
-        //    parameters.Add(key, value);
-        //}
-
-        //public void RemoveParameter(string key)
-        //{
-        //    if (parameters.ContainsKey(key))
-        //        parameters.Remove(key);
-        //}
-
-        //public void RemovaAllParameters()
-        //{
-        //    parameters.Clear();
-        //}
-
-        #endregion
-
-        // Draw
-        #region Draw
-
-        //public GameObject Draw(Vector2 limits, float inStep = 0.0625f, float z = 0, bool eraseReference = true)
-        //{
-        //    if (eraseReference)
-        //        Object.DestroyImmediate(drawReference);
-
-        //    XExpression ex = new XExpression(ToString());
-        //    List<Vector2> graphicsPoints = ex.GetGraphicPoints(new Vector2(limits.x, limits.y), 0.0625f);
-        //    drawReference = ProcMesh.BuildLine(Ext.CreateArrayFromList(Ext.ConvertList2DTo3D(graphicsPoints, 0)), Color.blue, 0.005f);
-        //    Ext.ResetTransform(drawReference);
-        //    drawReference.transform.position = new Vector3(0, 0, z);
-        //    return drawReference;
-        //}
-
-        //public GameObject Draw(Vector2 xDomain, Vector2 yDomain, float inStepX, float inStepY)
-        //{
-        //    return ProcMesh.BuildPlane(GetGraphicPoints(xDomain, yDomain, inStepX, inStepY));
-        //}
 
         #endregion
 
@@ -177,15 +71,14 @@ namespace Unite
         // Evaluator
         #region Evaluator
 
-        private void ConvertElements()
+        private void ConvertElements(double x, double y)
         {
             InitializePass();
-            SubExpressionsPass();
+            SubExpressionsPass(x, y);
 
             for (int index = 0; index < solveExpression.Length; index++)
             {
                 element += solveExpression[index].ToString();
-                //CheckParameter();
                 CheckOperation();
                 index = CheckDouble(index);
             }
@@ -214,7 +107,7 @@ namespace Unite
                         elements[i + 1] = (double.Parse(elements[i + 1]) * -1).ToString();
                 }
             }
-            
+
             for (int i = 0; i < elements.Count; i++)
             {
                 if (elements[i] == "Operation_^")
@@ -263,55 +156,7 @@ namespace Unite
             return elements[elements.Count - 1];
         }
 
-        //private void SubExpressionsPass()
-        //{
-        //    string subExpression;
-        //    int level;
-        //    int beginIndex;
-        //    bool subExpressionFound = true;
-
-        //    while (subExpressionFound)
-        //    {
-        //        subExpression = "";
-        //        level = 0;
-        //        beginIndex = -1;
-        //        subExpressionFound = false;
-
-        //        for (int i = 0; i < solveExpression.Length; i++)
-        //        {
-        //            if (solveExpression[i] == ')')
-        //            {
-        //                level--;
-        //                if (level == 0)
-        //                {
-        //                    solveExpression = solveExpression.Remove(i, 1);
-        //                    solveExpression = solveExpression.Remove(beginIndex, 1);
-        //                    XExpression ex = new XExpression(subExpression);
-        //                    ex.parameters = parameters;
-        //                    solveExpression = solveExpression.Replace(subExpression, ex.Evaluate().ToString());
-        //                    break;
-        //                }
-        //            }
-        //            if (level > 0)
-        //                subExpression += solveExpression[i].ToString();
-        //            if (solveExpression[i] == '(')
-        //            {
-        //                level++;
-        //                if (beginIndex == -1)
-        //                    beginIndex = i;
-        //                subExpressionFound = true;
-        //            }
-        //        }
-
-        //        if (level > 0)
-        //        {
-        //            Debug.LogError("Expression incorrectly parsed");
-        //            break;
-        //        }
-        //    }
-        //}
-
-        private void SubExpressionsPass()
+        private void SubExpressionsPass(double x, double y)
         {
             string subExpression;
             int level;
@@ -334,8 +179,8 @@ namespace Unite
                         {
                             solveExpression = solveExpression.Remove(i, 1);
                             solveExpression = solveExpression.Remove(beginIndex, 1);
-                            XExpression ex = new XExpression(subExpression);
-                            solveExpression = solveExpression.Replace(subExpression, ex.Evaluate(eValue).ToString());
+                            XYExpression ex = new XYExpression(subExpression);
+                            solveExpression = solveExpression.Replace(subExpression, ex.Evaluate(x, y).ToString());
                             break;
                         }
                     }
@@ -370,19 +215,6 @@ namespace Unite
 
             element = "";
         }
-
-        //private void CheckParameter()
-        //{
-        //    foreach (KeyValuePair<string, float> entry in parameters)
-        //    {
-        //        if (element == entry.Key)
-        //        {
-        //            elements.Add(entry.Value.ToString());
-        //            element = "";
-        //            break;
-        //        }
-        //    }
-        //}
 
         private void CheckOperation()
         {

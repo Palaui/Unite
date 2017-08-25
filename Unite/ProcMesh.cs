@@ -34,7 +34,7 @@ namespace Unite
             return null;
         }
 
-        public static Mesh UpdatePlane(GameObject go, DoubleV3[,] points, float time)
+        public static Mesh UpdatePlane(GameObject go, DoubleV3[,] points, double time)
         {
             Mesh mesh = CreatePlane(points);
             if (mesh)
@@ -70,7 +70,7 @@ namespace Unite
                     for (int j = 0; j < rows; j++)
                     {
                         vertices.Add(points[i, j]);
-                        uvs.Add(new Vector2(i / (columns - 1.0f), (float)(j) / (rows - 1.0f)));
+                        uvs.Add(new Vector2(i / (columns - 1.0f), j / (float)(rows - 1)));
                     }
                 }
 
@@ -105,11 +105,10 @@ namespace Unite
         // Line
         #region Line
 
-        public static GameObject BuildLine(DoubleV3[] points) { return BuildLine(points, Color.white, 0.005f ); }
-        public static GameObject BuildLine(DoubleV3[] points, Color color) { return BuildLine(points, color, 0.005f ); }
-        public static GameObject BuildLine(DoubleV3[] points, Color color, double width)
+        public static GameObject BuildLine(DoubleV3[] points) { return BuildLine(points, Color.white); }
+        public static GameObject BuildLine(DoubleV3[] points, Color color, double width = 0.005f, double z = 0)
         {
-            Mesh mesh = CreateLine(points, width);
+            Mesh mesh = CreateLine(points, width, z);
             if (mesh)
             {
                 GameObject go = new GameObject("Graphic2D");
@@ -130,10 +129,10 @@ namespace Unite
             return null;
         }
 
-        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time) { return UpdateLine(go, points, time, 0.005f); }
-        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time, double width)
+        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time, double z = 0) { return UpdateLine(go, points, time, 0.005f, z); }
+        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time, double width, double z = 0)
         {
-            Mesh mesh = CreateLine(points, width);
+            Mesh mesh = CreateLine(points, width, z);
             if (mesh)
             {
                 ProcMeshComponent proc = go.GetComponent<ProcMeshComponent>();
@@ -151,7 +150,7 @@ namespace Unite
             return null;
         }
 
-        public static Mesh CreateLine(DoubleV3[] points, double width)
+        public static Mesh CreateLine(DoubleV3[] points, double width, double z)
         {
             if (points.Length > 2)
             {
@@ -160,6 +159,11 @@ namespace Unite
                 List<int> triangles = new List<int>();
                 int vertexCount = 0;
 
+                // Z adapt
+                for (int i = 0; i < points.Length; i++)
+                    points[i].z += z;
+
+                // Vertices
                 DoubleV3 slope = (points[1] - points[0]).Normalize();
                 DoubleV3 perpendicular = new DoubleV3(slope.y, -slope.x, slope.z) * width;
                 vertices.Add(points[0] - perpendicular);
@@ -176,12 +180,14 @@ namespace Unite
                 vertices.Add(points[points.Length - 1] - perpendicular);
                 vertices.Add(points[points.Length - 1] + perpendicular);
 
+                // UV
                 for (int i = 0; i < points.Length; i++)
                 {
                     uvs.Add(new DoubleV2(1 - i / points.Length, 1));
                     uvs.Add(new DoubleV2(1 - i / points.Length, 0));
                 }
 
+                // Triangles
                 for (int i = 0; i < points.Length - 1; i++)
                 {
                     triangles.Add(vertexCount);
@@ -194,6 +200,7 @@ namespace Unite
                     vertexCount += 2;
                 }
 
+                // Mesh cretion
                 Mesh mesh = new Mesh();
                 mesh.vertices = Ext.CreateArrayFromList(vertices);
                 mesh.uv = Ext.CreateArrayFromList(uvs);

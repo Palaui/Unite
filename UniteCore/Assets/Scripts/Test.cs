@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unite;
 using UnityEngine;
 using System;
@@ -8,7 +7,6 @@ public class Test : MonoBehaviour
 {
     private DoubleV3[] pvPoints;
     private double[,] testPoints;
-
 
     private double[] R = new double[7] { 0.003, 0.02, 0.02, 0.1, 0.02, 0.03, 1.2 };
     private double[] cR = new double[7] { 0.003, 0.02, 0.02, 0.1, 0.02, 0.03, 1.2 };
@@ -35,11 +33,7 @@ public class Test : MonoBehaviour
 
     private double[] Vd = { 0, 35, 60, 0, 35, 30, 0 };
 
-    private DoubleV3[] last = new DoubleV3[15];
     private DoubleV3[] current = new DoubleV3[15];
-
-    private DoubleV3[] lastPV = new DoubleV3[14];
-    private DoubleV3[] currentPV = new DoubleV3[14];
 
     private DoubleV3 la;
     private DoubleV3 cu;
@@ -51,9 +45,6 @@ public class Test : MonoBehaviour
     private double t = 0;
 
     private double debugT = 0;
-
-    private int drawEveryXFrames = 1;
-    private int countFrames = 0;
 
 
     // Draw
@@ -84,16 +75,6 @@ public class Test : MonoBehaviour
         for (int i=1; i<PV.Length;i++)
             PV[i] = new double[14];
 
-        for (int i = 0; i < last.Length - 1; i++)
-        {
-            last[i] = new DoubleV3(-5, (float)PV[ix][i] / 200);
-        }
-        last[14] = new DoubleV3(-5, (float)Eval_poly(ven_poly, 0, 0, 0.4)-2);
-
-        for (int i = 0; i < 7; i++)
-            lastPV[i] = new DoubleV3((float)PV[ix][i+7]/200, (float)PV[ix][i] / 100);
-       
-
         la = new DoubleV3(0, 0);
     }
 
@@ -114,70 +95,47 @@ public class Test : MonoBehaviour
         }
             
         
-        double h = 0.001;
-        for (double k = 0; k < dt; k = k + h)
+        double timeStep = 0.002;
+        for (double k = 0; k < dt; k = k + timeStep)
         {
             int ix0=ix, ix1=ix+1;
             if (ix == T.Length - 1)
                 ix1 = 0;
 
-            PV[ix1] = RK4(t, PV[ix0], h);
+            PV[ix1] = RK4(t, PV[ix0], timeStep);
             ix=ix1;
-            t += h;
-            T[ix1] = T[ix0] + h;
+            t += timeStep;
+            T[ix1] = T[ix0] + timeStep;
         }
 
-        if (countFrames == drawEveryXFrames)
-        {
-            for (int i = 0; i < current.Length - 1; i++)
-                current[i] = new DoubleV3((float)T[ix] - 5, (float)PV[ix][i] / 200);
-            current[14] = new DoubleV3((float)T[ix] - 5, (float)Eval_poly(ven_poly, t, 0, 0.4) - 2);
+        // Draw
+        for (int i = 0; i < current.Length - 1; i++)
+            current[i] = new DoubleV3((float)T[ix] - 5, (float)PV[ix][i] / 200);
+        current[14] = new DoubleV3((float)T[ix] - 5, (float)Eval_poly(ven_poly, t, 0, 0.4) - 2);
 
-            for (int i = 0; i < 7; i++)
-                currentPV[i] = new DoubleV3((float)PV[ix][i + 7] / 200, (float)PV[ix][i] / 200);
+        linesToDraw[3].Add(new DoubleV3((float)T[ix] - 5, (float)PV[ix][5 + 7] / 200));
+        linesToDraw[5].Add(new DoubleV3((float)T[ix] - 5, (float)PV[ix][2] / 200, 0.01f));
+        linesToDraw[6].Add(new DoubleV3((float)T[ix] - 5, (float)PV[ix][5] / 200, 0.02f));
+        linesToDraw[7].Add(new DoubleV3((float)T[ix] - 5, (float)PV[ix][6] / 200, 0.03f));
+        linesToDraw[8].Add(new DoubleV3((float)T[ix] - 5, (float)Eval_poly(ven_poly, t, 0, 0.4) - 2));
 
-            linesToDraw[0].Add(current[0 + 7]);
-            linesToDraw[1].Add(current[3 + 7]);
-            linesToDraw[2].Add(current[6 + 7]);
-            linesToDraw[3].Add(current[5 + 7]);
-            linesToDraw[4].Add(current[0]);
-            linesToDraw[5].Add(current[2]);
-            linesToDraw[6].Add(current[5]);
-            linesToDraw[7].Add(current[6]);
-            linesToDraw[8].Add(current[14]);
-
-            last = (DoubleV3[])current.Clone();
-            lastPV = (DoubleV3[])currentPV.Clone();
-
-            cu = new DoubleV3((float)t, (float)Eval_poly(ven_poly, t, 0, 0.4));
-            la = cu;
-            countFrames = 0;
-        }
-        else
-            countFrames++;
+        cu = new DoubleV3((float)t, (float)Eval_poly(ven_poly, t, 0, 0.4));
+        la = cu;
 
         if (t > beatLen)
         {
             beatN += 1;
 
-            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[0]), Color.white).AddComponent<LineBehaviour>();
-            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[1]), Color.yellow).AddComponent<LineBehaviour>();
-            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[2]), Color.gray).AddComponent<LineBehaviour>();
             ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[3]), Color.cyan).AddComponent<LineBehaviour>();
-            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[4]), Color.blue).AddComponent<LineBehaviour>();
             ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[5]), Color.blue).AddComponent<LineBehaviour>();
-            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[6]), Color.blue).AddComponent<LineBehaviour>();
-            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[7]), Color.green).AddComponent<LineBehaviour>();
+            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[6]), Color.white).AddComponent<LineBehaviour>();
+            ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[7]), Color.yellow).AddComponent<LineBehaviour>();
             ProcMesh.BuildLine(Ext.CreateArrayFromList(linesToDraw[8]), Color.green).AddComponent<LineBehaviour>();
 
             for (int i = 0; i < linesToDraw.Length; i++)
                 linesToDraw[i] = new List<DoubleV3>();
 
-            linesToDraw[0].Add(current[0 + 7]);
-            linesToDraw[1].Add(current[3 + 7]);
-            linesToDraw[2].Add(current[6 + 7]);
             linesToDraw[3].Add(current[5 + 7]);
-            linesToDraw[4].Add(current[0]);
             linesToDraw[5].Add(current[2]);
             linesToDraw[6].Add(current[5]);
             linesToDraw[7].Add(current[6]);
@@ -257,7 +215,6 @@ public class Test : MonoBehaviour
         double[] dPV = new double[14];
         //  0-Ven    1-RA     2-RV     3-Lun     4-LA      5-LV      6-Art
         //      0-V_RA   1-Tri    2-Pul    3-L_LA    4-Mit     5-Aor      6-Sys
-
 
         //Valves
         //Tricuspid
@@ -369,4 +326,14 @@ public class Test : MonoBehaviour
         }
         return y;
     }
+
+    // UI
+    #region UI
+
+    public void ChangeRFromSLider(float value)
+    {
+        cR[6] = value;
+    }
+
+    #endregion
 }

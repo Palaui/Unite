@@ -11,26 +11,14 @@ namespace Unite
 
     #endregion
 
-    public abstract class BaseXExpression
+    public abstract class BaseXExpression : BaseExpression
     {
-        // Variables
-        #region Variables
-
-        protected GameObject drawReference;
-        protected string expression;
-
-        // Draw
-        protected double currentStep;
-        protected bool hasBeenDrawn = false;
-
-        #endregion
-
         // Override
         #region Override
 
         public override string ToString()
         {
-            return expression;
+            return base.ToString();
         }
 
         #endregion
@@ -61,29 +49,19 @@ namespace Unite
 
         public List<DoubleV2> GetGraphicPoints(DoubleV2 domain, double inStep = 0.0675f)
         {
-            List<DoubleV2> points = new List<DoubleV2>();
-            if (inStep < 0.001f)
-                inStep = 0.001f;
-            else if (inStep > 1000)
-                inStep = 1000;
-
-            for (double f = domain.x; f <= domain.y; f += inStep)
-            {
-                if (f > -0.001f && f < 0.001f) { f = 0; }
-                points.Add(new DoubleV2(f, Evaluate(f)));
-            }
-
-            return points;
+            int numberOfSteps = (int)Math.Floor(Math.Abs(domain.y - domain.x) / inStep);
+            return GetGraphicPoints(domain, numberOfSteps);
         }
         public List<DoubleV2> GetGraphicPoints(DoubleV2 domain, int numberOfSteps)
         {
             List<DoubleV2> points = new List<DoubleV2>();
-            double step = (domain.y - domain.x) / numberOfSteps;
+            double length = Math.Abs(domain.y - domain.x);
             double f;
 
             for (int i = 0; i <= numberOfSteps; i++)
             {
-                f = domain.x + i * step;
+                f = domain.x + (i / (double)numberOfSteps) * length;
+                Debug.Log(f);
                 if (f > -0.001f && f < 0.001f) { f = 0; }
                 points.Add(new DoubleV2(f, Evaluate(f)));
             }
@@ -96,12 +74,12 @@ namespace Unite
         // Draw
         #region Draw
 
-        public GameObject Draw(DoubleV2 limits, Color color, double inStep = 0.0625f, double width = 0.005f, double z = 0, bool eraseReference = true)
+        public GameObject Draw(DoubleV2 domain, Color color, double inStep = 0.0625f, double width = 0.005f, double z = 0, bool eraseReference = true)
         {
             if (eraseReference && drawReference)
                 UnityEngine.Object.DestroyImmediate(drawReference);
 
-            List<DoubleV2> graphicsPoints = GetGraphicPoints(new DoubleV2(limits.x, limits.y), inStep);
+            List<DoubleV2> graphicsPoints = GetGraphicPoints(domain, inStep);
             drawReference = ProcMesh.BuildLine(Ext.CreateArrayFromList(Ext.ConvertList2DTo3D(graphicsPoints, z)), color, width);
             Ext.ResetTransform(drawReference);
 
@@ -111,7 +89,7 @@ namespace Unite
             return drawReference;
         }
 
-        public GameObject UpdateDraw(DoubleV2 limits, double time = 2.5f, double width = 0.005f, double z = 0)
+        public GameObject UpdateDraw(DoubleV2 domain, double time = 2.5f, double width = 0.005f, double z = 0)
         {
             if (!hasBeenDrawn)
             {
@@ -119,7 +97,7 @@ namespace Unite
                 return drawReference;
             }
 
-            List<DoubleV2> graphicsPoints = GetGraphicPoints(new DoubleV2(limits.x, limits.y), currentStep);
+            List<DoubleV2> graphicsPoints = GetGraphicPoints(domain, currentStep);
             ProcMesh.UpdateLine(drawReference, Ext.CreateArrayFromList(Ext.ConvertList2DTo3D(graphicsPoints, z)), time);
             Ext.ResetTransform(drawReference);
             return drawReference;

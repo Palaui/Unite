@@ -235,5 +235,20 @@ namespace Unite
 
         #endregion
 
+        // Math
+        #region Math
+
+        public static double Clamp(double var, double min, double max)
+        {
+            if (var < min)
+                var = min;
+            else if (var > max)
+                var = max;
+
+            return var;
+        }
+
+        #endregion
+
     }
 }
