@@ -32,9 +32,10 @@ namespace Unite
         // Base
         #region Base
 
-        public void AssignExpression(string expression)
+        public XYExpression AssignExpression(string expression)
         {
             this.expression = expression;
+            return this;
         }
 
         #endregion

@@ -95,7 +95,7 @@ public class Test : MonoBehaviour
         }
             
         
-        double timeStep = 0.002;
+        double timeStep = 0.003;
         for (double k = 0; k < dt; k = k + timeStep)
         {
             int ix0=ix, ix1=ix+1;
@@ -150,26 +150,26 @@ public class Test : MonoBehaviour
 
     private void OnGUI()
     {
-        GUI.Label(new Rect(20, 20, 300, 50), PV[ix][0].ToString());
-        GUI.Label(new Rect(20, 40, 300, 50), PV[ix][1].ToString());
-        GUI.Label(new Rect(20, 60, 300, 50), PV[ix][2].ToString());
-        GUI.Label(new Rect(20, 80, 300, 50), PV[ix][3].ToString());
-        GUI.Label(new Rect(20, 100, 300, 50), PV[ix][4].ToString());
-        GUI.Label(new Rect(20, 120, 300, 50), PV[ix][5].ToString());
-        GUI.Label(new Rect(20, 140, 300, 50), PV[ix][6].ToString());
+        //GUI.Label(new Rect(20, 20, 300, 50), PV[ix][0].ToString());
+        //GUI.Label(new Rect(20, 40, 300, 50), PV[ix][1].ToString());
+        //GUI.Label(new Rect(20, 60, 300, 50), PV[ix][2].ToString());
+        //GUI.Label(new Rect(20, 80, 300, 50), PV[ix][3].ToString());
+        //GUI.Label(new Rect(20, 100, 300, 50), PV[ix][4].ToString());
+        //GUI.Label(new Rect(20, 120, 300, 50), PV[ix][5].ToString());
+        //GUI.Label(new Rect(20, 140, 300, 50), PV[ix][6].ToString());
 
-        GUI.Label(new Rect(20, 300, 300, 50), T[ix].ToString());
-        GUI.Label(new Rect(20, 320, 300, 50), beatN.ToString());
-        GUI.Label(new Rect(20, 400, 300, 50), cR[1].ToString());
-        GUI.Label(new Rect(20, 420, 300, 50), cR[2].ToString());
-        GUI.Label(new Rect(20, 440, 300, 50), cR[4].ToString());
-        GUI.Label(new Rect(20, 460, 300, 50), cR[5].ToString());
-        double totalvol = 0;
-        for(int i=7; i<14; i++)
-        {
-            totalvol += PV[ix][i];
-        }
-        GUI.Label(new Rect(20, 500, 300, 50), totalvol.ToString());
+        //GUI.Label(new Rect(20, 300, 300, 50), T[ix].ToString());
+        //GUI.Label(new Rect(20, 320, 300, 50), beatN.ToString());
+        //GUI.Label(new Rect(20, 400, 300, 50), cR[1].ToString());
+        //GUI.Label(new Rect(20, 420, 300, 50), cR[2].ToString());
+        //GUI.Label(new Rect(20, 440, 300, 50), cR[4].ToString());
+        //GUI.Label(new Rect(20, 460, 300, 50), cR[5].ToString());
+        //double totalvol = 0;
+        //for(int i=7; i<14; i++)
+        //{
+        //    totalvol += PV[ix][i];
+        //}
+        //GUI.Label(new Rect(20, 500, 300, 50), totalvol.ToString());
 
     }
 
