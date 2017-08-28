@@ -8,7 +8,25 @@ namespace Unite
         // Variables
         #region Variables
 
-        public string key = "";
+        [SerializeField]
+        private string key = "";
+
+        #endregion
+
+        // Properties
+        #region Properties
+
+        public string Key
+        {
+            get { return key; }
+            set
+            {
+                Radar.RemoveElement(key);
+                key = value;
+                Radar.AddElement(key, gameObject);
+            }
+        }
+
 
         #endregion
 
