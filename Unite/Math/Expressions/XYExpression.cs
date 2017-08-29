@@ -9,6 +9,7 @@ namespace Unite
         // Variables
         #region Variables
 
+        private Dictionary<string, float> parameters = new Dictionary<string, float>();
         private List<string> elements = new List<string>();
 
         private string solveExpression;
@@ -49,6 +50,11 @@ namespace Unite
 
             while (solveExpression.Contains(" "))
                 solveExpression = solveExpression.Replace(" ", "");
+            foreach (KeyValuePair<string, float> entry in parameters)
+            {
+                while (solveExpression.Contains(entry.Key))
+                    solveExpression = solveExpression.Replace(entry.Key, entry.Value.ToString());
+            }
             while (solveExpression.Contains("x"))
                 solveExpression = solveExpression.Replace("x", x.ToString());
             while (solveExpression.Contains("y"))

@@ -2,6 +2,13 @@
 
 namespace Unite
 {
+    // Enums
+    #region Enums
+
+    public enum ExpressionOrder { Basic, Derivative, Primitive }
+
+    #endregion
+
     public abstract class BaseExpression
     {
         // Variables

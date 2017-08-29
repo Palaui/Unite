@@ -65,10 +65,6 @@ namespace Unite
         // Override
         #region Override
 
-        private JSon(JSon json, string id)
-        {
-            this.id = id;
-        }
         public JSon(TextAsset asset, string id = "")
         {
             this.id = id;
@@ -81,6 +77,11 @@ namespace Unite
             Load(path);
         }
         public JSon() { }
+
+        private JSon(JSon json, string id)
+        {
+            this.id = id;
+        }
 
         #endregion
 

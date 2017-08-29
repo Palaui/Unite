@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unite
@@ -23,6 +24,8 @@ namespace Unite
 
         public abstract double Evaluate(double x, double y);
 
+        public DoubleV3[,] GetGraphicPoints(DoubleV2 xDomain, DoubleV2 yDomain, int side)
+        { return GetGraphicPoints(xDomain, yDomain, Math.Abs(yDomain.x - xDomain.x) / side, Math.Abs(yDomain.y - xDomain.y) / side); }
         public DoubleV3[,] GetGraphicPoints(DoubleV2 xDomain, DoubleV2 yDomain, double inStepX = 0.0675f, double inStepY = 0.0675f)
         {
             List<List<DoubleV3>> points = new List<List<DoubleV3>>();
@@ -59,7 +62,7 @@ namespace Unite
             if (eraseReference && drawReference)
                 UnityEngine.Object.DestroyImmediate(drawReference);
 
-            DoubleV3[,] graphicsPoints = GetGraphicPoints(xDomain, yDomain, inStep);
+            DoubleV3[,] graphicsPoints = GetGraphicPoints(xDomain, yDomain, inStep, inStep);
             drawReference = ProcMesh.BuildPlane(graphicsPoints);
             Ext.ResetTransform(drawReference);
 
@@ -77,7 +80,7 @@ namespace Unite
                 return drawReference;
             }
 
-            DoubleV3[,] graphicsPoints = GetGraphicPoints(xDomain, yDomain, currentStep);
+            DoubleV3[,] graphicsPoints = GetGraphicPoints(xDomain, yDomain, currentStep, currentStep);
             ProcMesh.UpdatePlane(drawReference, graphicsPoints, time);
             Ext.ResetTransform(drawReference);
             return drawReference;

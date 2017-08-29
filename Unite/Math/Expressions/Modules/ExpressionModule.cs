@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unite
@@ -95,9 +96,9 @@ namespace Unite
         {
             if (!xyExpressionDrawn)
             {
-                xyExpression.AssignExpression(xyExpressionString).Draw(limits, limits, Color.blue, 0.0675)
+                xyExpression.AssignExpression(xyExpressionString).Draw(limits, limits, Color.blue, Math.Abs(limits.y - limits.x) / 20)
                     .transform.position = Camera.main.transform.position + Camera.main.transform.forward * 8;
-                xExpressionDrawn = true;
+                xyExpressionDrawn = true;
             }
             else
                 xyExpression.AssignExpression(xyExpressionString).UpdateDraw(limits, limits, 3)
