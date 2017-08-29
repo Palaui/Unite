@@ -8,7 +8,8 @@ internal class DataManager
     // Variables
     #region Variables
 
-    List<JSon> LanguageJSons = new List<JSon>();
+    private Dictionary<string, string> localizationDictionary = new Dictionary<string, string>();
+    private List<JSon> localizationJSons = new List<JSon>();
 
     #endregion
 
@@ -29,30 +30,36 @@ internal class DataManager
     {
         for (int i = 0; i < Enum.GetValues(typeof(Language)).Length; i++)
         {
-            string path = "Scriptable/Lan_" + (Language)System.Enum.ToObject(typeof(Language), i);
+            string path = "Scriptable/Languages/Lan_" + (Language)System.Enum.ToObject(typeof(Language), i);
             STextAsset sAsset = Resources.Load(path) as STextAsset;
             if (sAsset)
-                LanguageJSons.Add(new JSon(sAsset.asset));
+                localizationJSons.Add(new JSon(sAsset.asset));
         }
     }
 
     public Dictionary<string, string> GetLocalizationJSon(Language language)
     {
-        Dictionary<string, string> dictionary = new Dictionary<string, string>();
-        foreach (JSon jSon in LanguageJSons)
+        localizationDictionary.Clear();
+        foreach (JSon json in localizationJSons)
         {
-            if (jSon.GetValue("localization") == language.ToString())
-            {
-                foreach (KeyValuePair<string, string> entry in jSon.GetKeyValueValues("literals"))
-                    dictionary.Add(entry.Key, entry.Value);
-            }
+            if (json.GetValue("localization") == language.ToString())
+                AddValues(json["literals"]);
         }
-        return dictionary;
+
+        return localizationDictionary;
+    }
+
+    private void AddValues(JSon json)
+    {
+        foreach (KeyValuePair<string, string> entry in json.GetKeyValueValues())
+            localizationDictionary.Add(entry.Key, entry.Value);
+        foreach (JSon node in json.GetNodeValues())
+            AddValues(json.GetNode(node.ID));
     }
 
     public bool LanguageExist(Language language)
     {
-        foreach (JSon jSon in LanguageJSons)
+        foreach (JSon jSon in localizationJSons)
         {
             if (jSon.GetValue("localization") == language.ToString())
                 return true;

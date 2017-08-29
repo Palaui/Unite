@@ -145,12 +145,34 @@ namespace Unite
                 list.Add(element);
             return list;
         }
+        public static List<List<T>> CreateListFromArray<T>(T[,] array)
+        {
+            List<List<T>> list = new List<List<T>>();
+            for (int i = 0; i < array.GetLength(0); i++)
+            {
+                list.Add(new List<T>());
+                for (int j = 0; j < array.GetLength(1); j++)
+                    list[i].Add(array[i, j]);
+            }
+            return list;
+        }
 
         public static T[] CreateArrayFromList<T>(List<T> list)
         {
             T[] array = new T[list.Count];
             for (int i = 0; i < list.Count; i++)
                 array[i] = list[i];
+            return array;
+        }
+        public static T[,] CreateArrayFromList<T>(List<List<T>> list)
+        {
+            T[,] array = new T[list.Count, list[0].Count];
+            for (int i = 0; i < list.Count; i++)
+            {
+                for (int j = 0; j < list[0].Count; j++)
+                    array[i, j] = list[i][j];
+            }
+
             return array;
         }
 
@@ -185,6 +207,45 @@ namespace Unite
             foreach (Vector2 elem in list2D)
                 list3D.Add(new Vector3(elem.x, elem.y, zValue));
             return list3D;
+        }
+        public static List<DoubleV3> ConvertList2DTo3D(List<DoubleV2> list2D, double zValue)
+        {
+            List<DoubleV3> list3D = new List<DoubleV3>();
+            foreach (DoubleV2 elem in list2D)
+                list3D.Add(new DoubleV3(elem.x, elem.y, zValue));
+            return list3D;
+        }
+
+        public static List<Vector2> ConvertList3DTo2D(List<Vector3> list3D)
+        {
+            List<Vector2> list2D = new List<Vector2>();
+            foreach (Vector3 elem in list3D)
+                list2D.Add(new Vector2(elem.x, elem.y));
+            return list2D;
+        }
+        public static List<DoubleV2> ConvertList3DTo2D(List<DoubleV3> list3D)
+        {
+            List<DoubleV2> list2D = new List<DoubleV2>();
+            foreach (DoubleV3 elem in list3D)
+                list2D.Add(new DoubleV2(elem.x, elem.y));
+            return list2D;
+        }
+
+
+
+        #endregion
+
+        // Math
+        #region Math
+
+        public static double Clamp(double var, double min, double max)
+        {
+            if (var < min)
+                var = min;
+            else if (var > max)
+                var = max;
+
+            return var;
         }
 
         #endregion
