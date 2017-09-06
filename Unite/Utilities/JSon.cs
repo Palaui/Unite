@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Unite
 {
@@ -11,7 +12,9 @@ namespace Unite
 
         private Dictionary<string, JSon> nodes = new Dictionary<string, JSon>();
         private Dictionary<string, string> values = new Dictionary<string, string>();
-        List<string> lines = new List<string>();
+        private List<string> lines = new List<string>();
+
+        private JSon parent;
         private string dataPath;
         private string id;
 
@@ -46,7 +49,10 @@ namespace Unite
             get
             {
                 if (nodes.ContainsKey(key))
+                {
+                    nodes[key].parent = this;
                     return nodes[key];
+                }
                 else
                 {
                     Debug.LogError(key + " Does not exist in the nodes dictionary");
@@ -81,6 +87,15 @@ namespace Unite
         private JSon(JSon json, string id)
         {
             this.id = id;
+        }
+
+        public override string ToString()
+        {
+            CreateLines();
+            string str = "";
+            foreach (string line in lines)
+                str += line;
+            return str;
         }
 
         #endregion
@@ -119,36 +134,21 @@ namespace Unite
         public void Rewrite()
         {
             if (dataPath == "")
+            {
                 Debug.LogError("This JSon was not loaded with path, only JSon with path are allowed to be modified");
+                return;
+            }
 
             if (dataPath.Contains(" "))
             {
-                Debug.Log("Trying to rewrite a subnode, use Rewrite(bool writeNodeOnly) instead");
+                Debug.Log("Unable to rewrite a subnode");
                 return;
             }
 
             if (File.Exists(dataPath + ".json"))
-                WriteJSon(dataPath + ".json");
+                GetBaseParent().WriteJSon(dataPath + ".json");
             else
                 Debug.LogError("Unable to find File at path: " + dataPath);
-        }
-        public void Rewrite(bool writeNodeOnly)
-        {
-            if (dataPath == "")
-                Debug.LogError("This JSon was not loaded with path, only JSon with path are allowed to be modified");
-
-            string path = dataPath.Split(' ')[0];
-            if (writeNodeOnly)
-            {
-                if (File.Exists(path + ".json"))
-                    WriteJSon(path + ".json");
-                else
-                    Debug.LogError("Unable to find File at path: " + path);
-            }
-            else
-            {
-
-            }
         }
 
         #endregion
@@ -226,7 +226,7 @@ namespace Unite
             return list;
         }
 
-        public List<string> GetValueKeys(string nodeName)
+        public List<string> GetValueKeys()
         {
             List<string> list = new List<string>();
             foreach (KeyValuePair<string, string> entry in values)
@@ -343,6 +343,75 @@ namespace Unite
                 return b;
             Debug.LogError("Unable to parse " + key + " to bool");
             return false;
+        }
+
+        public Color GetColorValue(string key)
+        {
+            if (!values.ContainsKey(key))
+                Debug.LogError("This node does not contain the value " + key);
+
+            string value = values[key];
+            value = value.Replace(",", "").Replace("\t", "").Trim();
+            string[] cValues = value.Split(new char[] { ' ' });
+            if (cValues.Length != 4)
+            {
+                Debug.LogError("Unable to parse " + key + " to Color");
+                return Color.white;
+            }
+            foreach (string str in cValues)
+            {
+                byte res;
+                if (!byte.TryParse(str, out res))
+                {
+                    Debug.LogError("Unable to parse " + key + " to ColorBlock");
+                    return Color.white;
+                }
+            }
+
+            Color color = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
+            return color;
+        }
+
+        public ColorBlock GetColorBlockValue(string key)
+        {
+            if (!values.ContainsKey(key))
+                Debug.LogError("This node does not contain the value " + key);
+
+            string value = values[key];
+            value = value.Replace(",", "").Replace("\t", "").Trim();
+            string[] cValues = value.Split(new char[] { ' ' });
+            if (cValues.Length != 16)
+            {
+                Debug.LogError("Unable to parse " + key + " to ColorBlock");
+                return new ColorBlock();
+            }
+            foreach (string str in cValues)
+            {
+                byte res;
+                if (!byte.TryParse(str, out res))
+                {
+                    Debug.LogError("Unable to parse " + key + " to ColorBlock");
+                    return new ColorBlock();
+                }
+            }
+
+            ColorBlock block = new ColorBlock();
+            block.normalColor = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
+            block.highlightedColor = new Color32(byte.Parse(cValues[4]), byte.Parse(cValues[5]), byte.Parse(cValues[6]), byte.Parse(cValues[7]));
+            block.pressedColor = new Color32(byte.Parse(cValues[8]), byte.Parse(cValues[9]), byte.Parse(cValues[10]), byte.Parse(cValues[11]));
+            block.disabledColor = new Color32(byte.Parse(cValues[12]), byte.Parse(cValues[13]), byte.Parse(cValues[14]), byte.Parse(cValues[15]));
+            block.colorMultiplier = 1;
+            block.fadeDuration = 0.2f;
+
+            return block;
+        }
+
+        public Sprite GetSprite(string key)
+        {
+            if (!values.ContainsKey(key))
+                Debug.LogError("This node does not contain the value " + key);
+
+            return Resources.Load<Sprite>(values[key]) as Sprite;
         }
 
         #endregion
@@ -481,11 +550,6 @@ namespace Unite
         // Text Management
         #region Text Management
 
-        public string GetAsString()
-        {
-            return ToString();
-        }
-
         public string GetNodeAsString(string key)
         {
             if (!nodes.ContainsKey(key))
@@ -496,13 +560,27 @@ namespace Unite
             return nodes[key].ToString();
         }
 
-        public override string ToString()
+        public void SortAlphabetically()
         {
-            CreateLines();
-            string str = "";
-            foreach (string line in lines)
-                str += line;
-            return str;
+            SortAlphabetically(this);
+        }
+
+        #endregion
+
+        // Navigation
+        #region Navigation
+
+        public JSon GetParent()
+        {
+            return parent;
+        }
+
+        public JSon GetBaseParent()
+        {
+            JSon json = this;
+            while (json.parent != null)
+                json = json.parent;
+            return json;
         }
 
         #endregion
@@ -524,6 +602,26 @@ namespace Unite
             json.id = "";
             json.dataPath = "";
             return json;
+        }
+
+        public static void SortAlphabetically(JSon json)
+        {
+            Dictionary<string, string> valsDictionary = new Dictionary<string, string>();
+            List<string> vals = json.GetValueKeys();
+            vals.Sort();
+            for (int i = 0; i < vals.Count; i++)
+                valsDictionary.Add(vals[i], json.values[vals[i]]);
+            json.values = valsDictionary;
+
+            Dictionary<string, JSon> nodsDictionary = new Dictionary<string, JSon>();
+            List<string> nods = json.GetNodeKeys();
+            nods.Sort();
+            for (int i = 0; i < nods.Count; i++)
+            {
+                nodsDictionary.Add(nods[i], json.nodes[nods[i]]);
+                SortAlphabetically(json.nodes[nods[i]]);
+            }
+            json.nodes = nodsDictionary;
         }
 
         #endregion

@@ -29,6 +29,14 @@ namespace Unite
             cachedMethods[cachedMethods.Count - 1]();
             cachedMethods.RemoveAt(cachedMethods.Count - 1);
         }
+        public static void Last(int n)
+        {
+            if (cachedMethods.Count < n)
+                Debug.LogError("Undo Last: Unable to Undo");
+
+            for (int i = 0; i < n; i++)
+                Last();
+        }
 
         #endregion
 

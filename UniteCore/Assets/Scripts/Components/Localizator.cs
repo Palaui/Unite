@@ -40,7 +40,8 @@ public class Localizator : MonoBehaviour
 
     private void OnChangeLanguage(Language language)
     {
-        textComp.text = GameManager.Instance.languageManager.GetLocalization(key);
+        if (!applicationIsQuitting)
+            textComp.text = GameManager.Instance.languageManager.GetLocalization(key);
     }
 
     #endregion
