@@ -231,7 +231,19 @@ namespace Unite
             return list2D;
         }
 
+        public static IEnumerable<T> GetEnumValues<T>()
+        {
+            return (T[])Enum.GetValues(typeof(T));
+        }
 
+        public static List<string> GetEnumAsStringList<T>()
+        {
+            List<string> list = new List<string>();
+            foreach (var entry in Enum.GetValues(typeof(T)))
+                list.Add(entry.ToString());
+
+            return null;
+        }
 
         #endregion
 

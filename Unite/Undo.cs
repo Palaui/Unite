@@ -9,33 +9,79 @@ namespace Unite
         // Variables
         #region Variables
 
-        private static List<Action> cachedMethods = new List<Action>();
+        private static List<Action> cachedBaseMethods = new List<Action>();
+        private static List<Action> cachedInverseMethods = new List<Action>();
+        private static int index = -1;
 
         #endregion
 
         // Public Static
         #region Public Static
 
-        public static void Add(Action inverseLambdaMethod) 
+        public static void Add(Action baseLambdaMethod, Action inverseLambdaMethod, bool call)
         {
-            cachedMethods.Add(inverseLambdaMethod);
+            for (int i = cachedInverseMethods.Count - 1; i > index; i--)
+                cachedInverseMethods.RemoveAt(i);
+
+            cachedBaseMethods.Add(baseLambdaMethod);
+            cachedInverseMethods.Add(inverseLambdaMethod);
+            index++;
+
+            if (call)
+                cachedBaseMethods[index]();
         }
 
-        public static void Last()
+        public static bool Last()
         {
-            if (cachedMethods.Count < 1)
-                Debug.LogError("Undo Last: Unable to Undo");
+            if (index < 0)
+                return false;
 
-            cachedMethods[cachedMethods.Count - 1]();
-            cachedMethods.RemoveAt(cachedMethods.Count - 1);
+            cachedInverseMethods[index]();
+            index--;
+            return true;
         }
         public static void Last(int n)
         {
-            if (cachedMethods.Count < n)
-                Debug.LogError("Undo Last: Unable to Undo");
-
             for (int i = 0; i < n; i++)
-                Last();
+            {
+                if (!Last())
+                    return;
+            }
+        }
+
+        public static void LastAll()
+        {
+            while(Last()) { }
+        }
+
+        public static bool Next()
+        {
+            if ((index + 1) >= cachedInverseMethods.Count)
+                return false;
+
+            index++;
+            cachedBaseMethods[index]();
+            return true;
+        }
+        public static void Next(int n)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                if (!Next())
+                    return;
+            }
+        }
+
+        public static void NextAll()
+        {
+            while (Next()) { }
+        }
+
+        public static void Clear()
+        {
+            cachedBaseMethods = new List<Action>();
+            cachedInverseMethods = new List<Action>();
+            index = -1;
         }
 
         #endregion
