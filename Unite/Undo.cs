@@ -21,7 +21,10 @@ namespace Unite
         public static void Add(Action baseLambdaMethod, Action inverseLambdaMethod, bool call)
         {
             for (int i = cachedInverseMethods.Count - 1; i > index; i--)
+            {
+                cachedBaseMethods.RemoveAt(i);
                 cachedInverseMethods.RemoveAt(i);
+            }
 
             cachedBaseMethods.Add(baseLambdaMethod);
             cachedInverseMethods.Add(inverseLambdaMethod);
