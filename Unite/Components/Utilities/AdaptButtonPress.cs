@@ -20,8 +20,6 @@ namespace Unite
         private Color imageBaseColor;
         private Color textBaseColor;
 
-        private bool isValid;
-
         #endregion
 
         // Override
@@ -29,21 +27,19 @@ namespace Unite
 
         void Start()
         {
-            if (GetComponent<Button>() || GetComponent<Image>() || GetComponent<RawImage>())
-            {
-                if (outline)
-                    outlineBaseColor = outline.effectColor;
-                if (image)
-                    imageBaseColor = image.color;
-                if (text)
-                    textBaseColor = text.color;
-                isValid = true;
-            }
-            else
+            if (!GetComponent<Button>() && !GetComponent<Image>() && !GetComponent<RawImage>())
             {
                 Debug.LogError("AdaptButtonPress: " + gameObject.name + " does not contain a UI asociated. Disabling");
                 enabled = false;
+                return;
             }
+
+            if (outline)
+                outlineBaseColor = outline.effectColor;
+            if (image)
+                imageBaseColor = image.color;
+            if (text)
+                textBaseColor = text.color;
         }
 
         #endregion
@@ -53,29 +49,22 @@ namespace Unite
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (isValid)
-            {
-                if (outline)
-                    outline.effectColor = outlineColor;
-                if (image)
-                    image.color = imageColor;
-                if (text)
-                    text.color = textColor;
-            }
-
+            if (outline)
+                outline.effectColor = outlineColor;
+            if (image)
+                image.color = imageColor;
+            if (text)
+                text.color = textColor;
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (isValid)
-            {
-                if (outline)
-                    outline.effectColor = outlineBaseColor;
-                if (image)
-                    image.color = imageBaseColor;
-                if (text)
-                    text.color = textBaseColor;
-            }
+            if (outline)
+                outline.effectColor = outlineBaseColor;
+            if (image)
+                image.color = imageBaseColor;
+            if (text)
+                text.color = textBaseColor;
         }
 
         #endregion

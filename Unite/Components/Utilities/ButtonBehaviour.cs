@@ -14,6 +14,7 @@ namespace Unite
         public bool mantainOnPress = false;
 
         private Texture2D cursor;
+        private Vector2 place;
 
         #endregion
 
@@ -22,16 +23,16 @@ namespace Unite
 
         void Start()
         {
-            if (GetComponent<Button>())
-                GetComponent<Button>().onClick.AddListener(OnClick);
-            else
+            if (!GetComponent<Button>())
             {
                 Debug.LogError("Toggler: " + gameObject.name + " does not contain a button. Disabling");
                 enabled = false;
                 return;
             }
 
+            GetComponent<Button>().onClick.AddListener(OnClick);
             cursor = cursorTex;
+            place = new Vector2(cursorTex.width * cursorImpactPlace.x, cursorTex.height * cursorImpactPlace.y);
         }
 
         void OnDisable()
@@ -57,7 +58,7 @@ namespace Unite
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+            Cursor.SetCursor(cursor, place, CursorMode.Auto);
         }
 
         public void OnPointerExit(PointerEventData eventData)

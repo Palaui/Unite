@@ -38,15 +38,14 @@ namespace Unite
 
         void Start()
         {
-            if (GetComponent<Button>())
-                GetComponent<Button>().onClick.AddListener(PlayToggle);
-            else
+            if (!GetComponent<Button>())
             {
                 Debug.LogError("Toggler: " + gameObject.name + " does not contain a button. Disabling");
                 enabled = false;
                 return;
             }
 
+            GetComponent<Button>().onClick.AddListener(PlayToggle);
             if (!resetOnEnable)
             {
                 toggleState = beginToggled;
