@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Unite
 {
-    class AdaptButtonPress : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class AdaptButtonPress : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         // Variables
         #region Variables
@@ -16,7 +16,6 @@ namespace Unite
         public Text text;
         public Color textColor = Color.white;
 
-        private Button button;
         private Color outlineBaseColor;
         private Color imageBaseColor;
         private Color textBaseColor;
@@ -30,8 +29,7 @@ namespace Unite
 
         void Start()
         {
-            button = GetComponent<Button>();
-            if (button)
+            if (GetComponent<Button>() || GetComponent<Image>() || GetComponent<RawImage>())
             {
                 if (outline)
                     outlineBaseColor = outline.effectColor;
@@ -42,7 +40,10 @@ namespace Unite
                 isValid = true;
             }
             else
+            {
+                Debug.LogError("AdaptButtonPress: " + gameObject.name + " does not contain a UI asociated. Disabling");
                 enabled = false;
+            }
         }
 
         #endregion

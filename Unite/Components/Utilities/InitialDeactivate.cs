@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Unite
 {
-    class InitialDeactivate : MonoBehaviour
+    public class InitialDeactivate : MonoBehaviour
     {
         // Variables
         #region Variables
