@@ -157,17 +157,15 @@ namespace Unite
         internal static void AddElement(string key, GameObject go)
         {
             if (dictionary.ContainsKey(key))
-                Debug.Log("Trying to add an already existing key to the Radar, key: " + key);
+                dictionary.Remove(key);
             else
                 dictionary.Add(key, go);
         }
 
         internal static void RemoveElement(string key)
         {
-            if (!dictionary.ContainsKey(key))
-                Debug.Log("Trying to remove a non existing key to the Radar, key: " + key);
-            else
-                dictionary.Remove(key);
+            if (dictionary.ContainsKey(key))
+                dictionary.Remove(key);   
         }
 
         #endregion

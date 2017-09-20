@@ -196,6 +196,34 @@ namespace Unite
             return dictionary;
         }
 
+        public static T GetKeyAtIndex<T, U>(Dictionary<T, U> dictionary, int index)
+        {
+            int i = -1;
+            foreach (T key in dictionary.Keys)
+            {
+                i++;
+                if (index == i)
+                    return key;
+            }
+
+            Debug.LogError("Ext GetKeyAtIndex: Index was outside the bounds");
+            return default(T);
+        }
+
+        public static U GetValueAtIndex<T, U>(Dictionary<T, U> dictionary, int index)
+        {
+            int i = -1;
+            foreach (U value in dictionary.Values)
+            {
+                i++;
+                if (index == i)
+                    return value;
+            }
+
+            Debug.LogError("Ext GetValueAtIndex: Index was outside the bounds");
+            return default(U);
+        }
+
         #endregion
 
         // Conversions

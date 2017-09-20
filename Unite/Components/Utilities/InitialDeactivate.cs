@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Unite
 {
@@ -8,36 +7,37 @@ namespace Unite
         // Variables
         #region Variables
 
-        public bool deactivateImmediate = false;
+        public bool hasBeenDeativated = false;
 
         #endregion
 
         // Override
         #region Override
 
-        void Awake()
-        {
-            if (deactivateImmediate)
-                gameObject.SetActive(false);
-        }
-
         void Start()
         {
-            if (Time.fixedUnscaledTime < 1 && !deactivateImmediate)
-                StartCoroutine(Deactivate());
+            if (!hasBeenDeativated)
+                Deactivate();
         }
 
         #endregion
 
-        // Evemts
-        #region Evemts
+        // Private
+        #region Private
 
-        private IEnumerator Deactivate()
+        private void Deactivate()
         {
-            yield return new WaitForSeconds(0.6f - GetComponentsInParent<InitialDeactivate>(true).Length * 0.1f);
+            foreach (InitialDeactivate script in GetComponentsInChildren<InitialDeactivate>())
+            {
+                if (script.transform.parent == transform)
+                    script.Deactivate();
+            }
+
             gameObject.SetActive(false);
+            hasBeenDeativated = true;
         }
 
         #endregion
+
     }
 }
