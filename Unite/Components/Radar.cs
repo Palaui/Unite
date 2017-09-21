@@ -157,7 +157,7 @@ namespace Unite
         internal static void AddElement(string key, GameObject go)
         {
             if (dictionary.ContainsKey(key))
-                dictionary.Remove(key);
+                dictionary[key] = go;
             else
                 dictionary.Add(key, go);
         }
