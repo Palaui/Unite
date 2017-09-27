@@ -56,6 +56,11 @@ namespace Unite
             stoppedTime = 0;
         }
 
+        public void DebugValue(string prefix = "")
+        {
+            Debug.Log(prefix + " " + Value);
+        }
+
         #endregion
 
     }
