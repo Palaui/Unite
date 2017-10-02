@@ -12,7 +12,7 @@ namespace Unite.Neural
         {
             InputNeuron = inputNeuron;
             OutputNeuron = outputNeuron;
-            Weight = Network.GetRandom();
+            Weight = NeuralNetwork.GetRandom();
         }
     }
 }

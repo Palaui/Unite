@@ -24,7 +24,7 @@ namespace Unite.Neural
         {
             InputSynapses = new List<NeuralSynapse>();
             OutputSynapses = new List<NeuralSynapse>();
-            Bias = Network.GetRandom();
+            Bias = NeuralNetwork.GetRandom();
         }
 
         public Neuron(IEnumerable<Neuron> inputNeurons) : this()

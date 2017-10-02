@@ -15,7 +15,7 @@ namespace Unite.Neural
 
     #endregion
 
-    public class Network
+    public class NeuralNetwork
 	{
         // Variables
         #region Variables
@@ -33,7 +33,7 @@ namespace Unite.Neural
         // Override
         #region Override
 
-        public Network(int inputSize, int hiddenSize, int outputSize, double? learnRate = null, double? momentum = null)
+        public NeuralNetwork(int inputSize, int hiddenSize, int outputSize, double? learnRate = null, double? momentum = null)
 		{
 			LearnRate = learnRate ?? .4;
 			Momentum = momentum ?? .9;
