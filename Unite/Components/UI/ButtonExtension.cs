@@ -4,17 +4,14 @@ using UnityEngine.UI;
 
 namespace Unite
 {
-    public class ButtonBehaviour : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class ButtonExtension : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         // Variables
         #region Variables
 
-        public Texture2D cursorTex;
-        public Vector2 cursorImpactPlace;
+        public Texture2D tex;
+        public Vector2 place;
         public bool mantainOnPress = false;
-
-        private Texture2D cursor;
-        private Vector2 place;
 
         #endregion
 
@@ -25,19 +22,17 @@ namespace Unite
         {
             if (!GetComponent<Button>())
             {
-                Debug.LogError("Toggler: " + gameObject.name + " does not contain a button. Disabling");
+                Debug.LogError("ButtonExtension: " + name + " does not contain a button. Disabling");
                 enabled = false;
                 return;
             }
 
             GetComponent<Button>().onClick.AddListener(OnClick);
-            cursor = cursorTex;
-            place = new Vector2(cursorTex.width * cursorImpactPlace.x, cursorTex.height * cursorImpactPlace.y);
         }
 
         void OnDisable()
         {
-            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+            Mouse.ApplyDefaultCursor();
         }
 
         #endregion
@@ -48,7 +43,7 @@ namespace Unite
         public void OnClick()
         {
             if (!mantainOnPress)
-                Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+                Mouse.ApplyDefaultCursor();
         }
 
         #endregion
@@ -58,12 +53,12 @@ namespace Unite
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Cursor.SetCursor(cursor, place, CursorMode.Auto);
+            Cursor.SetCursor(tex, place, CursorMode.Auto);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+            Mouse.ApplyDefaultCursor();
         }
 
         #endregion

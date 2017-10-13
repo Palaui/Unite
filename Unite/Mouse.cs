@@ -10,6 +10,14 @@ namespace Unite
         // Properties
         #region Properties
 
+        private static Texture2D cursorTexture = null;
+        private static Vector2 cursorOffset = Vector2.zero;
+
+        #endregion
+
+        // Properties
+        #region Properties
+
         public static Vector2 Location
         {
             get { return Input.mousePosition; }
@@ -19,6 +27,18 @@ namespace Unite
 
         // Public Static
         #region Public Static
+
+        public static void SetDefaultCursor(Texture2D tex, Vector2 offset)
+        {
+            cursorTexture = tex;
+            cursorOffset = offset;
+            Cursor.SetCursor(cursorTexture, cursorOffset, CursorMode.Auto);
+        }
+
+        public static void ApplyDefaultCursor()
+        {
+            Cursor.SetCursor(cursorTexture, cursorOffset, CursorMode.Auto);
+        }
 
         public static RaycastHit PhysicRaycast()
         {
