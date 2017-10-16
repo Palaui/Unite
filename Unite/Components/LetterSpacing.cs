@@ -30,9 +30,11 @@ namespace Unite
             get { return spacing; }
             set
             {
-                if (spacing == value) return;
+                if (spacing == value)
+                    return;
                 spacing = value;
-                if (graphic != null) graphic.SetVerticesDirty();
+                if (graphic != null)
+                    graphic.SetVerticesDirty();
             }
         }
 
@@ -45,11 +47,11 @@ namespace Unite
 
 #if UNITY_EDITOR
 
-    protected override void OnValidate()
-    {
-        Spacing = spacing;
-        base.OnValidate();
-    }
+        protected override void OnValidate()
+        {
+            Spacing = spacing;
+            base.OnValidate();
+        }
 
 #endif
 

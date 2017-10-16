@@ -138,12 +138,7 @@ namespace Unite
 
         public static Radar Generate(float radius = 50)
         {
-            if (!container)
-            {
-                container = new GameObject("Radar");
-                Ext.ResetTransform(container);
-            }
-
+            container = Container.GetContainer();
             Radar radar = Ext.GetOrAddComponent<Radar>(container);
             radar.detectionRadius = radius;
             return radar;

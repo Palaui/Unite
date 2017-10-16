@@ -14,7 +14,7 @@ namespace Unite
         private static int framesThreshold;
         private static int framesBelow;
         private static int framesAbove;
-        private static int currentQuality;
+        private static int currentQuality = 0;
         private static bool expensiveQualityUsed;
 
         private static List<float> frameTimes = new List<float>();
@@ -22,12 +22,26 @@ namespace Unite
         private static float timeCounter;
 
         private static List<float> frameTimesDraw = new List<float>();
-        private static string signDraw = "=";
+        private static string signDraw = "-";
         private static float fpsIntervalDraw;
         private static float meanTimeDraw;
         private static float timeCounterDraw;
         private static bool isDrawingAllowed = false;
 
+        #endregion
+
+        // Properties
+        #region Properties
+
+        public static int QualityLevel
+        {
+            get { return QualitySettings.GetQualityLevel(); }
+        }
+
+        public static float QualityLevel01
+        {
+            get { return Mathf.Lerp(0, 1, (float)QualitySettings.GetQualityLevel() / (QualitySettings.names.Length - 1)); }
+        }
 
         #endregion
 
@@ -60,11 +74,7 @@ namespace Unite
 
         public static void Activate(int lowerFPS = 26, int riseFPS = 56, int inFramesThreshold = 6, int inFramesMeanPack = 3)
         {
-            if (!container)
-            {
-                container = new GameObject("DynamicGraphicsModule");
-                Ext.ResetTransform(container);
-            }
+            container = Container.GetContainer();
             Ext.GetOrAddComponent<DynamicGraphicsModule>(container);
 
             bounds = new Vector2(lowerFPS, riseFPS);

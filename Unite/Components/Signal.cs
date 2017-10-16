@@ -26,7 +26,6 @@ namespace Unite
             }
         }
 
-
         #endregion
 
         // Override
@@ -41,6 +40,18 @@ namespace Unite
 
         void OnEnable()
         {
+            Radar.AddElement(key, gameObject);
+        }
+
+        #endregion
+
+        // Internal
+        #region Internal
+
+        internal void UpdateElement(string inKey)
+        {
+            Radar.RemoveElement(Key);
+            Key = inKey;
             Radar.AddElement(key, gameObject);
         }
 
