@@ -22,7 +22,7 @@ namespace Unite
         private static float timeCounter;
 
         private static List<float> frameTimesDraw = new List<float>();
-        private static string signDraw = "-";
+        private static string signDraw = "+";
         private static float fpsIntervalDraw;
         private static float meanTimeDraw;
         private static float timeCounterDraw;
@@ -86,8 +86,6 @@ namespace Unite
 
             currentQuality = QualitySettings.GetQualityLevel();
             expensiveQualityUsed = true;
-
-            DontDestroyOnLoad(container);
         }
 
         public static void Deactivate()

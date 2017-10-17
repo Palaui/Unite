@@ -6,12 +6,13 @@ namespace Unite
     {
         internal static GameObject GetContainer()
         {
-            if (Radar.Get("Unite Container"))
+            if (Radar.Contains("Unite Container"))
                 return Radar.Get("Unite Container");
             else
             {
                 GameObject container = new GameObject("Unite Container");
                 container.AddComponent<Signal>().UpdateElement("Unite Container");
+                Object.DontDestroyOnLoad(container);
                 return container;
             }
         }
