@@ -32,9 +32,13 @@ namespace Unite
         // Variables
         #region Variables
 
-        private static Dictionary<int, Vector3> verticesToMove = new Dictionary<int, Vector3>();
+        private static Dictionary<int, Vector3> perimeterVertices = new Dictionary<int, Vector3>();
         private static List<VertexState> verticesState = new List<VertexState>();
-        private static List<Location> triangleStates = new List<Location>();
+
+        private static List<Vector3> vertices = new List<Vector3>();
+        private static List<Vector3> normals = new List<Vector3>();
+        private static List<Vector2> uvs = new List<Vector2>();
+        private static List<int> triangles = new List<int>();
 
         private static Mesh mesh;
         private static GameObject plane;
@@ -54,6 +58,7 @@ namespace Unite
             mesh = go.GetComponent<MeshFilter>().mesh;
             plane = inPlane;
 
+            PrepareMesh();
             GetMeshStates(go.transform.localToWorldMatrix);
             BuildMesh(go, CalculateTriangles(go.transform.localToWorldMatrix, go.transform.worldToLocalMatrix));
 
@@ -66,31 +71,38 @@ namespace Unite
         // Private Static
         #region Private Static
 
-        private static void GetMeshStates(Matrix4x4 localToWorld)
+        private static void PrepareMesh()
         {
-            for (int i = 0; i < mesh.triangles.Length; i += 3)
+            List<int> indexes = new List<int>();
+
+            vertices = Ext.CreateListFromArray(mesh.vertices);
+            normals = Ext.CreateListFromArray(mesh.normals);
+            uvs = Ext.CreateListFromArray(mesh.uv);
+            triangles = Ext.CreateListFromArray(mesh.triangles);
+
+            for (int i = 0; i < triangles.Count; i++)
             {
-                verticesState.Add(
-                    new VertexState(IsPointBelowLine(localToWorld.MultiplyPoint3x4(mesh.vertices[mesh.triangles[i]]))));
-                verticesState.Add(
-                    new VertexState(IsPointBelowLine(localToWorld.MultiplyPoint3x4(mesh.vertices[mesh.triangles[i + 1]]))));
-                verticesState.Add(
-                    new VertexState(IsPointBelowLine(localToWorld.MultiplyPoint3x4(mesh.vertices[mesh.triangles[i + 2]]))));
-                triangleStates.Add(GetTriangleState(verticesState[i], verticesState[i + 1], verticesState[i + 2]));
+                if (!indexes.Contains(triangles[i]))
+                    indexes.Add(triangles[i]);
+                else
+                {
+                    vertices.Add(vertices[triangles[i]]);
+                    normals.Add(normals[triangles[i]]);
+                    uvs.Add(uvs[triangles[i]]);
+                    triangles[i] = vertices.Count - 1;
+                }
             }
         }
 
-        private static Location GetTriangleState(VertexState vertexA, VertexState vertexB, VertexState vertexC)
+        private static void GetMeshStates(Matrix4x4 localToWorld)
         {
-            if (vertexA.location != vertexB.location || vertexA.location != vertexC.location)
-                return Location.Cut;
-            else
-                return vertexA.location;
+            for (int i = 0; i < vertices.Count; i++)
+                verticesState.Add(new VertexState(IsPointBelowCut(localToWorld.MultiplyPoint3x4(vertices[i]))));
         }
 
-        private static Location IsPointBelowLine(Vector3 point)
+        private static Location IsPointBelowCut(Vector3 point)
         {
-            if (Vector3.Dot(-plane.transform.forward, point - plane.transform.position) <= 0)
+            if (Vector3.Dot(-plane.transform.forward, point - plane.transform.position) < 0)
                 return Location.Below;
             else
                 return Location.Above;
@@ -98,98 +110,86 @@ namespace Unite
 
         private static List<int> CalculateTriangles(Matrix4x4 localToWorld, Matrix4x4 worldToLocal)
         {
-            List<int> triangles = new List<int>();
-            for (int i = 0; i < triangleStates.Count; i++)
+            List<int> tris = new List<int>();
+            for (int i = 0; i < triangles.Count; i += 3)
             {
-                if (triangleStates[i] != Location.Above)
+                Location triangleLocation = GetTriangleLocation(i, i + 1, i + 2);
+                if (triangleLocation != Location.Above)
                 {
-                    triangles.Add(mesh.triangles[i * 3]);
-                    triangles.Add(mesh.triangles[i * 3 + 1]);
-                    triangles.Add(mesh.triangles[i * 3 + 2]);
+                    tris.Add(triangles[i]);
+                    tris.Add(triangles[i + 1]);
+                    tris.Add(triangles[i + 2]);
 
-                    if (triangleStates[i] == Location.Cut)
+                    if (triangleLocation == Location.Cut)
                         AdaptVertices(localToWorld, worldToLocal, i);
                 }
-                    
             }
-            return triangles;
+
+            return tris;
+        }
+
+        private static Location GetTriangleLocation(int indexA, int indexB, int indexC)
+        {
+            Location locA = verticesState[triangles[indexA]].location;
+            Location locB = verticesState[triangles[indexB]].location;
+            Location locC = verticesState[triangles[indexC]].location;
+
+            if (locA != locB || locA != locC)
+                return Location.Cut;
+            else
+                return locA;
         }
 
         private static void AdaptVertices(Matrix4x4 localToWorld, Matrix4x4 worldToLocal, int index)
         {
             Vector3 pos = Vector3.zero;
             int outsideVertices = 0;
-            for (int i = index * 3; i < index * 3 + 3; i++)
+
+            for (int i = index; i < index + 3; i++)
             {
-                if (verticesState[i].location == Location.Above)
+                if (verticesState[triangles[i]].location == Location.Above)
                     outsideVertices++;
                 else
-                    pos += localToWorld.MultiplyPoint3x4(mesh.vertices[mesh.triangles[i]]);
+                    pos += localToWorld.MultiplyPoint3x4(vertices[triangles[i]]);
             }
 
             if (outsideVertices == 1)
-            {
-                pos /= 2;
-                for (int i = index * 3; i < index * 3 + 3; i++)
-                {
-                    if (verticesState[i].location == Location.Above && !verticesState[i].hasBeenMoved)
-                    {
-                        Vector3 intesection;
-                        MathExt.LinePlaneIntersection(
-                            pos, (localToWorld.MultiplyPoint3x4(mesh.vertices[mesh.triangles[i]]) - pos).normalized, 
-                            plane.transform.forward,  plane.transform.position, out intesection);
+                PlaceOnPlaneIntersection(localToWorld, pos / 2, index);
+            if (outsideVertices == 2)
+                PlaceOnPlaneIntersection(localToWorld, pos, index);
+        }
 
-                        if (verticesToMove.ContainsKey(mesh.triangles[i]))
-                            verticesToMove[mesh.triangles[i]] = intesection;
-                        else
-                            verticesToMove.Add(mesh.triangles[i], intesection);
-                        verticesState[i].hasBeenMoved = true;
-                    }
-                }
-            }
-            else if (outsideVertices == 2)
+        private static void PlaceOnPlaneIntersection(Matrix4x4 localToWorld, Vector3 pos, int index)
+        {
+            for (int i = index; i < index + 3; i++)
             {
-                for (int i = index * 3; i < index * 3 + 3; i++)
+                if (verticesState[triangles[i]].location == Location.Above &&
+                    !verticesState[triangles[i]].hasBeenMoved)
                 {
-                    if (verticesState[i].location == Location.Above && !verticesState[i].hasBeenMoved)
-                    {
-                        Vector3 intesection;
-                        MathExt.LinePlaneIntersection(
-                            pos, (localToWorld.MultiplyPoint3x4(mesh.vertices[mesh.triangles[i]]) - pos).normalized,
-                            plane.transform.forward, plane.transform.position, out intesection);
+                    Vector3 intesection;
+                    MathExt.LinePlaneIntersection(
+                        pos, (localToWorld.MultiplyPoint3x4(vertices[triangles[i]]) - pos).normalized,
+                        plane.transform.forward, plane.transform.position, out intesection);
 
-                        if (verticesToMove.ContainsKey(mesh.triangles[i]))
-                            verticesToMove[mesh.triangles[i]] = intesection;
-                        else
-                            verticesToMove.Add(mesh.triangles[i], intesection);
-                        verticesState[i].hasBeenMoved = true;
-                    }
+                    perimeterVertices.Add(triangles[i], intesection);
+                    verticesState[triangles[i]].hasBeenMoved = true;
                 }
             }
         }
 
-        private static void BuildMesh(GameObject go, List<int> triangles)
+        private static void BuildMesh(GameObject go, List<int> tris)
         {
-            Mesh newMesh = new Mesh();
+            Mesh cutMesh = new Mesh();
 
-            List<Vector3> test = Ext.CreateListFromArray(mesh.vertices);
-            //newMesh.vertices = mesh.vertices;
-            foreach (KeyValuePair<int, Vector3> entry in verticesToMove)
-            {
-                //Debug.Log(newMesh.vertices[entry.Key]);
-                //Debug.Log(entry.Value);
-                //newMesh.vertices[entry.Key] = Vector3.zero;
-                test[entry.Key] = entry.Value;
-            }
+            foreach (KeyValuePair<int, Vector3> entry in perimeterVertices)
+                vertices[entry.Key] = entry.Value;
 
-            //for (int i = 0; i < newMesh.vertices.Length; i++)
-            //    newMesh.vertices[i] = Vector3.zero;
+            cutMesh.vertices = Ext.CreateArrayFromList(vertices);
+            cutMesh.normals = Ext.CreateArrayFromList(normals);
+            cutMesh.uv = Ext.CreateArrayFromList(uvs);
+            cutMesh.triangles = Ext.CreateArrayFromList(tris);
 
-            newMesh.vertices = Ext.CreateArrayFromList(test);
-            newMesh.uv = mesh.uv;
-            newMesh.triangles = Ext.CreateArrayFromList(triangles);
-
-            go.GetComponent<MeshFilter>().mesh = newMesh;
+            go.GetComponent<MeshFilter>().mesh = cutMesh;
         }
 
         #endregion
