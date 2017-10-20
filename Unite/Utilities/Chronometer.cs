@@ -44,6 +44,12 @@ namespace Unite
             isPaused = true;
         }
 
+        public void Stop()
+        {
+            stoppedTime = 0;
+            isPaused = true;
+        }
+
         public void Resume()
         {
             startTime = Time.realtimeSinceStartup - stoppedTime;

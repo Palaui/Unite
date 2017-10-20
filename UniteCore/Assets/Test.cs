@@ -1,24 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Unite;
 
 public class Test : MonoBehaviour
 {
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    public static void BeforeSceneLoad()
-    {
-        foreach (Test test in FindObjectsOfType<Test>())
-            if (test)
-                Debug.Log(test.name);
-    }
+    public GameObject go;
+    public GameObject plane;
 
-    void Awake()
+    void Update()
     {
-        Debug.Log("Awake");
+        if (Input.GetKeyDown(KeyCode.Space))
+            PlanarCut.Cut(go, plane);
     }
-
-	void Start ()
-    {
-        Debug.Log("Start");
-	}
 }

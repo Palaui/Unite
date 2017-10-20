@@ -116,6 +116,34 @@ namespace Unite
             loader.StartCoroutine(loader.LoadActivityCoroutine(activationToPass, deactivationToPass));
         }
 
+        public static void LoadScenes(List<string> activation, List<string> deactivation)
+        {
+            if (IsLoading)
+                return;
+
+            List<string> activationToPass = new List<string>();
+            foreach (string sceneName in activation)
+            {
+                if (SceneManager.GetSceneByName(sceneName) != null)
+                {
+                    if (!SceneManager.GetSceneByName(sceneName).isLoaded)
+                        activationToPass.Add(sceneName);
+                }
+            }
+            List<string> deactivationToPass = new List<string>();
+            foreach (string sceneName in deactivation)
+            {
+                if (SceneManager.GetSceneByName(sceneName) != null)
+                {
+                    if (SceneManager.GetSceneByName(sceneName).isLoaded)
+                        deactivationToPass.Add(sceneName);
+                }
+            }
+
+            DynamicLoader loader = Ext.GetOrAddComponent<DynamicLoader>(Container.GetContainer());
+            loader.StartCoroutine(loader.LoadScenesCoroutine(activationToPass, deactivationToPass));
+        }
+
         public static void LoadScene(string sceneName, LoadSceneMode loadSceneMode)
         {
             if (IsLoading)
@@ -123,6 +151,15 @@ namespace Unite
 
             DynamicLoader loader = Ext.GetOrAddComponent<DynamicLoader>(Container.GetContainer());
             loader.StartCoroutine(loader.LoadSceneCoroutine(sceneName, loadSceneMode));
+        }
+
+        public static void UnloadScene(string sceneName)
+        {
+            if (IsLoading)
+                return;
+
+            DynamicLoader loader = Ext.GetOrAddComponent<DynamicLoader>(Container.GetContainer());
+            loader.StartCoroutine(loader.UnloadSceneCoroutine(sceneName));
         }
 
         #endregion
@@ -190,6 +227,27 @@ namespace Unite
             }
         }
 
+        private IEnumerator LoadScenesCoroutine(List<string> activation, List<string> deactivation)
+        {
+            isLoading = true;
+
+            foreach (string sceneName in deactivation)
+            {
+                AsyncOperation asyncLoad = SceneManager.UnloadSceneAsync(sceneName);
+                while (!asyncLoad.isDone)
+                    yield return null;
+            }
+
+            foreach (string sceneName in activation)
+            {
+                AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                while (!asyncLoad.isDone)
+                    yield return null;
+            }
+
+            isLoading = false;
+        }
+
         private IEnumerator LoadSceneCoroutine(string sceneName, LoadSceneMode loadSceneMode)
         {
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
@@ -235,8 +293,17 @@ namespace Unite
                 case LoadSceneMode.Additive:
                     while (!asyncLoad.isDone)
                         yield return null;
+                    isLoading = false;
                     break;
             }
+        }
+
+        private IEnumerator UnloadSceneCoroutine(string sceneName)
+        {
+            AsyncOperation asyncLoad = SceneManager.UnloadSceneAsync(sceneName);
+            while (!asyncLoad.isDone)
+                yield return null;
+            isLoading = false;
         }
 
         #endregion
