@@ -345,7 +345,7 @@ namespace Unite
             return false;
         }
 
-        public Color GetColorValue(string key)
+        public Color GetColorValue(string key, bool useColor32 = true)
         {
             if (!values.ContainsKey(key))
                 Debug.LogError("This node does not contain the value " + key);
@@ -367,12 +367,15 @@ namespace Unite
                     return Color.white;
                 }
             }
-
-            Color color = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
+            Color color;
+            if (useColor32)
+                color = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
+            else
+                color = new Color(float.Parse(cValues[0]), float.Parse(cValues[1]), float.Parse(cValues[2]), float.Parse(cValues[3]));
             return color;
         }
 
-        public ColorBlock GetColorBlockValue(string key)
+        public ColorBlock GetColorBlockValue(string key, bool useColor32 = true)
         {
             if (!values.ContainsKey(key))
                 Debug.LogError("This node does not contain the value " + key);
@@ -396,10 +399,20 @@ namespace Unite
             }
 
             ColorBlock block = new ColorBlock();
-            block.normalColor = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
-            block.highlightedColor = new Color32(byte.Parse(cValues[4]), byte.Parse(cValues[5]), byte.Parse(cValues[6]), byte.Parse(cValues[7]));
-            block.pressedColor = new Color32(byte.Parse(cValues[8]), byte.Parse(cValues[9]), byte.Parse(cValues[10]), byte.Parse(cValues[11]));
-            block.disabledColor = new Color32(byte.Parse(cValues[12]), byte.Parse(cValues[13]), byte.Parse(cValues[14]), byte.Parse(cValues[15]));
+            if (useColor32)
+            {
+                block.normalColor = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
+                block.highlightedColor = new Color32(byte.Parse(cValues[4]), byte.Parse(cValues[5]), byte.Parse(cValues[6]), byte.Parse(cValues[7]));
+                block.pressedColor = new Color32(byte.Parse(cValues[8]), byte.Parse(cValues[9]), byte.Parse(cValues[10]), byte.Parse(cValues[11]));
+                block.disabledColor = new Color32(byte.Parse(cValues[12]), byte.Parse(cValues[13]), byte.Parse(cValues[14]), byte.Parse(cValues[15]));
+            }
+            else
+            {
+                block.normalColor = new Color(float.Parse(cValues[0]), float.Parse(cValues[1]), float.Parse(cValues[2]), float.Parse(cValues[3]));
+                block.highlightedColor = new Color(float.Parse(cValues[4]), float.Parse(cValues[5]), float.Parse(cValues[6]), float.Parse(cValues[7]));
+                block.pressedColor = new Color(float.Parse(cValues[8]), float.Parse(cValues[9]), float.Parse(cValues[10]), float.Parse(cValues[11]));
+                block.disabledColor = new Color(float.Parse(cValues[12]), float.Parse(cValues[13]), float.Parse(cValues[14]), float.Parse(cValues[15]));
+            }
             block.colorMultiplier = 1;
             block.fadeDuration = 0.2f;
 
@@ -409,9 +422,17 @@ namespace Unite
         public Sprite GetSprite(string key)
         {
             if (!values.ContainsKey(key))
-                Debug.LogError("This node does not contain the value " + key);
+                Debug.LogError("JSon GetSprite: This node does not contain the value " + key);
 
             return Resources.Load<Sprite>(values[key]) as Sprite;
+        }
+
+        public GameObject GetPrefab(string key)
+        {
+            if (!values.ContainsKey(key))
+                Debug.LogError("JSon GetPrefab: This node does not contain the value " + key);
+
+            return Resources.Load(values[key]) as GameObject;
         }
 
         #endregion
