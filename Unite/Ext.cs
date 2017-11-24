@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Unite
 {
@@ -271,6 +272,56 @@ namespace Unite
                 list.Add(entry.ToString());
 
             return null;
+        }
+
+        public static Color GetColorFromString(string value, bool useColor32)
+        {
+            value = value.Replace(",", "").Replace("\t", "").Trim();
+            string[] cValues = value.Split(new char[] { ' ' });
+            if (cValues.Length != 4)
+            {
+                Debug.LogError("Unable to parse " + value + " to Color");
+                return Color.white;
+            }
+
+            Color color;
+            if (useColor32)
+                color = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
+            else
+                color = new Color(float.Parse(cValues[0]), float.Parse(cValues[1]), float.Parse(cValues[2]), float.Parse(cValues[3]));
+
+            return color;
+        }
+
+        public static ColorBlock GetColorBlockFromString(string value, bool useColor32)
+        {
+            value = value.Replace(",", "").Replace("\t", "").Trim();
+            string[] cValues = value.Split(new char[] { ' ' });
+            if (cValues.Length != 16)
+            {
+                Debug.LogError("Unable to parse " + value + " to ColorBlock");
+                return new ColorBlock();
+            }
+
+            ColorBlock block = new ColorBlock();
+            if (useColor32)
+            {
+                block.normalColor = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
+                block.highlightedColor = new Color32(byte.Parse(cValues[4]), byte.Parse(cValues[5]), byte.Parse(cValues[6]), byte.Parse(cValues[7]));
+                block.pressedColor = new Color32(byte.Parse(cValues[8]), byte.Parse(cValues[9]), byte.Parse(cValues[10]), byte.Parse(cValues[11]));
+                block.disabledColor = new Color32(byte.Parse(cValues[12]), byte.Parse(cValues[13]), byte.Parse(cValues[14]), byte.Parse(cValues[15]));
+            }
+            else
+            {
+                block.normalColor = new Color(float.Parse(cValues[0]), float.Parse(cValues[1]), float.Parse(cValues[2]), float.Parse(cValues[3]));
+                block.highlightedColor = new Color(float.Parse(cValues[4]), float.Parse(cValues[5]), float.Parse(cValues[6]), float.Parse(cValues[7]));
+                block.pressedColor = new Color(float.Parse(cValues[8]), float.Parse(cValues[9]), float.Parse(cValues[10]), float.Parse(cValues[11]));
+                block.disabledColor = new Color(float.Parse(cValues[12]), float.Parse(cValues[13]), float.Parse(cValues[14]), float.Parse(cValues[15]));
+            }
+            block.colorMultiplier = 1;
+            block.fadeDuration = 0.2f;
+
+            return block;
         }
 
         #endregion

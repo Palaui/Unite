@@ -367,6 +367,7 @@ namespace Unite
                     return Color.white;
                 }
             }
+
             Color color;
             if (useColor32)
                 color = new Color32(byte.Parse(cValues[0]), byte.Parse(cValues[1]), byte.Parse(cValues[2]), byte.Parse(cValues[3]));
@@ -422,17 +423,9 @@ namespace Unite
         public Sprite GetSprite(string key)
         {
             if (!values.ContainsKey(key))
-                Debug.LogError("JSon GetSprite: This node does not contain the value " + key);
+                Debug.LogError("This node does not contain the value " + key);
 
             return Resources.Load<Sprite>(values[key]) as Sprite;
-        }
-
-        public GameObject GetPrefab(string key)
-        {
-            if (!values.ContainsKey(key))
-                Debug.LogError("JSon GetPrefab: This node does not contain the value " + key);
-
-            return Resources.Load(values[key]) as GameObject;
         }
 
         #endregion
@@ -472,7 +465,10 @@ namespace Unite
 
         public void AddValue(string key, string value)
         {
-            values.Add(key, value.ToString());
+            if (values.ContainsKey(key))
+                values[key] = value;
+            else
+                values.Add(key, value.ToString());
         }
         public void AddValue(string nodeName, string key, string value)
         {
@@ -643,6 +639,19 @@ namespace Unite
                 SortAlphabetically(json.nodes[nods[i]]);
             }
             json.nodes = nodsDictionary;
+        }
+
+        public static void WriteJSonAtPath(JSon json, string path)
+        {
+            if (File.Exists(path + ".json"))
+            {
+                json.CreateLines();
+                StreamWriter writer = new StreamWriter(path + ".json");
+                foreach (string line in json.lines)
+                    writer.WriteLine(line);
+                writer.Flush();
+                writer.Close();
+            }
         }
 
         #endregion

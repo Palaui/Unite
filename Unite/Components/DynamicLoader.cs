@@ -52,15 +52,15 @@ namespace Unite
 
         #endregion
 
-        // Overiide
-        #region Overiide
+        // Override
+        #region Override
 
         void OnGUI()
         {
             if (isLoading)
             {
                 if (!loadingWheelTex)
-                    loadingWheelTex = ImageUtility.ConvertBitmap(Properties.Resources.LoadingWheel);
+                    loadingWheelTex = ImageUtility.BitmapToTexture2D(Properties.Resources.LoadingWheel);
 
                 switch (loadingMode)
                 {

@@ -30,7 +30,7 @@ namespace UniteEditor
             GameObjectEditionWindow window = (GameObjectEditionWindow)GetWindow(typeof(GameObjectEditionWindow));
             window.titleContent = new GUIContent("GameObjects Editor");
 
-            tex = ImageUtility.ConvertBitmap(Properties.Resources.WindowBackground);
+            tex = ImageUtility.BitmapToTexture2D(Properties.Resources.WindowBackground);
             window.Show();
         }
 
