@@ -33,6 +33,7 @@ namespace Unite
 
         // Default loading
         private static int rotationSpeed = 200;
+        private static bool showGUI = true;
 
         #endregion
 
@@ -50,6 +51,12 @@ namespace Unite
             get { return isLoading || (fadeAlpha > 0); }
         }
 
+        public static bool ShowGUI
+        {
+            set { showGUI = value; }
+            get { return showGUI; }
+        }
+
         #endregion
 
         // Override
@@ -57,24 +64,27 @@ namespace Unite
 
         void OnGUI()
         {
-            if (isLoading)
+            if (showGUI)
             {
-                if (!loadingWheelTex)
-                    loadingWheelTex = ImageUtility.BitmapToTexture2D(Properties.Resources.LoadingWheel);
-
-                switch (loadingMode)
+                if (isLoading)
                 {
-                    case LoadingMode.Default:
-                        DefaultLoading();
-                        break;
-                }
-            }
+                    if (!loadingWheelTex)
+                        loadingWheelTex = ImageUtility.BitmapToTexture2D(Properties.Resources.LoadingWheel);
 
-            if (fadeAlpha > 0)
-            {
-                GUI.color = new Color(fadeTexCol.r, fadeTexCol.g, fadeTexCol.b, fadeAlpha);
-                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), fadeTex);
-                GUI.color = new Color(1, 1, 1, 1);
+                    switch (loadingMode)
+                    {
+                        case LoadingMode.Default:
+                            DefaultLoading();
+                            break;
+                    }
+                }
+
+                if (fadeAlpha > 0)
+                {
+                    GUI.color = new Color(fadeTexCol.r, fadeTexCol.g, fadeTexCol.b, fadeAlpha);
+                    GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), fadeTex);
+                    GUI.color = new Color(1, 1, 1, 1);
+                }
             }
         }
 
