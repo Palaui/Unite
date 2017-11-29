@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,7 +18,12 @@ namespace Unite
         // Variables
         #region Variables
 
+        private static List<string> scenesToLoad = new List<string>();
+        private static List<string> scenesToUnload = new List<string>();
+
         private static LoadingMode loadingMode = LoadingMode.Default;
+
+        private static Action loadEndCallback;
         private static Texture2D loadingWheelTex;
         private static Texture2D backgroundTex = Texture2D.whiteTexture;
         private static Texture2D fadeTex = Texture2D.whiteTexture;
@@ -157,7 +163,11 @@ namespace Unite
         public static void LoadScene(string sceneName, LoadSceneMode loadSceneMode)
         {
             if (IsLoading)
+            {
+                if (loadSceneMode == LoadSceneMode.Additive)
+                    scenesToLoad.Add(sceneName);
                 return;
+            }
 
             DynamicLoader loader = Ext.GetOrAddComponent<DynamicLoader>(Container.GetContainer());
             loader.StartCoroutine(loader.LoadSceneCoroutine(sceneName, loadSceneMode));
@@ -166,10 +176,18 @@ namespace Unite
         public static void UnloadScene(string sceneName)
         {
             if (IsLoading)
+            {
+                scenesToUnload.Add(sceneName);
                 return;
+            }
 
             DynamicLoader loader = Ext.GetOrAddComponent<DynamicLoader>(Container.GetContainer());
             loader.StartCoroutine(loader.UnloadSceneCoroutine(sceneName));
+        }
+
+        public static void SetCallbackOnLoadSceneEnd(Action action)
+        {
+            loadEndCallback = action;
         }
 
         #endregion
@@ -188,6 +206,31 @@ namespace Unite
                 GUIUtility.RotateAroundPivot(rotationSpeed * Time.unscaledTime, new Vector2(Screen.width / 2, Screen.height / 2));
                 GUI.DrawTexture(new Rect((Screen.width - size) / 2, (Screen.height - size) / 2, size, size), loadingWheelTex);
                 GUI.matrix = Matrix4x4.identity;
+            }
+        }
+
+        private static void ResolveSceneLoad()
+        {
+            if (scenesToUnload.Count > 0)
+            {
+                DynamicLoader loader = Ext.GetOrAddComponent<DynamicLoader>(Container.GetContainer());
+                loader.StartCoroutine(loader.UnloadSceneCoroutine(scenesToUnload[0]));
+                scenesToUnload.RemoveAt(0);
+            }
+            else if (scenesToLoad.Count > 0)
+            {
+                DynamicLoader loader = Ext.GetOrAddComponent<DynamicLoader>(Container.GetContainer());
+                loader.StartCoroutine(loader.LoadSceneCoroutine(scenesToLoad[0], LoadSceneMode.Additive));
+                scenesToLoad.RemoveAt(0);
+            }
+            else
+            {
+                if (loadEndCallback != null)
+                {
+                    loadEndCallback();
+                    loadEndCallback = null;
+                }
+                isLoading = false;
             }
         }
 
@@ -255,7 +298,7 @@ namespace Unite
                     yield return null;
             }
 
-            isLoading = false;
+            ResolveSceneLoad();
         }
 
         private IEnumerator LoadSceneCoroutine(string sceneName, LoadSceneMode loadSceneMode)
@@ -299,11 +342,15 @@ namespace Unite
                         yield return null;
                     }
 
+                    scenesToLoad.Clear();
+                    scenesToUnload.Clear();
+
                     break;
                 case LoadSceneMode.Additive:
                     while (!asyncLoad.isDone)
                         yield return null;
-                    isLoading = false;
+
+                    ResolveSceneLoad();
                     break;
             }
         }
@@ -311,9 +358,12 @@ namespace Unite
         private IEnumerator UnloadSceneCoroutine(string sceneName)
         {
             AsyncOperation asyncLoad = SceneManager.UnloadSceneAsync(sceneName);
+            isLoading = true;
+
             while (!asyncLoad.isDone)
                 yield return null;
-            isLoading = false;
+
+            ResolveSceneLoad();
         }
 
         #endregion

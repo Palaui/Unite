@@ -12,6 +12,7 @@ namespace Unite
 
         private Dictionary<string, JSon> nodes = new Dictionary<string, JSon>();
         private Dictionary<string, string> values = new Dictionary<string, string>();
+        private Dictionary<string, JSon> leaves = new Dictionary<string, JSon>();
         private List<string> lines = new List<string>();
 
         private JSon parent;
@@ -272,6 +273,31 @@ namespace Unite
             foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 values.Add(GetBoolValue(entry.Value));
             return values;
+        }
+
+        public List<JSon> GetLeaveNodes()
+        {
+            if (leaves.Count == 0)
+                GetLeavesRecursively(this);
+
+            List<JSon> list = new List<JSon>();
+            foreach (KeyValuePair<string, JSon> entry in leaves)
+                list.Add(entry.Value);
+            return list;
+        }
+
+        public List<string> GetLeaveValues()
+        {
+            if (leaves.Count == 0)
+                GetLeavesRecursively(this);
+
+            List<string> list = new List<string>();
+            foreach (KeyValuePair<string, JSon> entry in leaves)
+            {
+                foreach (string value in entry.Value.GetValuesValues())
+                    list.Add(value);
+            }
+            return list;
         }
 
         #endregion
@@ -659,6 +685,27 @@ namespace Unite
         // Private
         #region Private
 
+        private void WriteJSon(string path)
+        {
+            CreateLines();
+            StreamWriter writer = new StreamWriter(path);
+            foreach (string line in lines)
+                writer.WriteLine(line);
+            writer.Flush();
+            writer.Close();
+        }
+
+        private void CreateLines()
+        {
+            lines.Clear();
+            lines.Add("{");
+            CreateLinesRecursively(this, 0);
+            lines.Add("}");
+        }
+
+        // Calculus
+        #region Calculus
+
         private void Parse(string str)
         {
             List<JSonStruct> list = new List<JSonStruct>();
@@ -750,22 +797,20 @@ namespace Unite
             }
         }
 
-        private void WriteJSon(string path)
-        {
-            CreateLines();
-            StreamWriter writer = new StreamWriter(path);
-            foreach (string line in lines)
-                writer.WriteLine(line);
-            writer.Flush();
-            writer.Close();
-        }
+        #endregion
 
-        private void CreateLines()
+        // Recursivity
+        #region Recursivity
+
+        private void GetLeavesRecursively(JSon inJSon)
         {
-            lines.Clear();
-            lines.Add("{");
-            CreateLinesRecursively(this, 0);
-            lines.Add("}");
+            foreach (JSon json in inJSon.GetNodeValues())
+            {
+                if (json.nodes.Count == 0)
+                    leaves.Add(json.ID, json);
+                else
+                    GetLeavesRecursively(json);
+            }
         }
 
         private void CreateLinesRecursively(JSon json, int level)
@@ -797,6 +842,8 @@ namespace Unite
                     lines.Add(str + "}");
             }
         }
+
+        #endregion
 
         #endregion
 
