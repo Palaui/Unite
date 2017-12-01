@@ -10,6 +10,10 @@ namespace Unite
         // Components
         #region Components
 
+        /// <summary> Makes sure that a gameobjects has a component "T" </summary>
+        /// <typeparam name="T"> Type of the component. </typeparam>
+        /// <param name="go"> GameObject the we will ensure the component to. </param>
+        /// <returns> The component "T" on that gameobject. </returns>
         public static T GetOrAddComponent<T>(GameObject go) where T : Component
         {
             if (go)
@@ -22,6 +26,10 @@ namespace Unite
             Debug.LogError("- (MethodExtensions GetOrAddComponent) GameObject passed not found, Adding " + typeof(T) + " Failed");
             return null;
         }
+        /// <summary> Makes sure that a gameobjects has a pack of components. </summary>
+        /// <param name="go"> GameObject the we will ensure the component to. </param>
+        /// <param name="components"> Array of components we want to ensure. </param>
+        /// <returns> The types aray we sent as a parameter for further use. </returns>
         public static Type[] GetOrAddComponent(GameObject go, Type[] components)
         {
             if (go)
@@ -38,6 +46,10 @@ namespace Unite
             return null;
         }
 
+        /// <summary> Sets the default coordinates of a gameobject's transform. </summary>
+        /// <typeparam name="T"> Type passed to get the transform from. </typeparam>
+        /// <param name="elem"> The "T" typed element. </param>
+        /// <param name="useRelativeTransform"> If the default coordinates are ind local or world space. </param>
         public static void ResetTransform<T>(T elem, bool useRelativeTransform = false)
         {
             if (elem == null)
@@ -70,11 +82,19 @@ namespace Unite
         // Method Call
         #region Methods Call
 
+        /// <summary> Applies a method to all the list items passed. </summary>
+        /// <typeparam name="T"> Type of the params of the method. </typeparam>
+        /// <param name="method"> Method to call for each member in the list param. </param>
+        /// <param name="list"> params of the method to call. </param>
         public static void ApplyForeach<T>(Action<T> method, List<T> list)
         {
             foreach (T element in list)
                 method(element);
         }
+        /// <summary> Applies a set of methods to all the list items passed. </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="methodsList"></param>
+        /// <param name="list"></param>
         public static void ApplyForeach<T>(List<Action<T>> methodsList, List<T> list)
         {
             foreach (Action<T> method in methodsList)

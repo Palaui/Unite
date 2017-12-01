@@ -7,8 +7,8 @@ namespace Unite
 {
     public static class Mouse
     {
-        // Properties
-        #region Properties
+        // Variables
+        #region Variables
 
         private static Texture2D cursorTexture = null;
         private static Vector2 cursorOffset = Vector2.zero;
@@ -28,6 +28,9 @@ namespace Unite
         // Public Static
         #region Public Static
 
+        /// <summary> Assigns a new cursor to be used by default. </summary>
+        /// <param name="tex"> Texture of the cursor. </param>
+        /// <param name="offset"></param>
         public static void SetDefaultCursor(Texture2D tex, Vector2 offset)
         {
             cursorTexture = tex;
@@ -35,11 +38,14 @@ namespace Unite
             Cursor.SetCursor(cursorTexture, cursorOffset, CursorMode.Auto);
         }
 
+        /// <summary> Changed the cursor to the one assigned as a default. </summary>
         public static void ApplyDefaultCursor()
         {
             Cursor.SetCursor(cursorTexture, cursorOffset, CursorMode.Auto);
         }
 
+        /// <summary> Fires a raycast againts physic objects from the camera to the mouse pointing location. </summary>
+        /// <returns> The impact of the raycast. </returns>
         public static RaycastHit PhysicRaycast()
         {
             RaycastHit impact;
@@ -50,6 +56,9 @@ namespace Unite
              return new RaycastHit();
         }
 
+        /// <summary> Fires a raycast againts physic objects from the camera to the mouse pointing location. </summary>
+        /// <param name="impact"> - out param - The impact of the raycast. </param>
+        /// <returns> If there was a successful impact. </returns>
         public static bool PhysicRaycast(out RaycastHit impact)
         {
             impact = new RaycastHit();
@@ -60,6 +69,9 @@ namespace Unite
             return false;
         }
 
+        /// <summary> Fires a raycast against interface objects from the camera to the mouse pointing location. </summary>
+        /// <param name="raycaster"> Graphic raycaster we are firing against. </param>
+        /// <returns> Results of the impacts. </returns>
         public static List<RaycastResult> GraphicRaycast(GraphicRaycaster raycaster)
         {
             PointerEventData data = new PointerEventData(null);
@@ -68,7 +80,10 @@ namespace Unite
             raycaster.Raycast(data, results);
             return results;
         }
-
+        /// <summary> Fires a raycast against interface objects from the camera to the mouse pointing location. </summary>
+        /// <param name="raycaster"> Graphic raycaster we are firing against. </param>
+        /// <param name="impacts"> - out param - The impact of the raycast. </param>
+        /// <returns> If there was a successful impact. </returns>
         public static bool GraphicRaycast(GraphicRaycaster raycaster, out List<RaycastResult> impacts)
         {
             impacts = new List<RaycastResult>();
@@ -81,6 +96,13 @@ namespace Unite
             return false;
         }
 
+        /// <summary>
+        /// Fires a raycast againts physic and interface objects from the camera to the mouse pointing location.
+        /// </summary>
+        /// <param name="raycaster"> Graphic raycaster we are firing against. </param>
+        /// <param name="impacts"> - out param - The impact of the raycast. </param>
+        /// <param name="impact"> - out param - The impact of the raycast. </param>
+        /// <returns> If there was a successful impact. </returns>
         public static bool FullRaycast(GraphicRaycaster raycaster, out List<RaycastResult> impacts, out RaycastHit impact)
         {
             impacts = GraphicRaycast(raycaster);

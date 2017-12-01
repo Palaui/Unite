@@ -11,6 +11,9 @@ namespace Unite
         // Plane
         #region Plane
 
+        /// <summary> Creates a GameObject with a modified plane as a mesh. </summary>
+        /// <param name="points"> Vertices passed. </param>
+        /// <returns> The plane created. </returns>
         public static GameObject BuildPlane(DoubleV3[,] points)
         {
             Mesh mesh = CreatePlane(points);
@@ -34,6 +37,11 @@ namespace Unite
             return null;
         }
 
+        /// <summary> Animates a ProcMesh created plane. </summary>
+        /// <param name="go"> GameObject to animate. </param>
+        /// <param name="points"> Vertices passed. </param>
+        /// <param name="time"> Duration of the animation. </param>
+        /// <returns> The Mesh of the plane at the last frame of this update. </returns>
         public static Mesh UpdatePlane(GameObject go, DoubleV3[,] points, double time)
         {
             Mesh mesh = CreatePlane(points);
@@ -54,6 +62,9 @@ namespace Unite
             return null;
         }
 
+        /// <summary> Creates a Mesh with a modified plane as a mesh. </summary>
+        /// <param name="points"> Vertices passed. </param>
+        /// <returns> The created mesh. </returns>
         public static Mesh CreatePlane(DoubleV3[,] points)
         {
             int rows = points.GetLength(0);
@@ -105,7 +116,16 @@ namespace Unite
         // Line
         #region Line
 
+        /// <summary> Creates a GameObject with a custom line as mesh. </summary>
+        /// <param name="points"> Points of the line. </param>
+        /// <returns> The GameObject created. </returns>
         public static GameObject BuildLine(DoubleV3[] points) { return BuildLine(points, Color.white); }
+        /// <summary> Creates a GameObject with a custom line as mesh. </summary>
+        /// <param name="points"> Points of the line. </param>
+        /// <param name="color"> Color of the line </param>
+        /// <param name="width"> The width of the line </param>
+        /// <param name="z"> Point at dimension z (Depth) where the line will be built at. </param>
+        /// <returns> The GameObject created. </returns>
         public static GameObject BuildLine(DoubleV3[] points, Color color, double width = 0.005f, double z = 0)
         {
             Mesh mesh = CreateLine(points, width, z);
@@ -129,7 +149,21 @@ namespace Unite
             return null;
         }
 
-        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time, double z = 0) { return UpdateLine(go, points, time, 0.005f, z); }
+        /// <summary> Animates a ProcMesh created plane. </summary>
+        /// <param name="go"> GameObject to animate. </param>
+        /// <param name="points"> Points of the line. </param>
+        /// <param name="time"> Duration of the animation. </param>
+        /// <param name="z"> Point at dimension z (Depth) where the line will be built at. </param>
+        /// <returns> The created mesh. </returns>
+        public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time, double z = 0)
+        { return UpdateLine(go, points, time, 0.005f, z); }
+        /// <summary> Animates a ProcMesh created plane. </summary>
+        /// <param name="go"> GameObject to animate. </param>
+        /// <param name="points"> Points of the line. </param>
+        /// <param name="time"> Duration of the animation. </param>
+        /// <param name="width"> The width of the line. </param>
+        /// <param name="z"> Point at dimension z (Depth) where the line will be built at. </param>
+        /// <returns> The created mesh. </returns>
         public static Mesh UpdateLine(GameObject go, DoubleV3[] points, double time, double width, double z = 0)
         {
             Mesh mesh = CreateLine(points, width, z);
@@ -150,6 +184,11 @@ namespace Unite
             return null;
         }
 
+        /// <summary> Creates a Mesh with a line as a mesh. </summary>
+        /// <param name="points"> Points of the line passed. </param>
+        /// <param name="width"> The width of the line. </param>
+        /// <param name="z"> Point at dimension z (Depth) where the line will be built at. </param>
+        /// <returns> The created mesh. </returns>
         public static Mesh CreateLine(DoubleV3[] points, double width, double z)
         {
             if (points.Length > 2)
