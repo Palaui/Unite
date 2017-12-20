@@ -77,10 +77,99 @@ namespace Unite
             tr.localScale = Vector3.one;
         }
 
+        /// <summary> Destroys all children of this transform. </summary>
+        /// <typeparam name="T"> Type passed to get the transform from. </typeparam>
+        /// <param name="elem"> The "T" typed element. </param>
+        public static void DestroyChildren<T>(T elem)
+        {
+            if (elem == null)
+            {
+                Debug.LogError("- (MethodExtensions DestroyChildren) Element passed not found. Aborting");
+                return;
+            }
+
+            Transform tr = null;
+            if (elem is GameObject)
+                tr = (elem as GameObject).transform;
+            if (elem is Component)
+                tr = (elem as Component).transform;
+
+            if (!tr)
+            {
+                Debug.LogError("- (MethodExtensions DestroyChildren) Unable to find element related transform. Aborting");
+                return;
+            }
+
+            while (tr.childCount > 0)
+            {
+                foreach (Transform child in tr)
+                {
+                    if (child.parent == tr)
+                        UnityEngine.Object.DestroyImmediate(child.gameObject);
+                }
+            }
+        }
+
+        /// <summary> Creates a bounds objects with the combination of a set of GameObjects. </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="elems"></param>
+        /// <returns> Returns the resulting bounds </returns>
+        public static Bounds GenerateCombinedBounds<T>(List<T> elems)
+        {
+            if (elems.Count == 0)
+            {
+                Debug.LogError("- (MethodExtensions GenerateCombinedBounds) Elements passed not found. Aborting");
+                return new Bounds();
+            }
+
+            List<Bounds> boundsList = new List<Bounds>();
+            foreach (T elem in elems)
+            {
+                GameObject go = null;
+                if (elem is GameObject)
+                    go = elem as GameObject;
+                else if (elem is Component)
+                    go = (elem as Component).gameObject;
+
+                if (go)
+                {
+                    if (go.GetComponent<Renderer>())
+                        boundsList.Add(go.GetComponent<Renderer>().bounds);
+                }
+            }
+            return GenerateCombinedBounds(boundsList);
+        }
+        /// <summary> Creates a bounds objects with the combination of a set of bounds. </summary>
+        /// <param name="boundsList"> Set of bounds. </param>
+        /// <returns> The created bound. </returns>
+        public static Bounds GenerateCombinedBounds(List<Bounds> boundsList)
+        {
+            if (boundsList.Count == 0)
+            {
+                Debug.LogError("- (MethodExtensions GenerateCombinedBounds) Elements passed not found. Aborting");
+                return new Bounds();
+            }
+
+            Bounds combination = boundsList[0];
+            foreach (Bounds bounds in boundsList)
+                combination.Encapsulate(bounds);
+
+            return combination;
+        }
+
         #endregion
 
         // Method Call
         #region Methods Call
+
+        /// <summary> Method added to button listeners capable of calling other methods by their name. </summary>
+        /// <param name="ob"> The class instance where we want to fire the method from. </param>
+        /// <param name="str"></param>
+        public static void ButtonListener(object ob, string str)
+        {
+            if (ob.GetType().GetMethod(str) != null)
+                ob.GetType().GetMethod(str).Invoke(ob, null);
+        }
 
         /// <summary> Applies a method to all the list items passed. </summary>
         /// <typeparam name="T"> Type of the params of the method. </typeparam>
