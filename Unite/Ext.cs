@@ -239,6 +239,30 @@ namespace Unite
         // Dictionaries, Lists, Arrays
         #region Dictionaries, Lists, Arrays
 
+        /// <summary> Destroys all elements in a dictionary. </summary>
+        /// <typeparam name="T"> Type of the dictionary objects. </typeparam>
+        /// <param name="dictionary"> Dictionary with the objects to destroy. </param>
+        /// <returns> the dictionary empty. </returns>
+        public static void DestoyDictionaryElements<T, U>(Dictionary<T, U> dictionary) where U : UnityEngine.Object
+        {
+            foreach (KeyValuePair<T, U> entry in dictionary)
+                UnityEngine.Object.DestroyImmediate(entry.Value);
+
+            dictionary.Clear();
+        }
+
+        /// <summary> Destroys all elements in a list. </summary>
+        /// <typeparam name="T"> Type of the list objects. </typeparam>
+        /// <param name="list"> List with the objects to destroy. </param>
+        /// <returns> the list empty. </returns>
+        public static void DestoyListElements<T>(List<T> list) where T : UnityEngine.Object
+        {
+            foreach (T elem in list)
+                UnityEngine.Object.DestroyImmediate(elem);
+
+            list.Clear();
+        }
+
         public static Dictionary<T, U> CreateDictionary<T, U>(List<T> keys, List<U> values)
         {
             Dictionary<T, U> dictionary = new Dictionary<T, U>();

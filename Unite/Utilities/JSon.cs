@@ -10,6 +10,8 @@ namespace Unite
         // Variables
         #region Variables
 
+        private static int auxiliarCount;
+
         private Dictionary<string, JSon> nodes = new Dictionary<string, JSon>();
         private Dictionary<string, string> values = new Dictionary<string, string>();
         private Dictionary<string, JSon> leaves = new Dictionary<string, JSon>();
@@ -628,6 +630,25 @@ namespace Unite
 
         #endregion
 
+        // Recursive
+        #region Recursive
+
+        public int GetTotalNumberOfNodes()
+        {
+            auxiliarCount = 0;
+            GetNodesRecursively(this);
+            return auxiliarCount;
+        }
+
+        public int GetTotalNumberOfValues()
+        {
+            auxiliarCount = 0;
+            GetValuesRecursively(this);
+            return auxiliarCount;
+        }
+
+        #endregion
+
         #endregion
 
         // Public Static
@@ -841,6 +862,20 @@ namespace Unite
                 else
                     lines.Add(str + "}");
             }
+        }
+
+        private void GetValuesRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+                GetValuesRecursively(subJSon);
+            auxiliarCount += inJson.GetValuesValues().Count;
+        }
+
+        private void GetNodesRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+                GetNodesRecursively(subJSon);
+            auxiliarCount += inJson.GetNodeValues().Count;
         }
 
         #endregion
