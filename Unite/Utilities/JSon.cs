@@ -10,6 +10,7 @@ namespace Unite
         // Variables
         #region Variables
 
+        private static List<string> auxiliarNames = new List<string>();
         private static int auxiliarCount;
 
         private Dictionary<string, JSon> nodes = new Dictionary<string, JSon>();
@@ -633,17 +634,31 @@ namespace Unite
         // Recursive
         #region Recursive
 
+        public List<string> GetAllNodesAndSubNodes()
+        {
+            auxiliarNames.Clear();
+            GetNodeNamesRecursively(this);
+            return auxiliarNames;
+        }
+
         public int GetTotalNumberOfNodes()
         {
             auxiliarCount = 0;
-            GetNodesRecursively(this);
+            GetNodesCountRecursively(this);
             return auxiliarCount;
+        }
+
+        public List<string> GetAllValuesAndSubValues()
+        {
+            auxiliarNames.Clear();
+            GetValueNamesRecursively(this);
+            return auxiliarNames;
         }
 
         public int GetTotalNumberOfValues()
         {
             auxiliarCount = 0;
-            GetValuesRecursively(this);
+            GetValuesCountRecursively(this);
             return auxiliarCount;
         }
 
@@ -864,18 +879,36 @@ namespace Unite
             }
         }
 
-        private void GetValuesRecursively(JSon inJson)
+        private void GetNodeNamesRecursively(JSon inJson)
         {
             foreach (JSon subJSon in inJson.GetNodeValues())
-                GetValuesRecursively(subJSon);
-            auxiliarCount += inJson.GetValuesValues().Count;
+            {
+                GetNodeNamesRecursively(subJSon);
+                auxiliarNames.Add(subJSon.id);
+            }
         }
 
-        private void GetNodesRecursively(JSon inJson)
+        private void GetNodesCountRecursively(JSon inJson)
         {
             foreach (JSon subJSon in inJson.GetNodeValues())
-                GetNodesRecursively(subJSon);
+                GetNodesCountRecursively(subJSon);
             auxiliarCount += inJson.GetNodeValues().Count;
+        }
+
+        private void GetValueNamesRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+                GetValueNamesRecursively(subJSon);
+
+            foreach (string str in inJson.GetValueKeys())
+                auxiliarNames.Add(str);
+        }
+
+        private void GetValuesCountRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+                GetValuesCountRecursively(subJSon);
+            auxiliarCount += inJson.GetValuesValues().Count;
         }
 
         #endregion
