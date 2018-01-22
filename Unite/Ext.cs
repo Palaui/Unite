@@ -233,6 +233,14 @@ namespace Unite
                 }
             }
         }
+    
+        public static void ApplyConditionalListeners(bool condition, Action trueCondition = null, Action falseCondition = null)
+        {
+            if (condition && trueCondition != null)
+                trueCondition.Invoke();
+            else if (!condition && falseCondition != null)
+                falseCondition.Invoke();
+        }
 
         #endregion
 
