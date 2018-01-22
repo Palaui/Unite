@@ -10,6 +10,7 @@ namespace Unite
         // Variables
         #region Variables
 
+        private static List<JSon> auxiliarJSons = new List<JSon>();
         private static List<string> auxiliarNames = new List<string>();
         private static int auxiliarCount;
 
@@ -634,11 +635,11 @@ namespace Unite
         // Recursive
         #region Recursive
 
-        public List<string> GetAllNodesAndSubNodes()
+        public List<JSon> GetAllNodesAndSubNodes()
         {
-            auxiliarNames.Clear();
+            auxiliarJSons.Clear();
             GetNodeNamesRecursively(this);
-            return auxiliarNames;
+            return auxiliarJSons;
         }
 
         public int GetTotalNumberOfNodes()
@@ -778,6 +779,8 @@ namespace Unite
                 }
                 else if (ch == '}' || ch == ']')
                 {
+                    if (currentValue.Trim() == "")
+                        currentValue = "Empty";
                     if (currentKey != "")
                         list.Add(new JSonStruct(currentKey.Trim(), currentValue.Trim(), words[currentLevel - 1], currentLevel));
                     words.RemoveAt(words.Count - 1);
@@ -796,6 +799,8 @@ namespace Unite
                     keySet = true;
                 else if (ch == ',')
                 {
+                    if (currentValue.Trim() == "")
+                        currentValue = "Empty";
                     if (currentKey != "")
                         list.Add(new JSonStruct(currentKey.Trim(), currentValue.Trim(), words[currentLevel - 1], currentLevel));
                     currentKey = "";
@@ -884,7 +889,7 @@ namespace Unite
             foreach (JSon subJSon in inJson.GetNodeValues())
             {
                 GetNodeNamesRecursively(subJSon);
-                auxiliarNames.Add(subJSon.id);
+                auxiliarJSons.Add(subJSon);
             }
         }
 

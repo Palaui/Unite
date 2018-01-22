@@ -23,7 +23,7 @@ namespace Unite
 
         private static LoadingMode loadingMode = LoadingMode.Default;
 
-        private static Action loadEndCallback;
+        private static List<Action> loadEndCallbacks = new List<Action>();
         private static Texture2D loadingWheelTex;
         private static Texture2D backgroundTex = Texture2D.whiteTexture;
         private static Texture2D fadeTex = Texture2D.whiteTexture;
@@ -187,7 +187,7 @@ namespace Unite
 
         public static void SetCallbackOnLoadSceneEnd(Action action)
         {
-            loadEndCallback = action;
+            loadEndCallbacks.Add(action);
         }
 
         #endregion
@@ -225,10 +225,11 @@ namespace Unite
             }
             else
             {
-                if (loadEndCallback != null)
+                if (loadEndCallbacks.Count > 0)
                 {
-                    loadEndCallback();
-                    loadEndCallback = null;
+                    foreach (Action callback in loadEndCallbacks)
+                        callback();
+                    loadEndCallbacks.Clear();
                 }
                 isLoading = false;
             }
