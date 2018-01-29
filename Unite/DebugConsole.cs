@@ -203,6 +203,7 @@ namespace Unite
         {
             Instance.AddMessage(message, color);
         }
+
         public static void Log(string message)
         {
             Instance.AddMessage(message);
@@ -244,8 +245,8 @@ namespace Unite
                     diff = 0;
                 else
                     diff = messages.Count - maxMessages;
-                messages.RemoveRange(0, (int)diff);
-                colors.RemoveRange(0, (int)diff);
+                messages.RemoveRange(0, diff);
+                colors.RemoveRange(0, diff);
             }
         }
 

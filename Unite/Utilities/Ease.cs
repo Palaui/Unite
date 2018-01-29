@@ -1,29 +1,46 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Unite
 {
+    public enum EaseType
+    {
+        Linear, QuadraticEaseIn, QuadraticEaseOut, QuadraticEaseInOut, CubicEaseIn, CubicEaseOut, CubicEaseInOut, QuarticEaseIn,
+        QuarticEaseOut, QuarticEaseInOut, QuinticEaseIn, QuinticEaseOut, QuinticEaseInOut, SineEaseIn, SineEaseOut, SineEaseInOut,
+        CircularEaseIn, CircularEaseOut, CircularEaseInOut, ExponentialEaseIn, ExponentialEaseOut, ExponentialEaseInOut,
+        ElasticEaseIn, ElasticEaseOut, ElasticEaseInOut, BackEaseIn, BackEaseOut, BackEaseInOut, BounceEaseIn, BounceEaseOut,
+        BounceEaseInOut
+    }
+
     public class Ease
     {
-        /// <summary>
-        /// Modeled after the line y = x
-        /// </summary>
-        static public float Linear(float p)
+        public static float Call(EaseType type, float p)
+        {
+            foreach (MethodInfo method in Reflect.GetAllMethods(typeof(Ease)))
+            {
+                if (method.Name == type.ToString())
+                    return (float)method.Invoke(typeof(Ease), new object[] { p });
+            }
+            return 0;
+        }
+
+        /// <summary> Modeled after the line y = x </summary>
+        public static float Linear(float p)
         {
             return p;
         }
 
-        /// <summary>
-        /// Modeled after the parabola y = x^2
-        /// </summary>
-        static public float QuadraticEaseIn(float p)
+        // Quadratic
+        #region Quadratic
+
+        /// <summary> Modeled after the parabola y = x^2 </summary>
+        public static float QuadraticEaseIn(float p)
         {
             return p * p;
         }
 
-        /// <summary>
-        /// Modeled after the parabola y = -x^2 + 2x
-        /// </summary>
-        static public float QuadraticEaseOut(float p)
+        /// <summary> Modeled after the parabola y = -x^2 + 2x </summary>
+        public static float QuadraticEaseOut(float p)
         {
             return -(p * (p - 2));
         }
@@ -33,7 +50,7 @@ namespace Unite
         /// y = (1/2)((2x)^2)             ; [0, 0.5)
         /// y = -(1/2)((2x-1)*(2x-3) - 1) ; [0.5, 1]
         /// </summary>
-        static public float QuadraticEaseInOut(float p)
+        public static float QuadraticEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -45,18 +62,19 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// Modeled after the cubic y = x^3
-        /// </summary>
-        static public float CubicEaseIn(float p)
+        #endregion
+
+        // Cubic
+        #region Cubic
+
+        /// <summary> Modeled after the cubic y = x^3 </summary>
+        public static float CubicEaseIn(float p)
         {
             return p * p * p;
         }
 
-        /// <summary>
-        /// Modeled after the cubic y = (x - 1)^3 + 1
-        /// </summary>
-        static public float CubicEaseOut(float p)
+        /// <summary> Modeled after the cubic y = (x - 1)^3 + 1 </summary>
+        public static float CubicEaseOut(float p)
         {
             float f = (p - 1);
             return f * f * f + 1;
@@ -67,7 +85,7 @@ namespace Unite
         /// y = (1/2)((2x)^3)       ; [0, 0.5)
         /// y = (1/2)((2x-2)^3 + 2) ; [0.5, 1]
         /// </summary>
-        static public float CubicEaseInOut(float p)
+        public static float CubicEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -80,18 +98,19 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// Modeled after the quartic x^4
-        /// </summary>
-        static public float QuarticEaseIn(float p)
+        #endregion
+
+        // Quartic
+        #region Quartic
+
+        /// <summary> Modeled after the quartic x^4 </summary>
+        public static float QuarticEaseIn(float p)
         {
             return p * p * p * p;
         }
 
-        /// <summary>
-        /// Modeled after the quartic y = 1 - (x - 1)^4
-        /// </summary>
-        static public float QuarticEaseOut(float p)
+        /// <summary> Modeled after the quartic y = 1 - (x - 1)^4 </summary>
+        public static float QuarticEaseOut(float p)
         {
             float f = (p - 1);
             return f * f * f * (1 - p) + 1;
@@ -102,7 +121,7 @@ namespace Unite
         /// y = (1/2)((2x)^4)        ; [0, 0.5)
         /// y = -(1/2)((2x-2)^4 - 2) ; [0.5, 1]
         /// </summary>
-        static public float QuarticEaseInOut(float p)
+        public static float QuarticEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -115,18 +134,19 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// Modeled after the quintic y = x^5
-        /// </summary>
-        static public float QuinticEaseIn(float p)
+        #endregion
+
+        // Quintic
+        #region Quintic
+
+        /// <summary> Modeled after the quintic y = x^5 </summary>
+        public static float QuinticEaseIn(float p)
         {
             return p * p * p * p * p;
         }
 
-        /// <summary>
-        /// Modeled after the quintic y = (x - 1)^5 + 1
-        /// </summary>
-        static public float QuinticEaseOut(float p)
+        /// <summary> Modeled after the quintic y = (x - 1)^5 + 1 </summary>
+        public static float QuinticEaseOut(float p)
         {
             float f = (p - 1);
             return f * f * f * f * f + 1;
@@ -137,7 +157,7 @@ namespace Unite
         /// y = (1/2)((2x)^5)       ; [0, 0.5)
         /// y = (1/2)((2x-2)^5 + 2) ; [0.5, 1]
         /// </summary>
-        static public float QuinticEaseInOut(float p)
+        public static float QuinticEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -150,42 +170,42 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// Modeled after quarter-cycle of sine wave
-        /// </summary>
-        static public float SineEaseIn(float p)
+        #endregion
+
+        // Sine
+        #region Sine
+
+        /// <summary> Modeled after quarter-cycle of sine wave </summary>
+        public static float SineEaseIn(float p)
         {
             return (float)Math.Sin((p - 1) * (Math.PI / 2)) + 1;
         }
 
-        /// <summary>
-        /// Modeled after quarter-cycle of sine wave (different phase)
-        /// </summary>
-        static public float SineEaseOut(float p)
+        /// <summary> Modeled after quarter-cycle of sine wave (different phase) </summary>
+        public static float SineEaseOut(float p)
         {
             return (float)Math.Sin(p * (Math.PI / 2));
         }
 
-        /// <summary>
-        /// Modeled after half sine wave
-        /// </summary>
-        static public float SineEaseInOut(float p)
+        /// <summary> Modeled after half sine wave </summary>
+        public static float SineEaseInOut(float p)
         {
             return 0.5f * (float)(1 - Math.Cos(p * Math.PI));
         }
 
-        /// <summary>
-        /// Modeled after shifted quadrant IV of unit circle
-        /// </summary>
-        static public float CircularEaseIn(float p)
+        #endregion
+
+        // Circular
+        #region Circular
+
+        /// <summary> Modeled after shifted quadrant IV of unit circle </summary>
+        public static float CircularEaseIn(float p)
         {
             return 1 - (float)Math.Sqrt(1 - (p * p));
         }
 
-        /// <summary>
-        /// Modeled after shifted quadrant II of unit circle
-        /// </summary>
-        static public float CircularEaseOut(float p)
+        /// <summary> Modeled after shifted quadrant II of unit circle </summary>
+        public static float CircularEaseOut(float p)
         {
             return (float)Math.Sqrt((2 - p) * p);
         }
@@ -195,7 +215,7 @@ namespace Unite
         /// y = (1/2)(1 - Math.Sqrt(1 - 4x^2))           ; [0, 0.5)
         /// y = (1/2)(Math.Sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
         /// </summary>
-        static public float CircularEaseInOut(float p)
+        public static float CircularEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -207,18 +227,19 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// Modeled after the exponential function y = 2^(10(x - 1))
-        /// </summary>
-        static public float ExponentialEaseIn(float p)
+        #endregion
+
+        // Exponential
+        #region Exponential
+
+        /// <summary> Modeled after the exponential function y = 2^(10(x - 1)) </summary>
+        public static float ExponentialEaseIn(float p)
         {
             return (p == 0.0f) ? p : (float)Math.Pow(2, 10 * (p - 1));
         }
 
-        /// <summary>
-        /// Modeled after the exponential function y = -2^(-10x) + 1
-        /// </summary>
-        static public float ExponentialEaseOut(float p)
+        /// <summary> Modeled after the exponential function y = -2^(-10x) + 1 </summary>
+        public static float ExponentialEaseOut(float p)
         {
             return (p == 1.0f) ? p : 1 - (float)Math.Pow(2, -10 * p);
         }
@@ -228,7 +249,7 @@ namespace Unite
         /// y = (1/2)2^(10(2x - 1))         ; [0,0.5)
         /// y = -(1/2)*2^(-10(2x - 1))) + 1 ; [0.5,1]
         /// </summary>
-        static public float ExponentialEaseInOut(float p)
+        public static float ExponentialEaseInOut(float p)
         {
             if (p == 0.0 || p == 1.0) return p;
 
@@ -242,18 +263,19 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// Modeled after the damped sine wave y = sin(13pi/2*x)*Math.Pow(2, 10 * (x - 1))
-        /// </summary>
-        static public float ElasticEaseIn(float p)
+        #endregion
+
+        // Elastic
+        #region Elastic
+
+        /// <summary> Modeled after the damped sine wave y = sin(13pi/2*x)*Math.Pow(2, 10 * (x - 1)) </summary>
+        public static float ElasticEaseIn(float p)
         {
             return (float)Math.Sin(13 * (Math.PI / 2) * p) * (float)Math.Pow(2, 10 * (p - 1));
         }
 
-        /// <summary>
-        /// Modeled after the damped sine wave y = sin(-13pi/2*(x + 1))*Math.Pow(2, -10x) + 1
-        /// </summary>
-        static public float ElasticEaseOut(float p)
+        /// <summary> Modeled after the damped sine wave y = sin(-13pi/2*(x + 1))*Math.Pow(2, -10x) + 1 </summary>
+        public static float ElasticEaseOut(float p)
         {
             return (float)Math.Sin(-13 * (Math.PI / 2) * (p + 1)) * (float)Math.Pow(2, -10 * p) + 1;
         }
@@ -263,7 +285,7 @@ namespace Unite
         /// y = (1/2)*sin(13pi/2*(2*x))*Math.Pow(2, 10 * ((2*x) - 1))      ; [0,0.5)
         /// y = (1/2)*(sin(-13pi/2*((2x-1)+1))*Math.Pow(2,-10(2*x-1)) + 2) ; [0.5, 1]
         /// </summary>
-        static public float ElasticEaseInOut(float p)
+        public static float ElasticEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -275,18 +297,19 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// Modeled after the overshooting cubic y = x^3-x*sin(x*pi)
-        /// </summary>
-        static public float BackEaseIn(float p)
+        #endregion
+
+        // Back
+        #region Back
+
+        /// <summary> Modeled after the overshooting cubic y = x^3-x*sin(x*pi) </summary>
+        public static float BackEaseIn(float p)
         {
             return p * p * p - p * (float)Math.Sin(p * Math.PI);
         }
 
-        /// <summary>
-        /// Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin((1-x)*pi))
-        /// </summary>	
-        static public float BackEaseOut(float p)
+        /// <summary> Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin((1-x)*pi)) </summary>	
+        public static float BackEaseOut(float p)
         {
             float f = (1 - p);
             return 1 - (f * f * f - f * (float)Math.Sin(f * Math.PI));
@@ -297,7 +320,7 @@ namespace Unite
         /// y = (1/2)*((2x)^3-(2x)*sin(2*x*pi))           ; [0, 0.5)
         /// y = (1/2)*(1-((1-x)^3-(1-x)*sin((1-x)*pi))+1) ; [0.5, 1]
         /// </summary>
-        static public float BackEaseInOut(float p)
+        public static float BackEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -311,16 +334,17 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// </summary>
-        static public float BounceEaseIn(float p)
+        #endregion
+
+        // Bounce
+        #region Bounce
+
+        public static float BounceEaseIn(float p)
         {
             return 1 - BounceEaseOut(1 - p);
         }
 
-        /// <summary>
-        /// </summary>
-        static public float BounceEaseOut(float p)
+        public static float BounceEaseOut(float p)
         {
             if (p < 4 / 11.0f)
             {
@@ -340,9 +364,7 @@ namespace Unite
             }
         }
 
-        /// <summary>
-        /// </summary>
-        static public float BounceEaseInOut(float p)
+        public static float BounceEaseInOut(float p)
         {
             if (p < 0.5f)
             {
@@ -353,5 +375,8 @@ namespace Unite
                 return 0.5f * BounceEaseOut(p * 2 - 1) + 0.5f;
             }
         }
+
+        #endregion
+
     }
 }

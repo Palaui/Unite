@@ -698,7 +698,7 @@ namespace Unite
             {
                 if (inString)
                 {
-                    if (ch == '"')
+                    if (ch.Equals('"'))
                     {
                         inString = false;
                         continue;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Unite
@@ -10,7 +11,7 @@ namespace Unite
             yield return Translate("auto", targetLang, sourceText, result);
         }
 
-        public static IEnumerator Translate(string sourceLang, string targetLang, string sourceText, System.Action<string> result)
+        public static IEnumerator Translate(string sourceLang, string targetLang, string sourceText, Action<string> result)
         {
             string url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl="
                 + sourceLang + "&tl=" + targetLang + "&dt=t&q=" + WWW.EscapeURL(sourceText);
