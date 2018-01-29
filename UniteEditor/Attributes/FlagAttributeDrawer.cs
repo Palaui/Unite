@@ -14,7 +14,7 @@ namespace UniteEditor
             Component[] components = ExtEditor.GetVisibleComponents();
             foreach (Component comp in components)
             {
-                FieldInfo[] fields = InspectorReflect.GetAllFields(comp.GetType());
+                FieldInfo[] fields = Reflect.GetAllFields(comp.GetType());
                 foreach (FieldInfo field in fields)
                 {
                     if (field.Name == flagAttribute.flag)

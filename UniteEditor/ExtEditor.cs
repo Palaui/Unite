@@ -27,7 +27,7 @@ namespace UniteEditor
             Component[] components = transforms[0].GetComponents<Component>();
             foreach (Component comp in components)
             {
-                foreach (FieldInfo field in InspectorReflect.GetAllFields(comp.GetType()))
+                foreach (FieldInfo field in Reflect.GetAllFields(comp.GetType()))
                     list.Add(field);
             }
             return Ext.CreateArrayFromList(list);
