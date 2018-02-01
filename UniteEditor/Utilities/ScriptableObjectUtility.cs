@@ -25,11 +25,5 @@ namespace UniteEditor
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
         }
-
-        [MenuItem("Assets/Create/STextAsset")]
-        public static void CreateSTextAsset()
-        {
-            CreateAsset<STextAsset>();
-        }
     }
 }

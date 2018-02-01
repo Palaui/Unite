@@ -56,7 +56,7 @@ namespace Unite
 
         public static MethodInfo[] GetAllMethods(Type type)
         {
-            return type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            return type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
         }
 
         public static string[] GetFieldsArray(Type type, string[] ignoredList)

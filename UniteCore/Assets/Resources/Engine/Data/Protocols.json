@@ -1,0 +1,10 @@
+{
+    "StartUp": {
+		"Textures": {
+			"Load": "Engine/Textures/UniteSplashScreen"
+		},
+		"Scenes": {
+			"1": "StartUp"
+		}
+	}
+}
