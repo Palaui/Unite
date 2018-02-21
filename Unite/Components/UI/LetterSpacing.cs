@@ -38,6 +38,12 @@ namespace Unite
             }
         }
 
+        public bool UseRichText
+        {
+            get { return useRichText; }
+            internal set { useRichText = value; }
+        }
+
         #endregion
 
         // Override

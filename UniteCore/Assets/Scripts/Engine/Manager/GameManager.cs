@@ -26,6 +26,7 @@ namespace UniteCore
 
         private Language currentLanguage;
         private string currentColorScheme;
+        private string currentLightScheme;
 
         #endregion
 
@@ -71,6 +72,8 @@ namespace UniteCore
             }
         }
 
+        public static string CurrentLightScheme { get { Assure(); return instance.currentLightScheme; } }
+
         #endregion
 
         // Override
@@ -102,6 +105,11 @@ namespace UniteCore
 
                 CurrentLanguage = Language.EN;
                 CurrentColorScheme = "Unite";
+                DynamicListener.CallDelayed(2, false,
+                    () => SetCurrentLightScheme(LightBlendType.OutIn, LightChangeType.Driven, "UniteCore"));
+
+                DynamicListener.CallDelayed(8, false,
+                    () => SetCurrentLightScheme(LightBlendType.OutIn, LightChangeType.Driven, "Test"));
 
                 DynamicGraphicsModule.Activate(14, 26);
                 if (Application.isEditor)
@@ -120,6 +128,17 @@ namespace UniteCore
         {
             if (!instance)
                 FindObjectOfType<GameManager>().Awake();
+        }
+
+        public static void SetCurrentLightScheme(LightBlendType blendType, LightChangeType changeType, string scheme)
+        {
+            JSon json = DataManager.LightSchemeExist(scheme);
+            if (json)
+            {
+                Assure();
+                instance.currentLightScheme = scheme;
+                LightingController.ChangeLightScheme(blendType, changeType, json);
+            }
         }
 
         #endregion

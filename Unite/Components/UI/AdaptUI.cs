@@ -10,7 +10,7 @@ namespace Unite
         // Enums
         #region Enums
 
-        private enum AdaptCondition { Hover, Press, HoverAndPress }
+        public enum ConditionAdapt { Hover, Press, HoverAndPress }
 
         #endregion
 
@@ -18,7 +18,7 @@ namespace Unite
         #region Variables
 
         [SerializeField]
-        private AdaptCondition adaptCondition;
+        private ConditionAdapt adaptCondition = ConditionAdapt.Hover;
 
         public List<Outline> outlines;
         public List<Color> outlineColors;
@@ -30,6 +30,17 @@ namespace Unite
         private List<Color> outlineBaseColors = new List<Color>();
         private List<Color> imageBaseColors = new List<Color>();
         private List<Color> textBaseColors = new List<Color>();
+
+        #endregion
+
+        // Properties
+        #region Properties
+
+        public ConditionAdapt AdaptCondition
+        {
+            get { return adaptCondition; }
+            internal set { adaptCondition = value; }
+        }
 
         #endregion
 
@@ -102,29 +113,29 @@ namespace Unite
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (adaptCondition != AdaptCondition.Press)
+            if (adaptCondition != ConditionAdapt.Press)
                 Activate();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (adaptCondition != AdaptCondition.Press)
+            if (adaptCondition != ConditionAdapt.Press)
                 Deactivate();
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (adaptCondition == AdaptCondition.Press)
+            if (adaptCondition == ConditionAdapt.Press)
                 Activate();
-            if (adaptCondition == AdaptCondition.Hover)
+            if (adaptCondition == ConditionAdapt.Hover)
                 Deactivate();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (adaptCondition == AdaptCondition.Press)
+            if (adaptCondition == ConditionAdapt.Press)
                 Deactivate();
-            if (adaptCondition == AdaptCondition.Hover)
+            if (adaptCondition == ConditionAdapt.Hover)
                 Activate();
         }
 

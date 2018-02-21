@@ -18,6 +18,9 @@ namespace UniteCore
             GUILayout.Space(8);
             if (GUILayout.Button("Load Scheme"))
                 script.Load();
+            GUILayout.Space(8);
+            if (GUILayout.Button("Display Scheme"))
+                script.Display();
         }
     }
 }

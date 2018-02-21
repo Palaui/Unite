@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Unite;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +8,9 @@ namespace UniteEditor
 {
     public class GameObjectEditionWindow : EditorWindow
     {
+        // Variables
+        #region Variables
+
         public enum SearchType { SearchByName, SearchByTag }
         public enum UseType { UseAll, UseSelectedAndChildren, UseOnlySelected }
         public enum ChangeType { ChangeObject, AssureComponent }
@@ -22,22 +24,13 @@ namespace UniteEditor
         private string comparer = "";
         private bool byTag = false;
 
-        private static Texture2D tex;
+        #endregion
 
-        [MenuItem("Window/GameObjects Editor")]
-        public static void Init()
-        {
-            GameObjectEditionWindow window = (GameObjectEditionWindow)GetWindow(typeof(GameObjectEditionWindow));
-            window.titleContent = new GUIContent("GameObjects Editor");
-
-            tex = ImageUtility.BitmapToTexture2D(Properties.Resources.WindowBackground);
-            window.Show();
-        }
+        // Override
+        #region Override
 
         void OnGUI()
         {
-            EditorGUI.DrawPreviewTexture(new Rect(0, 0, 5000, 5000), tex);
-
             GUILayout.Label("Find and Replace with GameObjects", EditorStyles.boldLabel);
             comparer = EditorGUILayout.TextField("Search for: ", comparer);
             searchType = (SearchType)EditorGUILayout.EnumPopup("Search by: ", searchType);
@@ -106,6 +99,26 @@ namespace UniteEditor
             }
         }
 
+        #endregion
+
+        // Public Static
+        #region Public Static
+
+        /// <summary> Adds this window to the unity windows menu. </summary>
+        [MenuItem("Window/GameObjects Editor")]
+        public static void Init()
+        {
+            GameObjectEditionWindow window = (GameObjectEditionWindow)GetWindow(typeof(GameObjectEditionWindow));
+            window.titleContent = new GUIContent("GameObjects Editor");
+
+            window.Show();
+        }
+
+        #endregion
+
+        // Private
+        #region Private
+
         private void FindMatchingGameObjects()
         {
             affectedGos.Clear();
@@ -154,6 +167,7 @@ namespace UniteEditor
             }
         }
 
+        /// <summary> Changes the affected gameObjects for the selected ones </summary>
         private void ChangeGameObjects()
         {
             foreach (GameObject go in affectedGos)
@@ -179,6 +193,7 @@ namespace UniteEditor
             }
         }
 
+        /// <summary> Makes sure all affected gameObjects have the required component. </summary>
         private void AssureComponents(string comp)
         {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -200,5 +215,8 @@ namespace UniteEditor
                 }
             }
         }
+
+        #endregion
+
     }
 }

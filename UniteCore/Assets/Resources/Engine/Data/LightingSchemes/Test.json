@@ -1,11 +1,11 @@
 {
-	"ID": "UniteCore",
+	"ID": "Test",
 	"AnimTime": "4.000",
-	"AmbientColor": "0.279, 0.225, 0.164, 1.000",
+	"AmbientColor": "0.202, 0.228, 0.142, 1.000",
 	"Lights": {
 		"Right Spotlight": {
 			"type": "Spot",
-			"color": "1.000, 0.000, 0.000, 1.000",
+			"color": "0.000, 0.793, 1.000, 1.000",
 			"intensity": "6.000",
 			"positionX": "-5.000",
 			"positionY": "0.000",
@@ -18,7 +18,7 @@
 		},
 		"Left Spotlight": {
 			"type": "Spot",
-			"color": "0.000, 1.000, 0.172, 1.000",
+			"color": "0.178, 1.000, 1.000, 1.000",
 			"intensity": "6.000",
 			"positionX": "5.000",
 			"positionY": "0.000",
@@ -31,7 +31,7 @@
 		},
 		"Point Light": {
 			"type": "Point",
-			"color": "0.986, 1.000, 0.000, 1.000",
+			"color": "1.000, 0.000, 0.972, 1.000",
 			"intensity": "1.000",
 			"positionX": "0.000",
 			"positionY": "1.250",

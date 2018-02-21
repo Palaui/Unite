@@ -75,7 +75,7 @@ namespace Unite
                 if (isLoading)
                 {
                     if (!loadingWheelTex)
-                        loadingWheelTex = ImageUtility.BitmapToTexture2D(Properties.Resources.LoadingWheel);
+                        loadingWheelTex = Texture2D.whiteTexture;
 
                     switch (loadingMode)
                     {

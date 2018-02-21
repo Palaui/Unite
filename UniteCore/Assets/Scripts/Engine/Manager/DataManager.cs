@@ -16,6 +16,7 @@ namespace UniteCore
 
         private List<JSon> localizationJSons = new List<JSon>();
         private List<JSon> colorSchemeJSons = new List<JSon>();
+        private List<JSon> lightSchemeJSons = new List<JSon>();
 
         private JSon currentLanguageJSon;
 
@@ -55,6 +56,18 @@ namespace UniteCore
                 else
                     volume = unMutedVolume;
             }
+        }
+
+        #endregion
+
+        // Override
+        #region Override
+
+        public DataManager()
+        {
+            LoadLanguageData();
+            LoadColorSchemeData();
+            LoadLightSchemeData();
         }
 
         #endregion
@@ -182,6 +195,31 @@ namespace UniteCore
                 return Ext.GetColorBlockFromString(colorSchemeDictionary["ColorBlock " + index], false);
 
             return new ColorBlock();
+        }
+
+        #endregion
+
+        // Light Schemes
+        #region Light Schemes
+
+        public void LoadLightSchemeData()
+        {
+            TextAsset[] assets = Resources.LoadAll<TextAsset>("Engine/Data/LightingSchemes");
+            foreach (TextAsset asset in assets)
+            {
+                if (asset)
+                    lightSchemeJSons.Add(new JSon(asset));
+            }
+        }
+
+        public JSon LightSchemeExist(string lightScheme)
+        {
+            foreach (JSon jSon in lightSchemeJSons)
+            {
+                if (jSon.GetValue("ID") == lightScheme)
+                    return jSon;
+            }
+            return null;
         }
 
         #endregion

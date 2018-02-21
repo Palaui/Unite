@@ -8,8 +8,12 @@ namespace UniteCore
 
         public delegate void OnChangeLanguage(Language language);
         public event OnChangeLanguage changeLanguage;
+
         public delegate void OnChangeColorScheme(string colorScheme);
         public event OnChangeColorScheme changeColorScheme;
+
+        public delegate void OnChangeLightScheme(string lightScheme);
+        public event OnChangeLightScheme changeLightScheme;
 
         #endregion
 
@@ -26,6 +30,12 @@ namespace UniteCore
         {
             if (changeColorScheme != null)
                 changeColorScheme(colorScheme);
+        }
+
+        public void ChangeLightScheme(string lightScheme)
+        {
+            if (changeLightScheme != null)
+                changeLightScheme(lightScheme);
         }
 
         #endregion

@@ -17,6 +17,8 @@ namespace UniteCore
             public LightSystem(string name) { this.name = name; }
 
             public string name;
+            public Color ambientColor;
+            public float animTime;
             public List<LightStats> lightStats = new List<LightStats>();
 
             public static implicit operator bool(LightSystem instance) { return instance != null; }
@@ -26,12 +28,13 @@ namespace UniteCore
         public class LightStats
         {
             public string name;
-            public Light light;
             public LightType type;
             public Color color;
             public float intensity;
             public Vector3 position;
             public Vector3 rotation;
+            public float initFade;
+            public float endFade;
 
             public static implicit operator bool(LightStats instance) { return instance != null; }
         }
@@ -110,20 +113,25 @@ namespace UniteCore
                 schemeJson.RemoveAll();
 
                 schemeJson.AddValue("ID", system.name);
-                schemeJson.AddNode("Systems");
+                schemeJson.AddValue("AnimTime", system.animTime.ToString("F3"));
+                schemeJson.AddValue("AmbientColor", system.ambientColor.r.ToString("F3") + ", " +
+                        system.ambientColor.g.ToString("F3") + ", " + system.ambientColor.b.ToString("F3") + ", 1.000");
+                schemeJson.AddNode("Lights");
                 foreach (LightStats stats in system.lightStats)
                 {
-                    schemeJson.AddNode("Systems", stats.name);
-                    schemeJson["Systems"][stats.name].AddValue("type", stats.type.ToString());
-                    schemeJson["Systems"][stats.name].AddValue("color", stats.color.r.ToString("F3") + ", " +
+                    schemeJson.AddNode("Lights", stats.name);
+                    schemeJson["Lights"][stats.name].AddValue("type", stats.type.ToString());
+                    schemeJson["Lights"][stats.name].AddValue("color", stats.color.r.ToString("F3") + ", " +
                         stats.color.g.ToString("F3") + ", " + stats.color.b.ToString("F3") + ", 1.000");
-                    schemeJson["Systems"][stats.name].AddValue("intensity", stats.intensity.ToString("F3"));
-                    schemeJson["Systems"][stats.name].AddValue("positionX", stats.position.x.ToString("F3"));
-                    schemeJson["Systems"][stats.name].AddValue("positionY", stats.position.y.ToString("F3"));
-                    schemeJson["Systems"][stats.name].AddValue("positionZ", stats.position.z.ToString("F3"));
-                    schemeJson["Systems"][stats.name].AddValue("rotationX", stats.rotation.x.ToString("F3"));
-                    schemeJson["Systems"][stats.name].AddValue("rotationY", stats.rotation.y.ToString("F3"));
-                    schemeJson["Systems"][stats.name].AddValue("rotationZ", stats.rotation.z.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("intensity", stats.intensity.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("positionX", stats.position.x.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("positionY", stats.position.y.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("positionZ", stats.position.z.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("rotationX", stats.rotation.x.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("rotationY", stats.rotation.y.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("rotationZ", stats.rotation.z.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("initFade", stats.initFade.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("endFade", stats.endFade.ToString("F3"));
                 }
 
                 schemeJson.Rewrite();
@@ -133,23 +141,38 @@ namespace UniteCore
         public void Load()
         {
             JSon schemeJSon = new JSon(Resources.Load("Engine/Data/LightingSchemes/" + systemName) as TextAsset);
-            if (schemeJSon == null)
+            if (!schemeJSon)
             {
                 Debug.LogError("LightingManager Load: Unable to find " + systemName + " JSon, Aborting");
                 return;
             }
 
             LightSystem system = GetLightSystemByName(systemName);
-            if (system)
-            {
-
-            }
-            else
+            if (!system)
             {
                 system = new LightSystem(systemName);
                 lightSystems.Add(system);
-                system.lightStats = GetLightStatsFromJSon(schemeJSon);
             }
+
+            system.name = schemeJSon.GetValue("ID");
+            system.animTime = schemeJSon.GetFloatValue("AnimTime");
+            system.ambientColor = schemeJSon.GetColorValue("AmbientColor", false);
+
+            system.lightStats = GetLightStatsFromJSon(schemeJSon);
+        }
+
+        public void Display()
+        {
+            JSon schemeJSon = new JSon(Resources.Load("Engine/Data/LightingSchemes/" + systemName) as TextAsset);
+            if (!schemeJSon)
+            {
+                Debug.LogError("LightingManager Display: Unable to find " + systemName + " JSon, Aborting");
+                return;
+            }
+
+            Ext.DestroyChildren(GameManager.LightingController.gameObject);
+            GameManager.LightingController.CreateSystem(schemeJSon);
+            RenderSettings.ambientLight = schemeJSon.GetColorValue("AmbientColor", false);
         }
 
         #endregion
@@ -181,7 +204,7 @@ namespace UniteCore
         {
             foreach (LightStats stats in system.lightStats)
             {
-                if (stats.light == light)
+                if (stats.name == light.name)
                     return stats;
             }
 
@@ -196,7 +219,6 @@ namespace UniteCore
         private LightStats GenerateLightStats(LightStats stats, Light light)
         {
             stats.name = light.name;
-            stats.light = light;
             stats.type = light.type;
             stats.color = light.color;
             stats.intensity = light.intensity;
@@ -210,17 +232,19 @@ namespace UniteCore
         {
             List<LightStats> statsList = new List<LightStats>();
 
-            foreach (JSon json in schemeJSon["Systems"].GetNodeValues())
+            foreach (JSon json in schemeJSon["Lights"].GetNodeValues())
             {
                 LightStats stats = new LightStats();
                 stats.name = json.ID;
                 stats.type = (LightType)System.Enum.Parse(typeof(LightType), json.GetValue("type"));
-                stats.color = json.GetColorValue("type");
+                stats.color = json.GetColorValue("color", false);
                 stats.intensity = json.GetFloatValue("intensity");
                 stats.position = new Vector3(json.GetFloatValue("positionX"),
                     json.GetFloatValue("positionY"), json.GetFloatValue("positionZ"));
                 stats.rotation = new Vector3(json.GetFloatValue("rotationX"),
                     json.GetFloatValue("rotationY"), json.GetFloatValue("rotationZ"));
+                stats.initFade = json.GetFloatValue("initFade");
+                stats.endFade = json.GetFloatValue("endFade");
 
                 statsList.Add(stats);
             }

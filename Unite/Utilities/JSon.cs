@@ -715,6 +715,7 @@ namespace Unite
                     words.Add(currentKey.Trim());
                     if (currentLevel != 0 && currentKey != "")
                         list.Add(new JSonStruct(currentKey.Trim(), "", words[currentLevel - 1], currentLevel));
+                    currentKey = "";
                     currentLevel++;
                     keySet = false;
                 }
@@ -858,6 +859,13 @@ namespace Unite
         }
 
         #endregion
+
+        #endregion
+
+        // Operators
+        #region Operators
+
+        public static implicit operator bool(JSon instance) { return instance != null; }
 
         #endregion
 
