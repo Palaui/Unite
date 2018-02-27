@@ -12,7 +12,6 @@ namespace UniteCore
         private Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
         private float minimumPreLoadScreenTime = 0.5f;
         private float timeCounter;
-        private int currentLogoOnDIsplay;
         private bool loadTextureFound;
         private bool preLoadScreenLoading;
 
@@ -35,7 +34,6 @@ namespace UniteCore
             }
 
             Flag = ProtocolFlag.Processing;
-            currentLogoOnDIsplay = 1;
 
             SetLoadScreen();
         }

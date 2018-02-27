@@ -5,6 +5,24 @@ namespace Unite
 {
     public class MathExt
     {
+        // Values
+        #region Values
+
+        public static float Remap(float value, float from1, float to1, float from2, float to2)
+        {
+            if (value < from1)
+                return from2;
+            else if (value > to1)
+                return to2;
+
+            return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+        }
+
+        #endregion
+
+        // Direction and Rotation
+        #region Direction and Rotation
+
         public static Vector3 AddVectorLength(Vector3 vector, float size)
         {
             float magnitude = Vector3.Magnitude(vector);
@@ -12,9 +30,6 @@ namespace Unite
             float scale = newMagnitude / magnitude;
             return vector * scale;
         }
-
-        public static Quaternion SubtractRotation(Quaternion B, Quaternion A)
-        { return Quaternion.Inverse(A) * B; }
 
         public static Vector3 TransformDirectionMath(Quaternion rotation, Vector3 vector)
         { return rotation * vector; }
@@ -31,25 +46,52 @@ namespace Unite
             return C;
         }
 
-        public static bool PlanePlaneIntersection(Vector3 plane1Normal, Vector3 plane1Position, Vector3 plane2Normal,
-            Vector3 plane2Position, out Vector3 linePoint, out Vector3 lineVec)
+        public static Quaternion SubtractRotation(Quaternion B, Quaternion A)
+        { return Quaternion.Inverse(A) * B; }
+
+        public static float SignedDotProduct(Vector3 vectorA, Vector3 vectorB, Vector3 normal)
         {
-            linePoint = Vector3.zero;
-            lineVec = Vector3.Cross(plane1Normal, plane2Normal);
-
-            Vector3 ldir = Vector3.Cross(plane2Normal, lineVec);
-            float denominator = Vector3.Dot(plane1Normal, ldir);
-
-            if (Mathf.Abs(denominator) > 0.006f)
-            {
-                Vector3 plane1ToPlane2 = plane1Position - plane2Position;
-                float t = Vector3.Dot(plane1Normal, plane1ToPlane2) / denominator;
-                linePoint = plane2Position + t * ldir;
-                return true;
-            }
-            else
-                return false;
+            Vector3 perpVector = Vector3.Cross(normal, vectorA);
+            return Vector3.Dot(perpVector, vectorB);
         }
+
+        public static float SignedVectorAngle(Vector3 referenceVector, Vector3 otherVector, Vector3 normal)
+        {
+            Vector3 perpVector = Vector3.Cross(normal, referenceVector);
+            float angle = Vector3.Angle(referenceVector, otherVector);
+            return Mathf.Sign(Vector3.Dot(perpVector, otherVector)) * angle;
+        }
+
+        public static float DotProductAngle(Vector3 vec1, Vector3 vec2)
+        {
+            double dot = Vector3.Dot(vec1, vec2);
+            if (dot < -1.0f)
+                dot = -1.0f;
+            if (dot > 1.0f)
+                dot = 1.0f;
+
+            return (float)Math.Acos(dot);
+        }
+
+        public static void LookRotationExtended(ref GameObject gameObjectInOut, Vector3 alignWithVector,
+            Vector3 alignWithNormal, Vector3 customForward, Vector3 customUp)
+        {
+            Quaternion rotationA = Quaternion.LookRotation(alignWithVector, alignWithNormal);
+            Quaternion rotationB = Quaternion.LookRotation(customForward, customUp);
+            gameObjectInOut.transform.rotation = rotationA * Quaternion.Inverse(rotationB);
+        }
+
+        public static void VectorsToTransform(ref GameObject gameObjectInOut, Vector3 positionVector,
+            Vector3 directionVector, Vector3 normalVector)
+        {
+            gameObjectInOut.transform.position = positionVector;
+            gameObjectInOut.transform.rotation = Quaternion.LookRotation(directionVector, normalVector);
+        }
+
+        #endregion
+
+        // Line
+        #region Line and Point
 
         public static bool LinePlaneIntersection(Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint,
             out Vector3 intersection)
@@ -146,72 +188,6 @@ namespace Unite
             return Vector3.zero;
         }
 
-        public static Vector3 ProjectPointOnPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 point)
-        {
-            float distance = -SignedDistancePlanePoint(planeNormal, planePoint, point);
-            Vector3 translationVector = planeNormal.normalized * distance;
-            return point + translationVector;
-        }
-
-        public static Vector3 ProjectVectorOnPlane(Vector3 planeNormal, Vector3 vector)
-        { return vector - (Vector3.Dot(vector, planeNormal) * planeNormal); }
-
-        public static float SignedDistancePlanePoint(Vector3 planeNormal, Vector3 planePoint, Vector3 point)
-        { return Vector3.Dot(planeNormal, (point - planePoint)); }
-
-        public static float SignedDotProduct(Vector3 vectorA, Vector3 vectorB, Vector3 normal)
-        {
-            Vector3 perpVector = Vector3.Cross(normal, vectorA);
-            return Vector3.Dot(perpVector, vectorB);
-        }
-
-        public static float SignedVectorAngle(Vector3 referenceVector, Vector3 otherVector, Vector3 normal)
-        {
-            Vector3 perpVector = Vector3.Cross(normal, referenceVector);
-            float angle = Vector3.Angle(referenceVector, otherVector);
-            return Mathf.Sign(Vector3.Dot(perpVector, otherVector)) * angle;
-        }
-
-        public static float AngleVectorPlane(Vector3 vector, Vector3 normal)
-        {
-            float dot = Vector3.Dot(vector, normal);
-            float angle = (float)Math.Acos(dot);
-            return 1.570796326794897f - angle;
-        }
-
-        public static float DotProductAngle(Vector3 vec1, Vector3 vec2)
-        {
-            double dot = Vector3.Dot(vec1, vec2);
-            if (dot < -1.0f)
-                dot = -1.0f;
-            if (dot > 1.0f)
-                dot = 1.0f;
-
-            return (float)Math.Acos(dot);
-        }
-
-        public static Quaternion QuaternionFromMatrix(Matrix4x4 m)
-        { return Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1)); }
-
-        public static Vector3 PositionFromMatrix(Matrix4x4 m)
-        {
-            Vector4 vector4Position = m.GetColumn(3);
-            return new Vector3(vector4Position.x, vector4Position.y, vector4Position.z);
-        }
-
-        public static void LookRotationExtended(ref GameObject gameObjectInOut, Vector3 alignWithVector, Vector3 alignWithNormal, Vector3 customForward, Vector3 customUp)
-        {
-            Quaternion rotationA = Quaternion.LookRotation(alignWithVector, alignWithNormal);
-            Quaternion rotationB = Quaternion.LookRotation(customForward, customUp);
-            gameObjectInOut.transform.rotation = rotationA * Quaternion.Inverse(rotationB);
-        }
-
-        public static void VectorsToTransform(ref GameObject gameObjectInOut, Vector3 positionVector, Vector3 directionVector, Vector3 normalVector)
-        {
-            gameObjectInOut.transform.position = positionVector;
-            gameObjectInOut.transform.rotation = Quaternion.LookRotation(directionVector, normalVector);
-        }
-
         public static int PointOnWhichSideOfLineSegment(Vector3 linePoint1, Vector3 linePoint2, Vector3 point)
         {
             Vector3 lineVec = linePoint2 - linePoint1;
@@ -227,30 +203,6 @@ namespace Unite
             }
             else
                 return 1;
-        }
-
-        public static float MouseDistanceToLine(Vector3 linePoint1, Vector3 linePoint2)
-        {
-            Camera currentCamera = Camera.main;
-            Vector3 mousePosition = Input.mousePosition;
-            Vector3 screenPos1 = currentCamera.WorldToScreenPoint(linePoint1);
-            Vector3 screenPos2 = currentCamera.WorldToScreenPoint(linePoint2);
-            Vector3 projectedPoint = ProjectPointOnLineSegment(screenPos1, screenPos2, mousePosition);
-
-            projectedPoint = new Vector3(projectedPoint.x, projectedPoint.y, 0f);
-            return (projectedPoint - mousePosition).magnitude;
-        }
-
-
-        public static float MouseDistanceToCircle(Vector3 point, float radius)
-        {
-            Camera currentCamera = Camera.main;
-            Vector3 screenPos = currentCamera.WorldToScreenPoint(point);
-            screenPos = new Vector3(screenPos.x, screenPos.y, 0f);
-
-            Vector3 vector = screenPos - Input.mousePosition;
-            float fullDistance = vector.magnitude;
-            return fullDistance - radius;
         }
 
         public static bool IsLineInRectangle(Vector3 linePoint1, Vector3 linePoint2, Vector3 rectA, Vector3 rectB, Vector3 rectC, Vector3 rectD)
@@ -304,7 +256,6 @@ namespace Unite
                 return false;
         }
 
-        //////////////////////////////
         public static bool AreLineSegmentsCrossing(Vector3 pointA1, Vector3 pointA2, Vector3 pointB1, Vector3 pointB2)
         {
             Vector3 closestPointA;
@@ -331,5 +282,95 @@ namespace Unite
             else
                 return false;
         }
+
+        #endregion
+
+        // Plane
+        #region Plane
+
+        public static bool PlanePlaneIntersection(Vector3 plane1Normal, Vector3 plane1Position, Vector3 plane2Normal,
+            Vector3 plane2Position, out Vector3 linePoint, out Vector3 lineVec)
+        {
+            linePoint = Vector3.zero;
+            lineVec = Vector3.Cross(plane1Normal, plane2Normal);
+
+            Vector3 ldir = Vector3.Cross(plane2Normal, lineVec);
+            float denominator = Vector3.Dot(plane1Normal, ldir);
+
+            if (Mathf.Abs(denominator) > 0.006f)
+            {
+                Vector3 plane1ToPlane2 = plane1Position - plane2Position;
+                float t = Vector3.Dot(plane1Normal, plane1ToPlane2) / denominator;
+                linePoint = plane2Position + t * ldir;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public static Vector3 ProjectPointOnPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 point)
+        {
+            float distance = -SignedDistancePlanePoint(planeNormal, planePoint, point);
+            Vector3 translationVector = planeNormal.normalized * distance;
+            return point + translationVector;
+        }
+
+        public static Vector3 ProjectVectorOnPlane(Vector3 planeNormal, Vector3 vector)
+        { return vector - (Vector3.Dot(vector, planeNormal) * planeNormal); }
+
+        public static float SignedDistancePlanePoint(Vector3 planeNormal, Vector3 planePoint, Vector3 point)
+        { return Vector3.Dot(planeNormal, (point - planePoint)); }
+
+        public static float AngleVectorPlane(Vector3 vector, Vector3 normal)
+        {
+            float dot = Vector3.Dot(vector, normal);
+            float angle = (float)Math.Acos(dot);
+            return 1.570796326794897f - angle;
+        }
+
+        #endregion
+
+        // Matrix
+        #region Matrix4x4
+
+        public static Quaternion QuaternionFromMatrix(Matrix4x4 m)
+        { return Quaternion.LookRotation(m.GetColumn(2), m.GetColumn(1)); }
+
+        public static Vector3 PositionFromMatrix(Matrix4x4 m)
+        {
+            Vector4 vector4Position = m.GetColumn(3);
+            return new Vector3(vector4Position.x, vector4Position.y, vector4Position.z);
+        }
+
+        #endregion
+
+        // Mouse
+        #region Mouse
+
+        public static float MouseDistanceToLine(Vector3 linePoint1, Vector3 linePoint2)
+        {
+            Camera currentCamera = Camera.main;
+            Vector3 mousePosition = Input.mousePosition;
+            Vector3 screenPos1 = currentCamera.WorldToScreenPoint(linePoint1);
+            Vector3 screenPos2 = currentCamera.WorldToScreenPoint(linePoint2);
+            Vector3 projectedPoint = ProjectPointOnLineSegment(screenPos1, screenPos2, mousePosition);
+
+            projectedPoint = new Vector3(projectedPoint.x, projectedPoint.y, 0f);
+            return (projectedPoint - mousePosition).magnitude;
+        }
+
+        public static float MouseDistanceToCircle(Vector3 point, float radius)
+        {
+            Camera currentCamera = Camera.main;
+            Vector3 screenPos = currentCamera.WorldToScreenPoint(point);
+            screenPos = new Vector3(screenPos.x, screenPos.y, 0f);
+
+            Vector3 vector = screenPos - Input.mousePosition;
+            float fullDistance = vector.magnitude;
+            return fullDistance - radius;
+        }
+
+        #endregion
+
     }
 }

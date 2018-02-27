@@ -72,7 +72,20 @@ namespace UniteCore
             }
         }
 
-        public static string CurrentLightScheme { get { Assure(); return instance.currentLightScheme; } }
+        public static string CurrentLightScheme
+        {
+            get { Assure(); return instance.currentLightScheme; }
+            set
+            {
+                JSon json = DataManager.LightSchemeExist(value);
+                if (json)
+                {
+                    Assure();
+                    instance.currentLightScheme = value;
+                    LightingController.ChangeLightScheme(LightBlendType.OutIn, LightChangeType.Immediate, json);
+                }
+            }
+        }
 
         #endregion
 
@@ -105,10 +118,9 @@ namespace UniteCore
 
                 CurrentLanguage = Language.EN;
                 CurrentColorScheme = "Unite";
-                DynamicListener.CallDelayed(2, false,
-                    () => SetCurrentLightScheme(LightBlendType.OutIn, LightChangeType.Driven, "UniteCore"));
 
-                DynamicListener.CallDelayed(8, false,
+                DynamicListener.CallDelayed(2, false, () => { CurrentLightScheme = "UniteCore"; });
+                DynamicListener.CallDelayed(3.5f, false,
                     () => SetCurrentLightScheme(LightBlendType.OutIn, LightChangeType.Driven, "Test"));
 
                 DynamicGraphicsModule.Activate(14, 26);

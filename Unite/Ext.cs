@@ -50,10 +50,13 @@ namespace Unite
         /// <typeparam name="T"> Type passed to get the transform from. </typeparam>
         /// <param name="elem"> The "T" typed element. </param>
         /// <param name="useRelativeTransform"> If the default coordinates are ind local or world space. </param>
-        public static void ResetTransform<T>(T elem, bool useRelativeTransform = false)
+        public static GameObject ResetTransform<T>(T elem, bool useRelativeTransform = false)
         {
             if (elem == null)
+            {
                 Debug.LogError("- (MethodExtensions ResetTransform) Element passed not found. Aborting");
+                return null;
+            }
 
             Transform tr = null;
             if (elem is GameObject)
@@ -62,7 +65,10 @@ namespace Unite
                 tr = (elem as Component).transform;
 
             if (!tr)
+            {
                 Debug.LogError("- (MethodExtensions ResetTransform) Unable to find element related transform. Aborting");
+                return null;
+            }
 
             if (useRelativeTransform)
             {
@@ -75,6 +81,8 @@ namespace Unite
                 tr.rotation = Quaternion.identity;
             }
             tr.localScale = Vector3.one;
+
+            return tr.gameObject;
         }
 
         /// <summary> Destroys all children of this transform. </summary>

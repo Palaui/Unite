@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unite;
 using UnityEngine;
 
@@ -16,6 +17,8 @@ namespace UniteCore
     {
         // Variables
         #region Variables
+
+        public bool systemEnabled = true;
 
         private Color darkness;
         private JSon currentJSon;
@@ -39,6 +42,9 @@ namespace UniteCore
 
         public void RemoveCurrentSystem()
         {
+            if (!systemEnabled)
+                return;
+
             Ext.DestroyChildren(gameObject);
 
             Light[] lights = FindObjectsOfType<Light>();
@@ -51,6 +57,9 @@ namespace UniteCore
 
         public void ChangeLightScheme(LightBlendType blendType, LightChangeType changeType, JSon schemeJSon)
         {
+            if (!systemEnabled)
+                return;
+
             switch (changeType)
             {
                 case LightChangeType.Immediate:
@@ -60,7 +69,7 @@ namespace UniteCore
                     FadeOutIn(currentJSon, schemeJSon);
                     break;
                 case LightChangeType.Driven:
-                    FadeOutIn(currentJSon, schemeJSon);
+                    DrivenOutIn(currentJSon, schemeJSon);
                     break;
                 case LightChangeType.DrivenWeighted:
                     break;
@@ -113,22 +122,6 @@ namespace UniteCore
             return lights;
         }
 
-        private void FadeLightsIn(JSon schemeJSon, bool fadeAmbient)
-        {
-            List<Light> lights = CreateSystem(schemeJSon);
-            List<float> intensities = new List<float>();
-            foreach (Light li in lights)
-                intensities.Add(li.intensity);
-
-            DynamicListener.Timeline(EaseType.QuarticEaseInOut, schemeJSon.GetFloatValue("AnimTime"), (float alpha) =>
-            {
-                for (int i = 0; i < lights.Count; i++)
-                    lights[i].intensity = alpha * intensities[i];
-                if (fadeAmbient)
-                    RenderSettings.ambientLight = Color.Lerp(darkness, schemeJSon.GetColorValue("AmbientColor", false), alpha);
-            });
-        }
-
         // System Changers
         #region System Changers
 
@@ -137,6 +130,7 @@ namespace UniteCore
             if (transform.childCount > 0)
                 RemoveCurrentSystem();
             CreateSystem(schemeJSon);
+            RenderSettings.ambientLight = schemeJSon.GetColorValue("AmbientColor", false);
         }
 
         private void FadeOutIn(JSon lastJSon, JSon schemeJSon)
@@ -150,18 +144,12 @@ namespace UniteCore
                 foreach (Light li in lights)
                     intensities.Add(li.intensity);
 
-                DynamicListener.Timeline(EaseType.QuarticEaseInOut, lastJSon.GetFloatValue("AnimTime"), (float alpha) =>
-                {
-                    for (int i = 0; i < lights.Count; i++)
-                        lights[i].intensity = (1 - alpha) * intensities[i];
-                    RenderSettings.ambientLight = Color.Lerp(lastJSon.GetColorValue("AmbientColor", false), darkness, alpha);
-                }, 
-                () => FadeLightsIn(schemeJSon, true));
+                Fade(lastJSon, false, true, () => Fade(schemeJSon, true, true));
 
                 return;
             }
 
-            FadeLightsIn(schemeJSon, true);
+            Fade(schemeJSon, true, true);
         }
 
         private void DrivenOutIn(JSon lastJSon, JSon schemeJSon)
@@ -175,18 +163,108 @@ namespace UniteCore
                 foreach (Light li in lights)
                     intensities.Add(li.intensity);
 
-                DynamicListener.Timeline(EaseType.QuarticEaseInOut, lastJSon.GetFloatValue("AnimTime"), (float alpha) =>
-                {
-                    for (int i = 0; i < lights.Count; i++)
-                        lights[i].intensity = (1 - alpha) * intensities[i];
-                    RenderSettings.ambientLight = Color.Lerp(lastJSon.GetColorValue("AmbientColor", false), darkness, alpha);
-                },
-                () => FadeLightsIn(schemeJSon, true));
+                DrivenFade(lastJSon, false, true, () => DrivenFade(schemeJSon, true, true));
 
                 return;
             }
 
-            FadeLightsIn(schemeJSon, true);
+            DrivenFade(schemeJSon, true, true);
+        }
+
+        #endregion
+
+        // Calculus
+        #region Calculus
+
+        private void Fade(JSon schemeJSon, bool isFadeIn, bool fadeAmbient, Action callback = null)
+        {
+            List<Light> lights;
+            if (isFadeIn)
+                lights = CreateSystem(schemeJSon);
+            else
+                lights = GetCurrentLights();
+
+            List<float> intensities = new List<float>();
+            foreach (Light li in lights)
+                intensities.Add(li.intensity);
+
+            DynamicListener.Timeline(EaseType.QuarticEaseInOut, schemeJSon.GetFloatValue("AnimTime"), (float alpha) =>
+            {
+                float mappedAlpha = alpha;
+
+                if (!isFadeIn)
+                    mappedAlpha = 1 - alpha;
+
+                // Adapt lights intensity
+                for (int i = 0; i < lights.Count; i++)
+                    lights[i].intensity = mappedAlpha * intensities[i];
+
+                // Adapt ambient light
+                if (fadeAmbient)
+                    RenderSettings.ambientLight = Color.Lerp(darkness, schemeJSon.GetColorValue("AmbientColor", false),
+                        mappedAlpha);
+            }, () =>
+            {
+                if (!isFadeIn)
+                    RemoveCurrentSystem();
+
+                if (callback != null)
+                    callback.Invoke();
+            });
+        }
+
+        private void DrivenFade(JSon schemeJSon, bool isFadeIn, bool fadeAmbient, Action callback = null)
+        {
+            List<Light> lights;
+            if (isFadeIn)
+                lights = CreateSystem(schemeJSon);
+            else
+                lights = GetCurrentLights();
+
+            List<float> intensities = new List<float>();
+            foreach (Light li in lights)
+                intensities.Add(li.intensity);
+
+            // Driven fade may not update intensity every frame, so when fading in all lights are set to 0 intensity
+            if (isFadeIn)
+            {
+                for (int i = 0; i < lights.Count; i++)
+                    lights[i].intensity = 0;
+            }
+
+            DynamicListener.Timeline(EaseType.QuarticEaseInOut, schemeJSon.GetFloatValue("AnimTime"), (float alpha) =>
+            {
+                float mappedAlpha = alpha;
+
+                if (!isFadeIn)
+                    mappedAlpha = 1 - alpha;
+
+                // Adapt lights intensity
+                for (int i = 0; i < lights.Count; i++)
+                {
+                    JSon lightJSon = schemeJSon["Lights"][lights[i].name];
+                    float initFade = lightJSon.GetFloatValue("initFade");
+                    float endFade = lightJSon.GetFloatValue("endFade");
+
+                    if (mappedAlpha > initFade && mappedAlpha < endFade)
+                    {
+                        float remappedAlpha = MathExt.Remap(mappedAlpha, initFade, endFade, 0, 1);
+                        lights[i].intensity = remappedAlpha * intensities[i];
+                    }
+                }
+
+                // Adapt ambient light
+                if (fadeAmbient)
+                    RenderSettings.ambientLight = Color.Lerp(darkness, schemeJSon.GetColorValue("AmbientColor", false),
+                        mappedAlpha);
+            }, () =>
+            {
+                if (!isFadeIn)
+                    RemoveCurrentSystem();
+
+                if (callback != null)
+                    callback.Invoke();
+            });
         }
 
         #endregion

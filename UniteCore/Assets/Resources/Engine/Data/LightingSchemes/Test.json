@@ -14,7 +14,7 @@
 			"rotationY": "90.000",
 			"rotationZ": "0.000",
 			"initFade": "0.000",
-			"endFade": "0.000"
+			"endFade": "0.100"
 		},
 		"Left Spotlight": {
 			"type": "Spot",
@@ -27,7 +27,7 @@
 			"rotationY": "270.000",
 			"rotationZ": "0.000",
 			"initFade": "0.000",
-			"endFade": "0.000"
+			"endFade": "0.100"
 		},
 		"Point Light": {
 			"type": "Point",
@@ -40,7 +40,7 @@
 			"rotationY": "270.000",
 			"rotationZ": "0.000",
 			"initFade": "0.000",
-			"endFade": "0.000"
+			"endFade": "0.100"
 		}
 	}
 }
