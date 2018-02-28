@@ -1,6 +1,6 @@
 {
 	"ID": "UniteCore",
-	"AnimTime": "2.000",
+	"AnimTime": "4.000",
 	"AmbientColor": "0.279, 0.225, 0.164, 1.000",
 	"Lights": {
 		"Right Spotlight": {
@@ -13,6 +13,8 @@
 			"rotationX": "0.000",
 			"rotationY": "90.000",
 			"rotationZ": "0.000",
+			"range": "10.000",
+			"spotAngle": "30.000",
 			"initFade": "0.000",
 			"endFade": "0.300"
 		},
@@ -26,8 +28,10 @@
 			"rotationX": "0.000",
 			"rotationY": "270.000",
 			"rotationZ": "0.000",
-			"initFade": "0.000",
-			"endFade": "0.100"
+			"range": "10.000",
+			"spotAngle": "30.000",
+			"initFade": "0.300",
+			"endFade": "0.600"
 		},
 		"Point Light": {
 			"type": "Point",
@@ -39,7 +43,9 @@
 			"rotationX": "0.000",
 			"rotationY": "270.000",
 			"rotationZ": "0.000",
-			"initFade": "0.700",
+			"range": "10.000",
+			"spotAngle": "30.000",
+			"initFade": "0.600",
 			"endFade": "1.000"
 		}
 	}

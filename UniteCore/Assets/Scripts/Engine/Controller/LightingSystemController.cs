@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Unite;
 using UnityEngine;
 
@@ -59,6 +60,8 @@ namespace UniteCore
         {
             if (!systemEnabled)
                 return;
+
+            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
 
             switch (changeType)
             {

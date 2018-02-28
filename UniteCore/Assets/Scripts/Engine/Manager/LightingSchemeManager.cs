@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Unite;
 using UnityEngine;
@@ -33,6 +34,8 @@ namespace UniteCore
             public float intensity;
             public Vector3 position;
             public Vector3 rotation;
+            public float range;
+            public float spotAngle;
             public float initFade;
             public float endFade;
 
@@ -87,6 +90,8 @@ namespace UniteCore
         /// <summary> Generate a new palette, should be called using the editor tool at (Core -> ColorScheme) </summary>
         public void Generate()
         {
+            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
+
             if (systemName == "")
             {
                 Debug.LogError("LightingManager Generate: SystemName can not be empty, Aborting");
@@ -114,7 +119,7 @@ namespace UniteCore
 
                 schemeJson.AddValue("ID", system.name);
                 schemeJson.AddValue("AnimTime", system.animTime.ToString("F3"));
-                schemeJson.AddValue("AmbientColor", system.ambientColor.r.ToString("F3") + ", " +
+                schemeJson.AddValue("AmbientColor", system.ambientColor.r.ToString("G3") + ", " +
                         system.ambientColor.g.ToString("F3") + ", " + system.ambientColor.b.ToString("F3") + ", 1.000");
                 schemeJson.AddNode("Lights");
                 foreach (LightStats stats in system.lightStats)
@@ -130,6 +135,8 @@ namespace UniteCore
                     schemeJson["Lights"][stats.name].AddValue("rotationX", stats.rotation.x.ToString("F3"));
                     schemeJson["Lights"][stats.name].AddValue("rotationY", stats.rotation.y.ToString("F3"));
                     schemeJson["Lights"][stats.name].AddValue("rotationZ", stats.rotation.z.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("range", stats.range.ToString("F3"));
+                    schemeJson["Lights"][stats.name].AddValue("spotAngle", stats.spotAngle.ToString("F3"));
                     schemeJson["Lights"][stats.name].AddValue("initFade", stats.initFade.ToString("F3"));
                     schemeJson["Lights"][stats.name].AddValue("endFade", stats.endFade.ToString("F3"));
                 }
@@ -140,6 +147,8 @@ namespace UniteCore
 
         public void Load()
         {
+            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
+
             JSon schemeJSon = new JSon(Resources.Load("Engine/Data/LightingSchemes/" + systemName) as TextAsset);
             if (!schemeJSon)
             {
@@ -224,6 +233,8 @@ namespace UniteCore
             stats.intensity = light.intensity;
             stats.position = light.transform.position;
             stats.rotation = light.transform.eulerAngles;
+            stats.range = light.range;
+            stats.spotAngle = light.spotAngle;
 
             return stats;
         }
@@ -234,17 +245,21 @@ namespace UniteCore
 
             foreach (JSon json in schemeJSon["Lights"].GetNodeValues())
             {
-                LightStats stats = new LightStats();
-                stats.name = json.ID;
-                stats.type = (LightType)System.Enum.Parse(typeof(LightType), json.GetValue("type"));
-                stats.color = json.GetColorValue("color", false);
-                stats.intensity = json.GetFloatValue("intensity");
-                stats.position = new Vector3(json.GetFloatValue("positionX"),
-                    json.GetFloatValue("positionY"), json.GetFloatValue("positionZ"));
-                stats.rotation = new Vector3(json.GetFloatValue("rotationX"),
-                    json.GetFloatValue("rotationY"), json.GetFloatValue("rotationZ"));
-                stats.initFade = json.GetFloatValue("initFade");
-                stats.endFade = json.GetFloatValue("endFade");
+                LightStats stats = new LightStats
+                {
+                    name = json.ID,
+                    type = (LightType)System.Enum.Parse(typeof(LightType), json.GetValue("type")),
+                    color = json.GetColorValue("color", false),
+                    intensity = json.GetFloatValue("intensity"),
+                    position = new Vector3(json.GetFloatValue("positionX"),
+                    json.GetFloatValue("positionY"), json.GetFloatValue("positionZ")),
+                    rotation = new Vector3(json.GetFloatValue("rotationX"),
+                    json.GetFloatValue("rotationY"), json.GetFloatValue("rotationZ")),
+                    range = json.GetFloatValue("range"),
+                    spotAngle = json.GetFloatValue("spotAngle"),
+                    initFade = json.GetFloatValue("initFade"),
+                    endFade = json.GetFloatValue("endFade")
+                };
 
                 statsList.Add(stats);
             }

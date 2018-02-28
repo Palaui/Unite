@@ -10,6 +10,7 @@ namespace UniteCore
 
     #endregion
 
+    [ExecuteInEditMode]
     public class GameManager : MonoBehaviour
     {
         // Variables

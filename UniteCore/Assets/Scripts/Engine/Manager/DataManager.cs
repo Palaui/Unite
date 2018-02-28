@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unite;
 using UnityEngine.UI;
+using System.Globalization;
 
 namespace UniteCore
 {
@@ -183,6 +184,7 @@ namespace UniteCore
 
         public Color GetColorOf(int index)
         {
+            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
             if (colorSchemeDictionary.ContainsKey("Color " + index))
                 return Ext.GetColorFromString(colorSchemeDictionary["Color " + index], false);
 
@@ -191,6 +193,7 @@ namespace UniteCore
 
         public ColorBlock GetColorBlockOf(int index)
         {
+            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
             if (colorSchemeDictionary.ContainsKey("ColorBlock " + index))
                 return Ext.GetColorBlockFromString(colorSchemeDictionary["ColorBlock " + index], false);
 

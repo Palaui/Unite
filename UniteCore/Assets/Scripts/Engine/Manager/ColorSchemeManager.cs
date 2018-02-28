@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Unite;
 using UnityEngine;
@@ -24,6 +25,8 @@ namespace UniteCore
         /// <summary> Generate a new palette, should be called using the editor tool at (Core -> ColorScheme) </summary>
         public void Generate()
         {
+            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
+
             if (paletteName == "")
             {
                 Debug.LogError("ColorSchemeManager Generate: PaletteName can not be empty, Aborting");
@@ -80,6 +83,7 @@ namespace UniteCore
 
         public void Load()
         {
+            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
             JSon schemeJson = new JSon("Assets/Resources/Engine/Data/ColorSchemes/" + paletteName);
 
             colorPalette.Clear();
