@@ -1,7 +1,7 @@
 {
     "StartUp": {
 		"Textures": {
-			"Load": "Engine/Textures/UniteSplashScreen"
+			"Load": "UniteCOre/Textures/UniteSplashScreen"
 		},
 		"Scenes": {
 			"1": "StartUp"

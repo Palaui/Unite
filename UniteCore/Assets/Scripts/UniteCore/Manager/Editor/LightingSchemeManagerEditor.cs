@@ -14,13 +14,13 @@ namespace UniteCore
 
             GUILayout.Space(8);
             if (GUILayout.Button("Generate New Scheme"))
-                script.Generate();
+                script.EditorGenerate();
             GUILayout.Space(8);
             if (GUILayout.Button("Load Scheme"))
-                script.Load();
+                script.EditorLoad();
             GUILayout.Space(8);
             if (GUILayout.Button("Display Scheme"))
-                script.Display();
+                script.EditorDisplay();
         }
     }
 }

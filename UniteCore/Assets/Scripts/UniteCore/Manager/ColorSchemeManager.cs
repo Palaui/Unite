@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using Unite;
 using UnityEngine;
@@ -22,30 +21,37 @@ namespace UniteCore
         // Public
         #region Public
 
-        /// <summary> Generate a new palette, should be called using the editor tool at (Core -> ColorScheme) </summary>
-        public void Generate()
-        {
-            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
+        public void EditorGenerate() { if (!Application.isPlaying) Generate(); }
 
+        public void EditorLoad() { if (!Application.isPlaying) Load(); }
+
+        #endregion
+
+        // Internal
+        #region Internal
+
+        /// <summary> Generate a new palette, should be called using the editor tool at (Core -> ColorScheme) </summary>
+        internal void Generate()
+        {
             if (paletteName == "")
             {
                 Debug.LogError("ColorSchemeManager Generate: PaletteName can not be empty, Aborting");
                 return;
             }
 
-            TextAsset textAsset = Resources.Load("Engine/Data/ColorSchemes/" + paletteName + ".json") as TextAsset;
+            TextAsset textAsset = Resources.Load("UniteCore/Data/ColorSchemes/" + paletteName + ".json") as TextAsset;
 
 #if UNITY_EDITOR
 
             if (!textAsset)
             {
-                File.WriteAllText(Application.dataPath + "/Resources/Engine/Data/ColorSchemes/" + paletteName + ".json", " ");
+                File.WriteAllText(Application.dataPath + "/Resources/UniteCore/Data/ColorSchemes/" + paletteName + ".json", " ");
                 UnityEditor.AssetDatabase.Refresh();
             }
 
 #endif
 
-            JSon schemeJson = new JSon("Assets/Resources/Engine/Data/ColorSchemes/" + paletteName);
+            JSon schemeJson = new JSon("Assets/Resources/UniteCore/Data/ColorSchemes/" + paletteName);
             schemeJson.RemoveAll();
             schemeJson.AddValue("ID", paletteName);
             schemeJson.AddNode("Colors");
@@ -81,10 +87,10 @@ namespace UniteCore
             schemeJson.Rewrite();
         }
 
-        public void Load()
+        /// <summary> Loads a palette to inspector, should be called using the editor tool at (Core -> ColorScheme) </summary>
+        internal void Load()
         {
-            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
-            JSon schemeJson = new JSon("Assets/Resources/Engine/Data/ColorSchemes/" + paletteName);
+            JSon schemeJson = new JSon("Assets/Resources/UniteCore/Data/ColorSchemes/" + paletteName);
 
             colorPalette.Clear();
             colorBlockPalette.Clear();

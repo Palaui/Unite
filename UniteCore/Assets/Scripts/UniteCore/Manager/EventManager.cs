@@ -1,7 +1,8 @@
-﻿
+﻿using UnityEngine;
+
 namespace UniteCore
 {
-    public class EventManager
+    public class EventManager : MonoBehaviour
     {
         // Event Declaration
         #region Event Delcaration
@@ -17,22 +18,22 @@ namespace UniteCore
 
         #endregion
 
-        // Public
-        #region Public
+        // Protected Internal
+        #region Protected Internal
 
-        public void ChangeLanguage(Language language)
+        protected internal void ChangeLanguage(Language language)
         {
             if (changeLanguage != null)
                 changeLanguage(language);
         }
 
-        public void ChangeColorScheme(string colorScheme)
+        protected internal void ChangeColorScheme(string colorScheme)
         {
             if (changeColorScheme != null)
                 changeColorScheme(colorScheme);
         }
 
-        public void ChangeLightScheme(string lightScheme)
+        protected internal void ChangeLightScheme(string lightScheme)
         {
             if (changeLightScheme != null)
                 changeLightScheme(lightScheme);

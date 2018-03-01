@@ -38,10 +38,10 @@ namespace UniteCore
 
         #endregion
 
-        // Public
-        #region Public
+        // Internal
+        #region Internal
 
-        public void RemoveCurrentSystem()
+        internal void RemoveCurrentSystem()
         {
             if (!systemEnabled)
                 return;
@@ -56,12 +56,10 @@ namespace UniteCore
             }
         }
 
-        public void ChangeLightScheme(LightBlendType blendType, LightChangeType changeType, JSon schemeJSon)
+        internal void ChangeLightScheme(LightBlendType blendType, LightChangeType changeType, JSon schemeJSon)
         {
             if (!systemEnabled)
                 return;
-
-            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
 
             switch (changeType)
             {
@@ -83,7 +81,7 @@ namespace UniteCore
             currentJSon = schemeJSon;
         }
 
-        public List<Light> CreateSystem(JSon schemeJSon)
+        internal List<Light> CreateSystem(JSon schemeJSon)
         {
             List<Light> lights = new List<Light>();
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using Unite;
 using UnityEngine;
@@ -87,11 +86,23 @@ namespace UniteCore
         // Public
         #region Public
 
-        /// <summary> Generate a new palette, should be called using the editor tool at (Core -> ColorScheme) </summary>
-        public void Generate()
-        {
-            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
+        /// <summary> Generate a new scheme, should be called using the editor tool at (Core -> LightingScheme) </summary>
+        public void EditorGenerate() { if (!Application.isPlaying) Generate(); }
 
+        /// <summary> Loads a scheme to inspector, should be called using the editor tool at (Core -> LightingScheme) </summary>
+        public void EditorLoad() { if (!Application.isPlaying) Load(); }
+
+        /// <summary> Displays a scheme on scene, should be called using the editor tool at (Core -> LightingScheme) </summary>
+        public void EditorDisplay() { if (!Application.isPlaying) Display(); }
+
+        #endregion
+
+        // Internal
+        #region Internal
+
+        /// <summary> Generate a new scheme, should be called using the editor tool at (Core -> LightingScheme) </summary>
+        internal void Generate()
+        {
             if (systemName == "")
             {
                 Debug.LogError("LightingManager Generate: SystemName can not be empty, Aborting");
@@ -102,19 +113,19 @@ namespace UniteCore
             if (system)
             {
 
-                TextAsset textAsset = Resources.Load("Engine/Data/LightingSchemes/" + systemName + ".json") as TextAsset;
+                TextAsset textAsset = Resources.Load("UniteCore/Data/LightingSchemes/" + systemName + ".json") as TextAsset;
 
 #if UNITY_EDITOR
 
                 if (!textAsset)
                 {
-                    File.WriteAllText(Application.dataPath + "/Resources/Engine/Data/LightingSchemes/" + systemName + ".json", " ");
+                    File.WriteAllText(Application.dataPath + "/Resources/UniteCore/Data/LightingSchemes/" + systemName + ".json", " ");
                     UnityEditor.AssetDatabase.Refresh();
                 }
 
 #endif
 
-                JSon schemeJson = new JSon("Assets/Resources/Engine/Data/LightingSchemes/" + system.name);
+                JSon schemeJson = new JSon("Assets/Resources/UniteCore/Data/LightingSchemes/" + system.name);
                 schemeJson.RemoveAll();
 
                 schemeJson.AddValue("ID", system.name);
@@ -145,11 +156,10 @@ namespace UniteCore
             }
         }
 
-        public void Load()
+        /// <summary> Loads a scheme to inspector, should be called using the editor tool at (Core -> LightingScheme) </summary>
+        internal void Load()
         {
-            CultureInfo.CurrentCulture = new CultureInfo("en-gb");
-
-            JSon schemeJSon = new JSon(Resources.Load("Engine/Data/LightingSchemes/" + systemName) as TextAsset);
+            JSon schemeJSon = new JSon(Resources.Load("UniteCore/Data/LightingSchemes/" + systemName) as TextAsset);
             if (!schemeJSon)
             {
                 Debug.LogError("LightingManager Load: Unable to find " + systemName + " JSon, Aborting");
@@ -170,9 +180,10 @@ namespace UniteCore
             system.lightStats = GetLightStatsFromJSon(schemeJSon);
         }
 
-        public void Display()
+        /// <summary> Displays a scheme on scene, should be called using the editor tool at (Core -> LightingScheme) </summary>
+        internal void Display()
         {
-            JSon schemeJSon = new JSon(Resources.Load("Engine/Data/LightingSchemes/" + systemName) as TextAsset);
+            JSon schemeJSon = new JSon(Resources.Load("UniteCore/Data/LightingSchemes/" + systemName) as TextAsset);
             if (!schemeJSon)
             {
                 Debug.LogError("LightingManager Display: Unable to find " + systemName + " JSon, Aborting");

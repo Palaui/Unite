@@ -100,8 +100,8 @@ namespace UniteCore
             // Inititalize managers
             if (Application.isPlaying)
             {
-                dataManager = new DataManager();
-                eventManager = new EventManager();
+                dataManager = GetComponent<DataManager>();
+                eventManager = GetComponent<EventManager>();
             }
 
             // Initialize controllers
@@ -137,12 +137,6 @@ namespace UniteCore
         // Public Static
         #region Public Static
 
-        public static void Assure()
-        {
-            if (!instance)
-                FindObjectOfType<GameManager>().Awake();
-        }
-
         public static void SetCurrentLightScheme(LightBlendType blendType, LightChangeType changeType, string scheme)
         {
             JSon json = DataManager.LightSchemeExist(scheme);
@@ -152,6 +146,17 @@ namespace UniteCore
                 instance.currentLightScheme = scheme;
                 LightingController.ChangeLightScheme(blendType, changeType, json);
             }
+        }
+
+        #endregion
+
+        // Internal Static
+        #region Internal Static
+
+        internal static void Assure()
+        {
+            if (!instance)
+                FindObjectOfType<GameManager>().Awake();
         }
 
         #endregion

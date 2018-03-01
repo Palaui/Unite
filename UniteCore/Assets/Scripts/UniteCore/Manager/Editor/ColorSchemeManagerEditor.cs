@@ -14,10 +14,10 @@ namespace UniteCore
 
             GUILayout.Space(8);
             if (GUILayout.Button("Generate New Palette"))
-                script.Generate();
+                script.EditorGenerate();
             GUILayout.Space(8);
             if (GUILayout.Button("Load Palette"))
-                script.Load();
+                script.EditorLoad();
         }
     }
 }

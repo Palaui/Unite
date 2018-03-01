@@ -104,7 +104,7 @@ namespace UniteCore
         {
             if (protocolsJSon == null)
             {
-                protocolsJSon = new JSon(Resources.Load("Engine/Data/Protocols") as TextAsset);
+                protocolsJSon = new JSon(Resources.Load("UniteCore/Data/Protocols") as TextAsset);
                 container = Container.GetContainer();
             }
 
