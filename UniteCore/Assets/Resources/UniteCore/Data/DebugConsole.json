@@ -1,0 +1,19 @@
+{
+	"Scenes": {
+		"List": "Scenes",
+		"Method": "ToggleSceneState"
+	},
+	"ColorScheme": {
+		"List": "ColorSchemes",
+		"Method": "SetColorScheme"
+	},
+	"LightingScheme": {
+		"List": "LightingSchemes",
+		"Method": "SetLightingScheme"
+	},
+	"List": {
+		"Scenes": "StartUp",
+		"ColorSchemes": "Unite",
+		"LightingSchemes":  "Unite"
+	}
+}

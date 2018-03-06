@@ -21,6 +21,9 @@ namespace UniteCore
             GUILayout.Space(8);
             if (GUILayout.Button("Display Scheme"))
                 script.EditorDisplay();
+            GUILayout.Space(8);
+            if (GUILayout.Button("Save Light Scheme"))
+                script.EditorSave();
         }
     }
 }

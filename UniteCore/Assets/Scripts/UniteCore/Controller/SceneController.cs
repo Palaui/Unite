@@ -10,7 +10,7 @@ namespace UniteCore
         // Variables
         #region Variables
 
-        public List<string> activeScenes = new List<string>();
+        private List<string> activeScenes = new List<string>();
 
         #endregion
 
@@ -37,8 +37,8 @@ namespace UniteCore
             }
         }
 
-        public void ChangeSceneLoadState(List<string> sceneNames) { Ext.ApplyForeach(ChangeSceneLoadState, sceneNames); }
-        public void ChangeSceneLoadState(string sceneName)
+        public void ToggleSceneLoadState(List<string> sceneNames) { Ext.ApplyForeach(ToggleSceneLoadState, sceneNames); }
+        public void ToggleSceneLoadState(string sceneName)
         {
             if (activeScenes.Contains(sceneName))
             {

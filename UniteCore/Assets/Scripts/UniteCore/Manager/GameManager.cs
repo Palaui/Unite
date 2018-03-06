@@ -24,6 +24,7 @@ namespace UniteCore
         private SceneController sceneController = null;
         private UIController uiController = null;
         private LightingSystemController lightingController = null;
+        private DebugSystemController debugSystem = null;
 
         private Language currentLanguage;
         private string currentColorScheme;
@@ -36,12 +37,14 @@ namespace UniteCore
 
         public static GameManager Instance { get { Assure(); return instance; } }
 
-        public static DataManager DataManager { get { return instance.dataManager; } }
-        public static EventManager EventManager { get { return instance.eventManager; } }
+        public static DataManager DataManager { get { Assure(); return instance.dataManager; } }
+        public static EventManager EventManager { get { Assure(); return instance.eventManager; } }
 
         public static SceneController SceneController { get { Assure(); return instance.sceneController; } }
         public static UIController UIController { get { Assure(); return instance.uiController; } }
         public static LightingSystemController LightingController { get { Assure(); return instance.lightingController; } }
+        public static DebugSystemController DebugSystem { get { Assure(); return instance.debugSystem; } }
+
 
         public static Language CurrentLanguage
         {
@@ -50,8 +53,7 @@ namespace UniteCore
             {
                 if (DataManager.LanguageExist(value))
                 {
-                    Assure();
-                    instance.currentLanguage = value;
+                    Instance.currentLanguage = value;
                     DataManager.SetLanguage(value);
                     EventManager.ChangeLanguage(value);
                 }
@@ -65,8 +67,7 @@ namespace UniteCore
             {
                 if (DataManager.ColorSchemeExist(value))
                 {
-                    Assure();
-                    instance.currentColorScheme = value;
+                    Instance.currentColorScheme = value;
                     DataManager.SetColorScheme(value);
                     EventManager.ChangeColorScheme(value);
                 }
@@ -81,8 +82,7 @@ namespace UniteCore
                 JSon json = DataManager.LightSchemeExist(value);
                 if (json)
                 {
-                    Assure();
-                    instance.currentLightScheme = value;
+                    Instance.currentLightScheme = value;
                     LightingController.ChangeLightScheme(LightBlendType.OutIn, LightChangeType.Immediate, json);
                 }
             }
@@ -107,7 +107,9 @@ namespace UniteCore
             // Initialize controllers
             sceneController = GetComponentInChildren<SceneController>();
             uiController = GetComponentInChildren<UIController>();
+            uiController.Assure();
             lightingController = GetComponentInChildren<LightingSystemController>();
+            debugSystem = GetComponentInChildren<DebugSystemController>();
         }
 
         void Start()
@@ -119,10 +121,6 @@ namespace UniteCore
 
                 CurrentLanguage = Language.EN;
                 CurrentColorScheme = "Unite";
-
-                DynamicListener.CallDelayed(2, false, () => { CurrentLightScheme = "UniteCore"; });
-                DynamicListener.CallDelayed(3.5f, false,
-                    () => SetCurrentLightScheme(LightBlendType.OutIn, LightChangeType.Driven, "Test"));
 
                 DynamicGraphicsModule.Activate(14, 26);
                 if (Application.isEditor)
@@ -150,10 +148,10 @@ namespace UniteCore
 
         #endregion
 
-        // Internal Static
-        #region Internal Static
+        // Protected Static
+        #region Protected Static
 
-        internal static void Assure()
+        protected static void Assure()
         {
             if (!instance)
                 FindObjectOfType<GameManager>().Awake();

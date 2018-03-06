@@ -95,6 +95,9 @@ namespace UniteCore
         /// <summary> Displays a scheme on scene, should be called using the editor tool at (Core -> LightingScheme) </summary>
         public void EditorDisplay() { if (!Application.isPlaying) Display(); }
 
+        /// <summary> Updates a scheme on inspector, should be called using the editor tool at (Core -> LightingScheme) </summary>
+        public void EditorSave() { if (!Application.isPlaying) SaveLightScheme(); }
+
         #endregion
 
         // Internal
@@ -193,6 +196,38 @@ namespace UniteCore
             Ext.DestroyChildren(GameManager.LightingController.gameObject);
             GameManager.LightingController.CreateSystem(schemeJSon);
             RenderSettings.ambientLight = schemeJSon.GetColorValue("AmbientColor", false);
+        }
+
+
+        internal void SaveLightScheme()
+        {
+            Light[] sceneLights =  FindObjectsOfType<Light>();
+            if (sceneLights.Length > 0)
+            {
+                LightSystem ls = GetLightSystemByName(systemName);
+                if (ls)
+                {
+                    // If scheme already created then is overriden
+                    ls.lightStats.Clear();
+                }
+                else
+                {
+                    ls = new LightSystem(systemName);
+                    lightSystems.Add(ls);
+                }
+
+                //Looking for lights in scene and adding them to the new system
+                foreach (Light l in sceneLights)
+                {
+                    AddLightToSystem(ls, l);
+                }
+
+                Generate();
+            }
+            else
+            {
+                Debug.LogError("No lights present in the scene!!");
+            }
         }
 
         #endregion

@@ -45,7 +45,7 @@ namespace UniteCore
                 if (!DynamicLoader.IsLoading && timeCounter >= minimumPreLoadScreenTime)
                 {
                     preLoadScreenLoading = false;
-                    GameManager.UIController.OverlayToolsController.DeactivateFading();
+                    GameManager.UIController.UIOverlayController.DeactivateFading();
                     SetBasicScreen();
                     DynamicLoader.ShowGUI = true;
                     CloseProtocol(this);
@@ -71,9 +71,10 @@ namespace UniteCore
                 Screen.SetResolution((int)((Screen.height / 2) * ratio), (Screen.height / 2), false);
             }
 
-            DynamicLoader.LoadScenes(protocolsJSon["StartUp"].GetValues("Scenes"), new List<string>() { });
+            foreach(string str in protocolsJSon["StartUp"].GetValues("Scenes"))
+                GameManager.SceneController.LoadScene(str);
             DynamicLoader.ShowGUI = false;
-            GameManager.UIController.OverlayToolsController.ActivateSplash(textures["Load"]);
+            GameManager.UIController.UIOverlayController.ActivateSplash(textures["Load"]);
 
             timeCounter = 0;
             preLoadScreenLoading = true;

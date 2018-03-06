@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Unite;
+﻿using Unite;
 using UnityEngine;
 using UnityEngine.UI;
 
