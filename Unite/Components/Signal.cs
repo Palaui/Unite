@@ -21,26 +21,38 @@ namespace Unite
             get { return key; }
             set
             {
-                Radar.RemoveElement(key);
                 key = value;
                 Radar.AddElement(key, gameObject);
             }
         }
 
-
         #endregion
 
         // Override
-        #region Overide
+        #region Override
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void BeforeSceneLoad()
+        {
+            foreach (Signal signal in FindObjectsOfType<Signal>())
+                Radar.AddElement(signal.key, signal.gameObject);
+        }
 
         void OnEnable()
         {
             Radar.AddElement(key, gameObject);
         }
 
-        void OnDisable()
+        #endregion
+
+        // Internal
+        #region Internal
+
+        internal void UpdateElement(string inKey)
         {
-            Radar.RemoveElement(key);
+            Radar.RemoveElement(Key);
+            Key = inKey;
+            Radar.AddElement(key, gameObject);
         }
 
         #endregion

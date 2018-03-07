@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Unite
 {
@@ -9,9 +10,16 @@ namespace Unite
         // Variables
         #region Variables
 
+        private static List<JSon> auxiliarJSons = new List<JSon>();
+        private static List<string> auxiliarNames = new List<string>();
+        private static int auxiliarCount;
+
         private Dictionary<string, JSon> nodes = new Dictionary<string, JSon>();
         private Dictionary<string, string> values = new Dictionary<string, string>();
-        List<string> lines = new List<string>();
+        private Dictionary<string, JSon> leaves = new Dictionary<string, JSon>();
+        private List<string> lines = new List<string>();
+
+        private JSon parent;
         private string dataPath;
         private string id;
 
@@ -46,7 +54,10 @@ namespace Unite
             get
             {
                 if (nodes.ContainsKey(key))
+                {
+                    nodes[key].parent = this;
                     return nodes[key];
+                }
                 else
                 {
                     Debug.LogError(key + " Does not exist in the nodes dictionary");
@@ -81,6 +92,15 @@ namespace Unite
         private JSon(JSon json, string id)
         {
             this.id = id;
+        }
+
+        public override string ToString()
+        {
+            CreateLines();
+            string str = "";
+            foreach (string line in lines)
+                str += line;
+            return str;
         }
 
         #endregion
@@ -119,36 +139,21 @@ namespace Unite
         public void Rewrite()
         {
             if (dataPath == "")
+            {
                 Debug.LogError("This JSon was not loaded with path, only JSon with path are allowed to be modified");
+                return;
+            }
 
             if (dataPath.Contains(" "))
             {
-                Debug.Log("Trying to rewrite a subnode, use Rewrite(bool writeNodeOnly) instead");
+                Debug.Log("Unable to rewrite a subnode");
                 return;
             }
 
             if (File.Exists(dataPath + ".json"))
-                WriteJSon(dataPath + ".json");
+                GetBaseParent().WriteJSon(dataPath + ".json");
             else
                 Debug.LogError("Unable to find File at path: " + dataPath);
-        }
-        public void Rewrite(bool writeNodeOnly)
-        {
-            if (dataPath == "")
-                Debug.LogError("This JSon was not loaded with path, only JSon with path are allowed to be modified");
-
-            string path = dataPath.Split(' ')[0];
-            if (writeNodeOnly)
-            {
-                if (File.Exists(path + ".json"))
-                    WriteJSon(path + ".json");
-                else
-                    Debug.LogError("Unable to find File at path: " + path);
-            }
-            else
-            {
-
-            }
         }
 
         #endregion
@@ -226,7 +231,7 @@ namespace Unite
             return list;
         }
 
-        public List<string> GetValueKeys(string nodeName)
+        public List<string> GetValueKeys()
         {
             List<string> list = new List<string>();
             foreach (KeyValuePair<string, string> entry in values)
@@ -272,6 +277,31 @@ namespace Unite
             foreach (KeyValuePair<string, string> entry in GetKeyValueValues(nodeName))
                 values.Add(GetBoolValue(entry.Value));
             return values;
+        }
+
+        public List<JSon> GetLeaveNodes()
+        {
+            if (leaves.Count == 0)
+                GetLeavesRecursively(this);
+
+            List<JSon> list = new List<JSon>();
+            foreach (KeyValuePair<string, JSon> entry in leaves)
+                list.Add(entry.Value);
+            return list;
+        }
+
+        public List<string> GetLeaveValues()
+        {
+            if (leaves.Count == 0)
+                GetLeavesRecursively(this);
+
+            List<string> list = new List<string>();
+            foreach (KeyValuePair<string, JSon> entry in leaves)
+            {
+                foreach (string value in entry.Value.GetValuesValues())
+                    list.Add(value);
+            }
+            return list;
         }
 
         #endregion
@@ -345,6 +375,30 @@ namespace Unite
             return false;
         }
 
+        public Color GetColorValue(string key, bool useColor32 = true)
+        {
+            if (!values.ContainsKey(key))
+                Debug.LogError("This node does not contain the value " + key);
+
+            return Ext.GetColorFromString(values[key], useColor32);
+        }
+
+        public ColorBlock GetColorBlockValue(string key, bool useColor32 = true)
+        {
+            if (!values.ContainsKey(key))
+                Debug.LogError("This node does not contain the value " + key);
+
+            return Ext.GetColorBlockFromString(values[key], useColor32);
+        }
+
+        public Sprite GetSprite(string key)
+        {
+            if (!values.ContainsKey(key))
+                Debug.LogError("This node does not contain the value " + key);
+
+            return Resources.Load<Sprite>(values[key]) as Sprite;
+        }
+
         #endregion
 
         // Add Values
@@ -382,7 +436,10 @@ namespace Unite
 
         public void AddValue(string key, string value)
         {
-            values.Add(key, value.ToString());
+            if (values.ContainsKey(key))
+                values[key] = value;
+            else
+                values.Add(key, value.ToString());
         }
         public void AddValue(string nodeName, string key, string value)
         {
@@ -481,11 +538,6 @@ namespace Unite
         // Text Management
         #region Text Management
 
-        public string GetAsString()
-        {
-            return ToString();
-        }
-
         public string GetNodeAsString(string key)
         {
             if (!nodes.ContainsKey(key))
@@ -496,13 +548,60 @@ namespace Unite
             return nodes[key].ToString();
         }
 
-        public override string ToString()
+        public void SortAlphabetically()
         {
-            CreateLines();
-            string str = "";
-            foreach (string line in lines)
-                str += line;
-            return str;
+            SortAlphabetically(this);
+        }
+
+        #endregion
+
+        // Navigation
+        #region Navigation
+
+        public JSon GetParent()
+        {
+            return parent;
+        }
+
+        public JSon GetBaseParent()
+        {
+            JSon json = this;
+            while (json.parent != null)
+                json = json.parent;
+            return json;
+        }
+
+        #endregion
+
+        // Recursive
+        #region Recursive
+
+        public List<JSon> GetAllNodesAndSubNodes()
+        {
+            auxiliarJSons.Clear();
+            GetNodeNamesRecursively(this);
+            return auxiliarJSons;
+        }
+
+        public int GetTotalNumberOfNodes()
+        {
+            auxiliarCount = 0;
+            GetNodesCountRecursively(this);
+            return auxiliarCount;
+        }
+
+        public List<string> GetAllValuesAndSubValues()
+        {
+            auxiliarNames.Clear();
+            GetValueNamesRecursively(this);
+            return auxiliarNames;
+        }
+
+        public int GetTotalNumberOfValues()
+        {
+            auxiliarCount = 0;
+            GetValuesCountRecursively(this);
+            return auxiliarCount;
         }
 
         #endregion
@@ -526,10 +625,64 @@ namespace Unite
             return json;
         }
 
+        public static void SortAlphabetically(JSon json)
+        {
+            Dictionary<string, string> valsDictionary = new Dictionary<string, string>();
+            List<string> vals = json.GetValueKeys();
+            vals.Sort();
+            for (int i = 0; i < vals.Count; i++)
+                valsDictionary.Add(vals[i], json.values[vals[i]]);
+            json.values = valsDictionary;
+
+            Dictionary<string, JSon> nodsDictionary = new Dictionary<string, JSon>();
+            List<string> nods = json.GetNodeKeys();
+            nods.Sort();
+            for (int i = 0; i < nods.Count; i++)
+            {
+                nodsDictionary.Add(nods[i], json.nodes[nods[i]]);
+                SortAlphabetically(json.nodes[nods[i]]);
+            }
+            json.nodes = nodsDictionary;
+        }
+
+        public static void WriteJSonAtPath(JSon json, string path)
+        {
+            if (File.Exists(path + ".json"))
+            {
+                json.CreateLines();
+                StreamWriter writer = new StreamWriter(path + ".json");
+                foreach (string line in json.lines)
+                    writer.WriteLine(line);
+                writer.Flush();
+                writer.Close();
+            }
+        }
+
         #endregion
 
         // Private
         #region Private
+
+        private void WriteJSon(string path)
+        {
+            CreateLines();
+            StreamWriter writer = new StreamWriter(path);
+            foreach (string line in lines)
+                writer.WriteLine(line);
+            writer.Flush();
+            writer.Close();
+        }
+
+        private void CreateLines()
+        {
+            lines.Clear();
+            lines.Add("{");
+            CreateLinesRecursively(this, 0);
+            lines.Add("}");
+        }
+
+        // Calculus
+        #region Calculus
 
         private void Parse(string str)
         {
@@ -545,7 +698,7 @@ namespace Unite
             {
                 if (inString)
                 {
-                    if (ch == '"')
+                    if (ch.Equals('"'))
                     {
                         inString = false;
                         continue;
@@ -562,11 +715,14 @@ namespace Unite
                     words.Add(currentKey.Trim());
                     if (currentLevel != 0 && currentKey != "")
                         list.Add(new JSonStruct(currentKey.Trim(), "", words[currentLevel - 1], currentLevel));
+                    currentKey = "";
                     currentLevel++;
                     keySet = false;
                 }
                 else if (ch == '}' || ch == ']')
                 {
+                    if (currentValue.Trim() == "")
+                        currentValue = "Empty";
                     if (currentKey != "")
                         list.Add(new JSonStruct(currentKey.Trim(), currentValue.Trim(), words[currentLevel - 1], currentLevel));
                     words.RemoveAt(words.Count - 1);
@@ -585,6 +741,8 @@ namespace Unite
                     keySet = true;
                 else if (ch == ',')
                 {
+                    if (currentValue.Trim() == "")
+                        currentValue = "Empty";
                     if (currentKey != "")
                         list.Add(new JSonStruct(currentKey.Trim(), currentValue.Trim(), words[currentLevel - 1], currentLevel));
                     currentKey = "";
@@ -622,22 +780,20 @@ namespace Unite
             }
         }
 
-        private void WriteJSon(string path)
-        {
-            CreateLines();
-            StreamWriter writer = new StreamWriter(path);
-            foreach (string line in lines)
-                writer.WriteLine(line);
-            writer.Flush();
-            writer.Close();
-        }
+        #endregion
 
-        private void CreateLines()
+        // Recursivity
+        #region Recursivity
+
+        private void GetLeavesRecursively(JSon inJSon)
         {
-            lines.Clear();
-            lines.Add("{");
-            CreateLinesRecursively(this, 0);
-            lines.Add("}");
+            foreach (JSon json in inJSon.GetNodeValues())
+            {
+                if (json.nodes.Count == 0)
+                    leaves.Add(json.ID, json);
+                else
+                    GetLeavesRecursively(json);
+            }
         }
 
         private void CreateLinesRecursively(JSon json, int level)
@@ -669,6 +825,47 @@ namespace Unite
                     lines.Add(str + "}");
             }
         }
+
+        private void GetNodeNamesRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+            {
+                GetNodeNamesRecursively(subJSon);
+                auxiliarJSons.Add(subJSon);
+            }
+        }
+
+        private void GetNodesCountRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+                GetNodesCountRecursively(subJSon);
+            auxiliarCount += inJson.GetNodeValues().Count;
+        }
+
+        private void GetValueNamesRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+                GetValueNamesRecursively(subJSon);
+
+            foreach (string str in inJson.GetValueKeys())
+                auxiliarNames.Add(str);
+        }
+
+        private void GetValuesCountRecursively(JSon inJson)
+        {
+            foreach (JSon subJSon in inJson.GetNodeValues())
+                GetValuesCountRecursively(subJSon);
+            auxiliarCount += inJson.GetValuesValues().Count;
+        }
+
+        #endregion
+
+        #endregion
+
+        // Operators
+        #region Operators
+
+        public static implicit operator bool(JSon instance) { return instance != null; }
 
         #endregion
 

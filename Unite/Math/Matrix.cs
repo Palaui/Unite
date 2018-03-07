@@ -63,6 +63,17 @@ namespace Unite
             values = matrix;
         }
 
+        public Matrix(Vector3 a, Vector3 b, Vector3 c)
+        {
+            rows = 3;
+            columns = 3;
+
+            values = new double[rows, columns];
+            FillColumn(new double[] { a.x, a.y, a.z }, 0);
+            FillColumn(new double[] { b.x, b.y, b.z }, 1);
+            FillColumn(new double[] { c.x, c.y, c.z }, 2);
+        }
+
         #endregion
 
         // Public
@@ -127,7 +138,7 @@ namespace Unite
                 values[index, j] = inRow[j];
         }
 
-        public void FillColumn(float[] inColumn, int index)
+        public void FillColumn(double[] inColumn, int index)
         {
             if (index >= columns)
             {

@@ -52,15 +52,6 @@ namespace Unite
         // Public
         #region Public
 
-        public static GameObject Get(string key)
-        {
-            if (dictionary.ContainsKey(key))
-                return dictionary[key];
-
-            Debug.Log("Radar could not find the specified key " + key);
-            return null;
-        }
-
         public void Place(GameObject go)
         {
             location = go.transform.position;
@@ -136,14 +127,23 @@ namespace Unite
         // Public Static
         #region Public Static
 
+        public static GameObject Get(string key)
+        {
+            if (dictionary.ContainsKey(key))
+                return dictionary[key];
+
+            Debug.Log("Radar could not find the specified key " + key);
+            return null;
+        }
+
+        public static bool Contains(string key)
+        {
+            return dictionary.ContainsKey(key);
+        }
+
         public static Radar Generate(float radius = 50)
         {
-            if (!container)
-            {
-                container = new GameObject("Radar");
-                Ext.ResetTransform(container);
-            }
-
+            container = Container.GetContainer();
             Radar radar = Ext.GetOrAddComponent<Radar>(container);
             radar.detectionRadius = radius;
             return radar;
@@ -157,17 +157,15 @@ namespace Unite
         internal static void AddElement(string key, GameObject go)
         {
             if (dictionary.ContainsKey(key))
-                Debug.Log("Trying to add an already existing key to the Radar, key: " + key);
+                dictionary[key] = go;
             else
                 dictionary.Add(key, go);
         }
 
         internal static void RemoveElement(string key)
         {
-            if (!dictionary.ContainsKey(key))
-                Debug.Log("Trying to remove a non existing key to the Radar, key: " + key);
-            else
-                dictionary.Remove(key);
+            if (dictionary.ContainsKey(key))
+                dictionary.Remove(key);   
         }
 
         #endregion

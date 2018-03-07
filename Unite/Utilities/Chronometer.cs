@@ -44,6 +44,12 @@ namespace Unite
             isPaused = true;
         }
 
+        public void Stop()
+        {
+            stoppedTime = 0;
+            isPaused = true;
+        }
+
         public void Resume()
         {
             startTime = Time.realtimeSinceStartup - stoppedTime;
@@ -54,6 +60,11 @@ namespace Unite
         {
             startTime = Time.realtimeSinceStartup;
             stoppedTime = 0;
+        }
+
+        public void DebugValue(string prefix = "")
+        {
+            Debug.Log(prefix + " " + Value);
         }
 
         #endregion

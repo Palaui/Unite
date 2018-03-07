@@ -62,6 +62,30 @@ namespace Unite
             return (GetDirectorVector() == line.GetDirectorVector() || GetDirectorVector() == -line.GetDirectorVector());
         }
 
+        public bool DoIntersect(Line line)
+        {
+            //if (p[0] - q[0] == line.p[0] - line.q[0])
+            //    return IsCoincident(line);
+
+            //double x, y, objPoint;
+
+            //if (p[0] - q[0] == 0)
+            //{
+            //    objPoint = p[0];
+            //}
+            //else if (line.p[0] - line.q[0] == 0)
+            //    objPoint = line.p[0];
+            //else
+            //{
+            //    objPoint = 0;
+            //    x = (objPoint - p[0]) / GetDirectorVector()[0];
+            //    y = (objPoint - line.p[0]) / line.GetDirectorVector()[0];
+            //}
+
+
+            return true;
+        }
+
         #endregion
 
     }
