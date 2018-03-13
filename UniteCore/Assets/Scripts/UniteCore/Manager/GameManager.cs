@@ -122,9 +122,9 @@ namespace UniteCore
                 CurrentLanguage = Language.EN;
                 CurrentColorScheme = "Unite";
 
-                DynamicGraphicsModule.Activate(14, 26);
+                DynamicGraphics.Activate(14, 26);
                 if (Application.isEditor)
-                    DynamicGraphicsModule.BeginDrawFPS();
+                    DynamicGraphics.BeginDrawFPS();
 
                 Protocol.StartProtocol<StartUpProtocol>();
             }

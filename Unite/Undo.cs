@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Unite
 {
@@ -18,15 +17,11 @@ namespace Unite
         // Public Static
         #region Public Static
 
-        /// <summary>
-        /// Adds a lambda method to be called in the future and an option to automatically call the current one.
-        /// </summary>
-        /// <param name="baseLambdaMethod">
-        /// Main method to be fired, if not called from inside the method to invert, use call = true.
-        /// </param>
-        /// <param name="inverseLambdaMethod"> Inverse method, will be called with Last(). </param>
-        /// <param name="call"> If true, will fire baseLambdaMethod immediately. </param>
-        public static void Add(Action baseLambdaMethod, Action inverseLambdaMethod, bool call)
+        /// <summary> Adds an action and an inverse one to be able to undo and redo actions. </summary>
+        /// <param name="baseAction"> Base method. </param>
+        /// <param name="inverseAction"> Inverse method. </param>
+        /// <param name="call"> If true, will fire baseAction immediately. </param>
+        public static void Add(Action baseAction, Action inverseAction, bool call)
         {
             for (int i = cachedInverseMethods.Count - 1; i > index; i--)
             {
@@ -34,12 +29,14 @@ namespace Unite
                 cachedInverseMethods.RemoveAt(i);
             }
 
-            cachedBaseMethods.Add(baseLambdaMethod);
-            cachedInverseMethods.Add(inverseLambdaMethod);
-            index++;
-
+            cachedBaseMethods.Add(baseAction);
+            cachedInverseMethods.Add(inverseAction);
+            
             if (call)
-                cachedBaseMethods[index]();
+            {
+                baseAction.Invoke();
+                index++;
+            }
         }
 
         /// <summary> Tries to call the last added method to the undo pile. </summary>
@@ -107,37 +104,6 @@ namespace Unite
             cachedInverseMethods = new List<Action>();
             index = -1;
         }
-
-        #endregion
-
-        // Usage Example
-        #region Usage Example
-
-        /*
-
-        // This method calls A and creates an undo for itself (In order to avoid A creating an undo)
-        public static void SomeMethod(string str)
-        {
-            Undo.Add(() => BaseMethod(str), () => InverseA(str), true);
-        }
-
-        // A is called and creates an undo for itself
-        public static void A(string str)
-        {
-            Undo.Add(() => BaseMethod(str), () => InverseA(str), false);
-        }
-
-        public static void ControlZPressed()
-        {
-            Undo.Last();
-        }
-
-        public static void InverseA(string str)
-        {
-            // Does something to revert A
-        }
-
-        */
 
         #endregion
 

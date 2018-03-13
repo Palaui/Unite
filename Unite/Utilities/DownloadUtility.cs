@@ -55,8 +55,6 @@ namespace Unite.Utilities
 
         public void SaveDownloadedAsset(WWW objSERVER)
         {
-            Debug.Log(objSERVER.bytesDownloaded.ToString());
-            Debug.Log(pathLOCAL);
 
             // Create the directory if it doesn't already exist
             if (!Directory.Exists(Application.persistentDataPath + "/assetbundles/" + platform))

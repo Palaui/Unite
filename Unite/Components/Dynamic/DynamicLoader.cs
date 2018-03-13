@@ -253,7 +253,7 @@ namespace Unite
                 {
                     currentSteps = Mathf.Min(
                         Mathf.RoundToInt(stepsRangePerFrame.x +
-                        DynamicGraphicsModule.QualityLevel01 * (stepsRangePerFrame.y - stepsRangePerFrame.x)),
+                        DynamicGraphics.QualityLevel01 * (stepsRangePerFrame.y - stepsRangePerFrame.x)),
                         deactivation.Count);
                     for (int i = currentSteps - 1; i >= 0; i--)
                     {
@@ -267,7 +267,7 @@ namespace Unite
                 {
                     currentSteps = Mathf.Min(
                         Mathf.RoundToInt(stepsRangePerFrame.x +
-                        DynamicGraphicsModule.QualityLevel01 * (stepsRangePerFrame.y - stepsRangePerFrame.x)),
+                        DynamicGraphics.QualityLevel01 * (stepsRangePerFrame.y - stepsRangePerFrame.x)),
                         activation.Count);
                     for (int i = currentSteps - 1; i >= 0; i--)
                     {

@@ -50,24 +50,9 @@ namespace UniteCore
         public void CallConsoleInput(string str)
         {
             string[] strs = ConsoleInput(str);
-            if (strs.Length == 1)
-            {
-                MethodInfo[] infos = Reflect.GetAllMethods(GetType());
-                foreach (MethodInfo info in infos)
-                {
-                    if (info.Name == strs[0])
-                        info.Invoke(this, new object[] { });
-                }
-            }
-            else if (strs.Length == 2)
-            {
-                MethodInfo[] infos = Reflect.GetAllMethods(GetType());
-                foreach (MethodInfo info in infos)
-                {
-                    if (info.Name == strs[0])
-                        info.Invoke(this, new object[] { strs[1] });
-                }
-            }
+
+            foreach (UIDebugController comp in GetComponents<UIDebugController>())
+                comp.CheckConsoleInput(strs);
         }
 
         /// <summary> 
@@ -95,20 +80,61 @@ namespace UniteCore
         // Protected
         #region Protected
 
+        protected void CheckConsoleInput(string[] strs)
+        {
+            if (strs.Length == 1)
+            {
+                MethodInfo info = Reflect.GetMethodByName(GetType(), strs[0]);
+                if (info != null)
+                    info.Invoke(this, new object[] { });
+            }
+            else if (strs.Length == 2)
+            {
+                MethodInfo info = Reflect.GetMethodByName(GetType(), strs[0]);
+                if (info != null)
+                    info.Invoke(this, new object[] { strs[1] });
+            }
+        }
+
+        #endregion
+
+        // Private
+        #region Private
+
+        /// <summary> Creates a button for the console that will be able to introduce a new word to it. </summary>
+        /// <param name="previous"> Previous words introduced. </param>
+        /// <param name="key"> The name of the button and the order word that should display. </param>
+        private void CreateAutoButton(string previous, string key)
+        {
+            if (key == "List")
+                return;
+
+            GameObject go = Instantiate(Resources.Load("UniteCore/Prefabs/DeveloperAutoButton")) as GameObject;
+            go.name = key;
+            go.transform.SetParent(verticalContent);
+            go.transform.localScale = Vector3.one;
+            go.GetComponentInChildren<Text>().text = go.name;
+
+            if (previous == "")
+                go.GetComponent<Button>().onClick.AddListener(delegate { ConsoleButtonPress(go.name); });
+            else
+                go.GetComponent<Button>().onClick.AddListener(delegate { ConsoleButtonPress(previous + "" + go.name); });
+        }
+
         // Specific
         #region Specific
 
-        protected void ToggleSceneState(string str)
+        private void ToggleSceneState(string str)
         {
             GameManager.SceneController.ToggleSceneLoadState(str);
         }
 
-        protected void SetColorScheme(string str)
+        private void SetColorScheme(string str)
         {
             GameManager.CurrentColorScheme = str;
         }
 
-        protected void SetLightingScheme(string str)
+        private void SetLightingScheme(string str)
         {
             GameManager.CurrentLightScheme = str;
         }
@@ -118,7 +144,7 @@ namespace UniteCore
         // Calculus
         #region Calculus
 
-        protected void ConsoleUpdate(string str)
+        private void ConsoleUpdate(string str)
         {
             JSon json = jsonDebugConsole;
             string previous = "";
@@ -168,7 +194,7 @@ namespace UniteCore
                 CreateAutoButton(previous, key);
         }
 
-        protected string[] ConsoleInput(string str)
+        private string[] ConsoleInput(string str)
         {
             JSon json = jsonDebugConsole;
 
@@ -187,7 +213,6 @@ namespace UniteCore
                 }
 
                 str = word;
-
                 break;
             }
 
@@ -208,31 +233,6 @@ namespace UniteCore
         }
 
         #endregion
-
-        #endregion
-
-        // Private
-        #region Private
-
-        /// <summary> Creates a button for the console that will be able to introduce a new word to it. </summary>
-        /// <param name="previous"> Previous words introduced. </param>
-        /// <param name="key"> The name of the button and the order word that should display. </param>
-        private void CreateAutoButton(string previous, string key)
-        {
-            if (key == "List")
-                return;
-
-            GameObject go = Instantiate(Resources.Load("UniteCore/Prefabs/DeveloperAutoButton")) as GameObject;
-            go.name = key;
-            go.transform.SetParent(verticalContent);
-            go.transform.localScale = Vector3.one;
-            go.GetComponentInChildren<Text>().text = go.name;
-
-            if (previous == "")
-                go.GetComponent<Button>().onClick.AddListener(delegate { ConsoleButtonPress(go.name); });
-            else
-                go.GetComponent<Button>().onClick.AddListener(delegate { ConsoleButtonPress(previous + "" + go.name); });
-        }
 
         #endregion
 

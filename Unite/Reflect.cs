@@ -59,6 +59,18 @@ namespace Unite
             return type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
         }
 
+        public static MethodInfo GetMethodByName(Type type, string methodName)
+        {
+            MethodInfo[] infos = GetAllMethods(type);
+            foreach (MethodInfo info in infos)
+            {
+                if (info.Name == methodName)
+                    return info;
+            }
+
+            return null;
+        }
+
         public static string[] GetFieldsArray(Type type, string[] ignoredList)
         {
             if (ignoredList != null)
@@ -82,6 +94,19 @@ namespace Unite
             return type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
 
+        public static FieldInfo GetFieldByName(Type type, string methodName)
+        {
+            FieldInfo[] infos = GetAllFields(type);
+            foreach (FieldInfo info in infos)
+            {
+                if (info.Name == methodName)
+                    return info;
+            }
+
+            return null;
+        }
+
         #endregion
+
     }
 }

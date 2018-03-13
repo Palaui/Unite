@@ -324,3 +324,5 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+UniteCore/Assets/Scenes/Test/RecordTest.cs
+UniteCore/Assets/Scenes/Test/Test.unity

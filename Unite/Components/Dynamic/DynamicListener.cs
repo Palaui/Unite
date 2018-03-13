@@ -11,28 +11,28 @@ namespace Unite
 
         public static void CallDelayed(float time, bool callOnFrameEnd, Action action)
         {
-            DynamicListener instance = Ext.GetOrAddComponent<DynamicListener>(Container.GetContainer());
+            DynamicListener instance = Container.GetComponent<DynamicListener>();
             instance.StartCoroutine(instance.DelayedCoroutine(time, callOnFrameEnd, action));
         }
         public static void CallDelayed(bool callOnFrameEnd, Action action)
         {
-            DynamicListener instance = Ext.GetOrAddComponent<DynamicListener>(Container.GetContainer());
+            DynamicListener instance = Container.GetComponent<DynamicListener>();
             instance.StartCoroutine(instance.DelayedCoroutine(0, callOnFrameEnd, action));
         }
         public static void CallDelayed(Action action)
         {
-            DynamicListener instance = Ext.GetOrAddComponent<DynamicListener>(Container.GetContainer());
+            DynamicListener instance = Container.GetComponent<DynamicListener>();
             instance.StartCoroutine(instance.DelayedCoroutine(0, false, action));
         }
 
         public static void Timeline(EaseType ease, float time, Action<float> action, Action callback = null)
         {
-            DynamicListener instance = Ext.GetOrAddComponent<DynamicListener>(Container.GetContainer());
+            DynamicListener instance = Container.GetComponent<DynamicListener>();
             instance.StartCoroutine(instance.TimelineCoroutine(ease, time, action, callback));
         }
         public static void Timeline(float time, Action<float> action, Action callback = null)
         {
-            DynamicListener instance = Ext.GetOrAddComponent<DynamicListener>(Container.GetContainer());
+            DynamicListener instance = Container.GetComponent<DynamicListener>();
             instance.StartCoroutine(instance.TimelineCoroutine(EaseType.Linear, time, action, callback));
         }
 

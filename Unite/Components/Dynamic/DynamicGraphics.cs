@@ -3,12 +3,11 @@ using UnityEngine;
 
 namespace Unite
 {
-    public class DynamicGraphicsModule : MonoBehaviour
+    public class DynamicGraphics : MonoBehaviour
     {
         // Variables
         #region Variables
 
-        private static GameObject container;
         private static Vector2 bounds = new Vector2(26, 56);
         private static int framesMeanPack;
         private static int framesThreshold;
@@ -74,8 +73,7 @@ namespace Unite
 
         public static void Activate(int lowerFPS = 26, int riseFPS = 56, int inFramesThreshold = 6, int inFramesMeanPack = 3)
         {
-            container = Container.GetContainer();
-            Ext.GetOrAddComponent<DynamicGraphicsModule>(container);
+            Container.GetComponent<DynamicGraphics>();
 
             bounds = new Vector2(lowerFPS, riseFPS);
             framesMeanPack = inFramesMeanPack;
@@ -90,11 +88,7 @@ namespace Unite
 
         public static void Deactivate()
         {
-            if (container)
-            {
-                if (container.GetComponent<DynamicGraphicsModule>())
-                    DestroyImmediate(container.GetComponent<DynamicGraphicsModule>());
-            }
+            Container.RemoveComponent<DynamicGraphics>();
         }
 
         public static void BeginDrawFPS(float inFpsIntervalDraw = 0.4f)
